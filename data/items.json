@@ -1,0 +1,74 @@
+[
+  {
+    "id": "life-orb",
+    "name": "いのちのたま"
+  },
+  {
+    "id": "choice-scarf",
+    "name": "こだわりスカーフ"
+  },
+  {
+    "id": "choice-band",
+    "name": "こだわりハチマキ"
+  },
+  {
+    "id": "choice-specs",
+    "name": "こだわりメガネ"
+  },
+  {
+    "id": "leftovers",
+    "name": "たべのこし"
+  },
+  {
+    "id": "focus-sash",
+    "name": "きあいのタスキ"
+  },
+  {
+    "id": "assault-vest",
+    "name": "とつげきチョッキ"
+  },
+  {
+    "id": "rocky-helmet",
+    "name": "ゴツゴツメット"
+  },
+  {
+    "id": "weakness-policy",
+    "name": "じゃくてんほけん"
+  },
+  {
+    "id": "sitrus-berry",
+    "name": "オボンのみ"
+  },
+  {
+    "id": "lum-berry",
+    "name": "ラムのみ"
+  },
+  {
+    "id": "air-balloon",
+    "name": "ふうせん"
+  },
+  {
+    "id": "expert-belt",
+    "name": "たつじんのおび"
+  },
+  {
+    "id": "mental-herb",
+    "name": "メンタルハーブ"
+  },
+  {
+    "id": "white-herb",
+    "name": "ホワイトハーブ"
+  },
+  {
+    "id": "red-card",
+    "name": "レッドカード"
+  },
+  {
+    "id": "eviolite",
+    "name": "しんかのきせき"
+  },
+  {
+    "id": "mega-stone",
+    "name": "メガストーン"
+  }
+]
