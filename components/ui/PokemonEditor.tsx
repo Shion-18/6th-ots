@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react';
 import { Pokemon } from '@/types/pokemon';
 import PokemonAutocomplete from './PokemonAutocomplete';
 import MoveAutocomplete from './MoveAutocomplete';
+import ItemAutocomplete from './ItemAutocomplete';
+import TypeIcon from './TypeIcon';
 import allPokemon from '@/data/all-pokemon.json';
 import pokemonMoves from '@/data/pokemon-moves.json';
-import items from '@/data/items.json';
 import Image from 'next/image';
+import { getCompetitiveItems, getMegaStonesForPokemon } from '@/lib/item-helpers';
 
 interface PokemonEditorProps {
   pokemon: Pokemon | null;
@@ -177,9 +179,7 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
                       <h3 className="text-xl font-bold text-gray-800">{selectedSpecies.nameJa}</h3>
                       <div className="flex gap-1 mt-1">
                         {selectedSpecies.types.map((type) => (
-                          <span key={type} className="text-xs px-2 py-0.5 rounded bg-white text-gray-700">
-                            {type}
-                          </span>
+                          <TypeIcon key={type} type={type} size="xs" />
                         ))}
                       </div>
                     </div>
@@ -244,16 +244,13 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2">持ち物</label>
-                  <select
-                    value={item}
-                    onChange={(e) => setItem(e.target.value)}
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                  >
-                    <option value="">なし</option>
-                    {items.map((i) => (
-                      <option key={i.id} value={i.name}>{i.name}</option>
-                    ))}
-                  </select>
+                  <ItemAutocomplete
+                    competitiveItems={getCompetitiveItems()}
+                    megaStones={selectedSpecies ? getMegaStonesForPokemon(selectedSpecies.id) : []}
+                    currentItem={item}
+                    onSelectItem={setItem}
+                    placeholder="持ち物を検索..."
+                  />
                 </div>
               </div>
 
@@ -271,17 +268,15 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
                       return (
                         <div
                           key={moveName}
-                          className="bg-blue-500 text-white px-3 py-2 rounded-lg flex items-center gap-2"
+                          className="border-2 border-gray-400 rounded-lg px-3 py-2 bg-gray-50 shadow-sm hover:shadow-md transition-shadow flex items-center gap-2"
                         >
-                          <span className="font-medium text-sm">{moveName}</span>
+                          <span className="font-medium text-sm text-gray-900 flex-1">{moveName}</span>
                           {moveDetail && (
-                            <span className="text-xs opacity-80">
-                              {moveDetail.type}
-                            </span>
+                            <TypeIcon type={moveDetail.type} size="xs" className="flex-shrink-0" />
                           )}
                           <button
                             onClick={() => handleMoveRemove(moveName)}
-                            className="ml-1 hover:bg-blue-600 rounded-full w-5 h-5 flex items-center justify-center"
+                            className="ml-1 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
                           >
                             ×
                           </button>

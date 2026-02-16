@@ -1,74 +1,637 @@
 [
   {
     "id": "life-orb",
-    "name": "いのちのたま"
+    "name": "いのちのたま",
+    "category": "offensive",
+    "competitive": true
   },
   {
     "id": "choice-scarf",
-    "name": "こだわりスカーフ"
+    "name": "こだわりスカーフ",
+    "category": "offensive",
+    "competitive": true
   },
   {
     "id": "choice-band",
-    "name": "こだわりハチマキ"
+    "name": "こだわりハチマキ",
+    "category": "offensive",
+    "competitive": true
   },
   {
     "id": "choice-specs",
-    "name": "こだわりメガネ"
+    "name": "こだわりメガネ",
+    "category": "offensive",
+    "competitive": true
   },
   {
     "id": "leftovers",
-    "name": "たべのこし"
+    "name": "たべのこし",
+    "category": "recovery",
+    "competitive": true
   },
   {
     "id": "focus-sash",
-    "name": "きあいのタスキ"
+    "name": "きあいのタスキ",
+    "category": "defensive",
+    "competitive": true
   },
   {
     "id": "assault-vest",
-    "name": "とつげきチョッキ"
+    "name": "とつげきチョッキ",
+    "category": "defensive",
+    "competitive": true
   },
   {
     "id": "rocky-helmet",
-    "name": "ゴツゴツメット"
+    "name": "ゴツゴツメット",
+    "category": "defensive",
+    "competitive": true
   },
   {
     "id": "weakness-policy",
-    "name": "じゃくてんほけん"
+    "name": "じゃくてんほけん",
+    "category": "offensive",
+    "competitive": true
   },
   {
     "id": "sitrus-berry",
-    "name": "オボンのみ"
+    "name": "オボンのみ",
+    "category": "berry",
+    "competitive": true
   },
   {
     "id": "lum-berry",
-    "name": "ラムのみ"
+    "name": "ラムのみ",
+    "category": "berry",
+    "competitive": true
   },
   {
     "id": "air-balloon",
-    "name": "ふうせん"
+    "name": "ふうせん",
+    "category": "utility",
+    "competitive": true
   },
   {
     "id": "expert-belt",
-    "name": "たつじんのおび"
+    "name": "たつじんのおび",
+    "category": "offensive",
+    "competitive": true
   },
   {
     "id": "mental-herb",
-    "name": "メンタルハーブ"
+    "name": "メンタルハーブ",
+    "category": "utility",
+    "competitive": true
   },
   {
     "id": "white-herb",
-    "name": "ホワイトハーブ"
+    "name": "しろいハーブ",
+    "category": "utility",
+    "competitive": true
   },
   {
     "id": "red-card",
-    "name": "レッドカード"
+    "name": "レッドカード",
+    "category": "utility",
+    "competitive": true
   },
   {
     "id": "eviolite",
-    "name": "しんかのきせき"
+    "name": "しんかのきせき",
+    "category": "defensive",
+    "competitive": true
   },
   {
-    "id": "mega-stone",
-    "name": "メガストーン"
+    "id": "charcoal",
+    "name": "もくたん",
+    "category": "type-boost",
+    "typeBoost": "ほのお",
+    "competitive": true
+  },
+  {
+    "id": "mystic-water",
+    "name": "しんぴのしずく",
+    "category": "type-boost",
+    "typeBoost": "みず",
+    "competitive": true
+  },
+  {
+    "id": "magnet",
+    "name": "じしゃく",
+    "category": "type-boost",
+    "typeBoost": "でんき",
+    "competitive": true
+  },
+  {
+    "id": "miracle-seed",
+    "name": "きせきのタネ",
+    "category": "type-boost",
+    "typeBoost": "くさ",
+    "competitive": true
+  },
+  {
+    "id": "never-melt-ice",
+    "name": "とけないこおり",
+    "category": "type-boost",
+    "typeBoost": "こおり",
+    "competitive": true
+  },
+  {
+    "id": "black-belt",
+    "name": "くろおび",
+    "category": "type-boost",
+    "typeBoost": "かくとう",
+    "competitive": true
+  },
+  {
+    "id": "poison-barb",
+    "name": "どくバリ",
+    "category": "type-boost",
+    "typeBoost": "どく",
+    "competitive": true
+  },
+  {
+    "id": "soft-sand",
+    "name": "やわらかいすな",
+    "category": "type-boost",
+    "typeBoost": "じめん",
+    "competitive": true
+  },
+  {
+    "id": "sharp-beak",
+    "name": "するどいくちばし",
+    "category": "type-boost",
+    "typeBoost": "ひこう",
+    "competitive": true
+  },
+  {
+    "id": "twisted-spoon",
+    "name": "まがったスプーン",
+    "category": "type-boost",
+    "typeBoost": "エスパー",
+    "competitive": true
+  },
+  {
+    "id": "silver-powder",
+    "name": "ぎんのこな",
+    "category": "type-boost",
+    "typeBoost": "むし",
+    "competitive": true
+  },
+  {
+    "id": "hard-stone",
+    "name": "かたいいし",
+    "category": "type-boost",
+    "typeBoost": "いわ",
+    "competitive": true
+  },
+  {
+    "id": "spell-tag",
+    "name": "のろいのおふだ",
+    "category": "type-boost",
+    "typeBoost": "ゴースト",
+    "competitive": true
+  },
+  {
+    "id": "dragon-fang",
+    "name": "りゅうのキバ",
+    "category": "type-boost",
+    "typeBoost": "ドラゴン",
+    "competitive": true
+  },
+  {
+    "id": "black-glasses",
+    "name": "くろいメガネ",
+    "category": "type-boost",
+    "typeBoost": "あく",
+    "competitive": true
+  },
+  {
+    "id": "metal-coat",
+    "name": "メタルコート",
+    "category": "type-boost",
+    "typeBoost": "はがね",
+    "competitive": true
+  },
+  {
+    "id": "muscle-band",
+    "name": "ちからのハチマキ",
+    "category": "offensive",
+    "competitive": true
+  },
+  {
+    "id": "wise-glasses",
+    "name": "ものしりメガネ",
+    "category": "offensive",
+    "competitive": true
+  },
+  {
+    "id": "sea-incense",
+    "name": "うしおのおこう",
+    "category": "type-boost",
+    "typeBoost": "みず",
+    "competitive": true
+  },
+  {
+    "id": "wave-incense",
+    "name": "さざなみのおこう",
+    "category": "type-boost",
+    "typeBoost": "みず",
+    "competitive": true
+  },
+  {
+    "id": "flame-plate",
+    "name": "ひのたまプレート",
+    "category": "plate",
+    "typeBoost": "ほのお",
+    "competitive": true
+  },
+  {
+    "id": "splash-plate",
+    "name": "しずくプレート",
+    "category": "plate",
+    "typeBoost": "みず",
+    "competitive": true
+  },
+  {
+    "id": "zap-plate",
+    "name": "いかずちプレート",
+    "category": "plate",
+    "typeBoost": "でんき",
+    "competitive": true
+  },
+  {
+    "id": "meadow-plate",
+    "name": "みどりのプレート",
+    "category": "plate",
+    "typeBoost": "くさ",
+    "competitive": true
+  },
+  {
+    "id": "icicle-plate",
+    "name": "つららのプレート",
+    "category": "plate",
+    "typeBoost": "こおり",
+    "competitive": true
+  },
+  {
+    "id": "fist-plate",
+    "name": "こぶしのプレート",
+    "category": "plate",
+    "typeBoost": "かくとう",
+    "competitive": true
+  },
+  {
+    "id": "toxic-plate",
+    "name": "もうどくプレート",
+    "category": "plate",
+    "typeBoost": "どく",
+    "competitive": true
+  },
+  {
+    "id": "earth-plate",
+    "name": "だいちのプレート",
+    "category": "plate",
+    "typeBoost": "じめん",
+    "competitive": true
+  },
+  {
+    "id": "sky-plate",
+    "name": "あおぞらプレート",
+    "category": "plate",
+    "typeBoost": "ひこう",
+    "competitive": true
+  },
+  {
+    "id": "mind-plate",
+    "name": "ふしぎのプレート",
+    "category": "plate",
+    "typeBoost": "エスパー",
+    "competitive": true
+  },
+  {
+    "id": "insect-plate",
+    "name": "たまむしプレート",
+    "category": "plate",
+    "typeBoost": "むし",
+    "competitive": true
+  },
+  {
+    "id": "stone-plate",
+    "name": "がんせきプレート",
+    "category": "plate",
+    "typeBoost": "いわ",
+    "competitive": true
+  },
+  {
+    "id": "spooky-plate",
+    "name": "もののけプレート",
+    "category": "plate",
+    "typeBoost": "ゴースト",
+    "competitive": true
+  },
+  {
+    "id": "draco-plate",
+    "name": "りゅうのプレート",
+    "category": "plate",
+    "typeBoost": "ドラゴン",
+    "competitive": true
+  },
+  {
+    "id": "dread-plate",
+    "name": "こわもてプレート",
+    "category": "plate",
+    "typeBoost": "あく",
+    "competitive": true
+  },
+  {
+    "id": "iron-plate",
+    "name": "こうてつプレート",
+    "category": "plate",
+    "typeBoost": "はがね",
+    "competitive": true
+  },
+  {
+    "id": "pixie-plate",
+    "name": "せいれいプレート",
+    "category": "plate",
+    "typeBoost": "フェアリー",
+    "competitive": true
+  },
+  {
+    "id": "chesto-berry",
+    "name": "カゴのみ",
+    "category": "berry",
+    "competitive": true
+  },
+  {
+    "id": "lansat-berry",
+    "name": "サンのみ",
+    "category": "berry",
+    "competitive": true
+  },
+  {
+    "id": "oran-berry",
+    "name": "オレンのみ",
+    "category": "berry",
+    "competitive": true
+  },
+  {
+    "id": "light-ball",
+    "name": "でんきだま",
+    "category": "species-specific",
+    "competitive": true
+  },
+  {
+    "id": "thick-club",
+    "name": "ふといホネ",
+    "category": "species-specific",
+    "competitive": true
+  },
+  {
+    "id": "leek",
+    "name": "ながねぎ",
+    "category": "species-specific",
+    "competitive": true
+  },
+  {
+    "id": "soul-dew",
+    "name": "こころのしずく",
+    "category": "species-specific",
+    "competitive": true
+  },
+  {
+    "id": "lustrous-orb",
+    "name": "しらたま",
+    "category": "species-specific",
+    "competitive": true
+  },
+  {
+    "id": "griseous-orb",
+    "name": "はっきんだま",
+    "category": "species-specific",
+    "competitive": true
+  },
+  {
+    "id": "adamant-orb",
+    "name": "こんごうだま",
+    "category": "species-specific",
+    "competitive": true
+  },
+  {
+    "id": "blue-orb",
+    "name": "あいいろのたま",
+    "category": "species-specific",
+    "competitive": true
+  },
+  {
+    "id": "red-orb",
+    "name": "べにいろのたま",
+    "category": "species-specific",
+    "competitive": true
+  },
+  {
+    "id": "power-herb",
+    "name": "パワフルハーブ",
+    "category": "utility",
+    "competitive": true
+  },
+  {
+    "id": "kings-rock",
+    "name": "おうじゃのしるし",
+    "category": "utility",
+    "competitive": true
+  },
+  {
+    "id": "razor-fang",
+    "name": "するどいキバ",
+    "category": "utility",
+    "competitive": true
+  },
+  {
+    "id": "scope-lens",
+    "name": "ピントレンズ",
+    "category": "utility",
+    "competitive": true
+  },
+  {
+    "id": "focus-lens",
+    "name": "フォーカスレンズ",
+    "category": "utility",
+    "competitive": true
+  },
+  {
+    "id": "wide-lens",
+    "name": "こうかくレンズ",
+    "category": "utility",
+    "competitive": true
+  },
+  {
+    "id": "toxic-orb",
+    "name": "どくどくだま",
+    "category": "status",
+    "competitive": true
+  },
+  {
+    "id": "flame-orb",
+    "name": "かえんだま",
+    "category": "status",
+    "competitive": true
+  },
+  {
+    "id": "absorb-bulb",
+    "name": "きゅうこん",
+    "category": "utility",
+    "competitive": true
+  },
+  {
+    "id": "luminous-moss",
+    "name": "ひかりごけ",
+    "category": "utility",
+    "competitive": true
+  },
+  {
+    "id": "cell-battery",
+    "name": "じゅうでんち",
+    "category": "utility",
+    "competitive": true
+  },
+  {
+    "id": "snowball",
+    "name": "ゆきだま",
+    "category": "utility",
+    "competitive": true
+  },
+  {
+    "id": "eject-button",
+    "name": "だっしゅつボタン",
+    "category": "utility",
+    "competitive": true
+  },
+  {
+    "id": "ring-target",
+    "name": "ねらいのまと",
+    "category": "utility",
+    "competitive": true
+  },
+  {
+    "id": "focus-band",
+    "name": "きあいのハチマキ",
+    "category": "defensive",
+    "competitive": true
+  },
+  {
+    "id": "iron-ball",
+    "name": "くろいてっきゅう",
+    "category": "utility",
+    "competitive": true
+  },
+  {
+    "id": "binding-band",
+    "name": "しめつけバンド",
+    "category": "offensive",
+    "competitive": true
+  },
+  {
+    "id": "safety-goggles",
+    "name": "ぼうじんゴーグル",
+    "category": "defensive",
+    "competitive": true
+  },
+  {
+    "id": "power-weight",
+    "name": "パワーウェイト",
+    "category": "utility",
+    "competitive": true
+  },
+  {
+    "id": "big-root",
+    "name": "おおきなねっこ",
+    "category": "utility",
+    "competitive": true
+  },
+  {
+    "id": "float-stone",
+    "name": "かるいいし",
+    "category": "utility",
+    "competitive": true
+  },
+  {
+    "id": "everstone",
+    "name": "かわらずのいし",
+    "category": "utility",
+    "competitive": true
+  },
+  {
+    "id": "berry-juice",
+    "name": "きのみジュース",
+    "category": "recovery",
+    "competitive": true
+  },
+  {
+    "id": "shed-shell",
+    "name": "きれいなぬけがら",
+    "category": "utility",
+    "competitive": true
+  },
+  {
+    "id": "light-clay",
+    "name": "ひかりのねんど",
+    "category": "utility",
+    "competitive": true
+  },
+  {
+    "id": "black-sludge",
+    "name": "くろいヘドロ",
+    "category": "recovery",
+    "competitive": true
+  },
+  {
+    "id": "normal-gem",
+    "name": "ノーマルジュエル",
+    "category": "offensive",
+    "competitive": true
+  },
+  {
+    "id": "lax-incense",
+    "name": "のんきのおこう",
+    "category": "defensive",
+    "competitive": true
+  },
+  {
+    "id": "bright-powder",
+    "name": "ひかりのこな",
+    "category": "defensive",
+    "competitive": true
+  },
+  {
+    "id": "metronome",
+    "name": "メトロノーム",
+    "category": "offensive",
+    "competitive": true
+  },
+  {
+    "id": "heat-rock",
+    "name": "あついいわ",
+    "category": "weather",
+    "competitive": true
+  },
+  {
+    "id": "damp-rock",
+    "name": "しめったいわ",
+    "category": "weather",
+    "competitive": true
+  },
+  {
+    "id": "icy-rock",
+    "name": "つめたいいわ",
+    "category": "weather",
+    "competitive": true
+  },
+  {
+    "id": "smooth-rock",
+    "name": "さらさらいわ",
+    "category": "weather",
+    "competitive": true
   }
 ]
