@@ -44,14 +44,14 @@
 4. 「保存」で確定
 
 
-### 2. パーティを保存（自分専用）
+### 2. パーティを保存
 
 1. パーティ名を入力
-2. 「保存」ボタン保存
+2. 「保存」ボタンで保存
 3. 「マイパーティ」から保存済みパーティを確認・管理
 
 
-### 3. パーティを共有（対戦相手用）
+### 3. パーティを共有
 
 1. 「共有URL生成」ボタンをクリック
 2. 生成されたURLをコピー
@@ -67,7 +67,7 @@
 
 ### 5. 対戦開始
 
-- お互いのパーティ情報を確認して、オープンチームシートルールで対戦開始
+- お互いのパーティ情報を確認して、対戦開始
 
 
 ## プロジェクト構造
@@ -81,16 +81,16 @@
 │   └── view/              # パーティ閲覧（URL共有）
 ├── components/            # Reactコンポーネント
 │   └── ui/
-│       ├── PokemonCard.tsx    # ポケモンカード表示
-│       ├── PokemonEditor.tsx  # ポケモン詳細編集モーダル
+│       ├── PokemonCard.tsx    # ポケモン表示
+│       ├── PokemonEditor.tsx  # ポケモン詳細編集
 │       └── TeamView.tsx       # パーティ表示
 ├── data/                  # 静的データ
-│   ├── gen6-pokemon.json  # 第6世代ポケモンデータ（15体）
-│   ├── moves.json         # 技データ（22種）
-│   └── items.json         # 持ち物データ（18種）
-├── lib/                   # ユーティリティ関数
-│   ├── stats.ts          # ステータス計算・努力値検証
-│   ├── team-encoder.ts   # URL共有・LocalStorage管理
+│   ├── gen6-pokemon.json  # 第6世代ポケモンデータ
+│   ├── moves.json         # 技データ
+│   └── items.json         # 持ち物データ
+├── lib/                   
+│   ├── stats.ts          
+│   ├── team-encoder.ts   # URL共有
 │   └── type-colors.ts    # タイプカラー定義
 └── types/                 # TypeScript型定義
     └── pokemon.ts        # Pokemon、Team等の型定義
