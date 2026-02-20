@@ -8,7 +8,7 @@ import { getTeamsFromLocalStorage, saveTeamToLocalStorage } from './team-encoder
  * @param team 保存するパーティ
  * @returns 保存結果（success, needsConfirmation）
  */
-export async function saveTeamToAPI(team: Team): Promise<{ success: boolean; needsConfirmation?: boolean; existingTeamName?: string }> {
+export async function saveTeamToAPI(team: Team, overwrite = false): Promise<{ success: boolean; needsConfirmation?: boolean; existingTeamName?: string }> {
   try {
     const userId = getUserId();
     const response = await fetch('/api/teams', {
@@ -17,7 +17,7 @@ export async function saveTeamToAPI(team: Team): Promise<{ success: boolean; nee
         'Content-Type': 'application/json',
         'x-user-id': userId
       },
-      body: JSON.stringify({ team })
+      body: JSON.stringify({ team, overwrite })
     });
 
     const data = await response.json();

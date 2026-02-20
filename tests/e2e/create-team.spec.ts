@@ -26,14 +26,8 @@ test.describe('新規パーティ作成と保存', () => {
     // ピカチュウを選択
     await page.locator('text=ピカチュウ').first().click();
 
-    // 特性を選択
-    const abilitySelect = page.locator('select').filter({ hasText: /特性|とくせい/ }).first();
-    if (await abilitySelect.count() > 0) {
-      await abilitySelect.selectOption({ label: 'せいでんき' });
-    }
-
     // アイテムを選択
-    const itemInput = page.locator('input[placeholder*="アイテム"]').first();
+    const itemInput = page.locator('input[placeholder*="持ち物"]').first();
     if (await itemInput.count() > 0) {
       await itemInput.fill('いのちのたま');
       await page.locator('text=いのちのたま').first().click();
@@ -58,7 +52,7 @@ test.describe('新規パーティ作成と保存', () => {
     }
 
     // パーティを保存
-    const saveTeamButton = page.locator('button:has-text("パーティを保存")');
+    const saveTeamButton = page.locator('[data-testid="save-team"]');
     await saveTeamButton.click();
 
     // マイパーティページへのリダイレクトを確認

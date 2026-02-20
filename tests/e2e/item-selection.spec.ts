@@ -17,7 +17,7 @@ test.describe('アイテム選択', () => {
     await page.locator('text=ピカチュウ').first().click();
 
     // アイテム検索
-    const itemInput = page.locator('input[placeholder*="アイテム"]').first();
+    const itemInput = page.locator('input[placeholder*="持ち物"]').first();
 
     if (await itemInput.count() > 0) {
       // 「いのちのたま」を検索
@@ -42,7 +42,7 @@ test.describe('アイテム選択', () => {
     }
 
     // パーティ保存
-    await page.locator('button:has-text("パーティを保存")').click();
+    await page.locator('[data-testid="save-team"]').click();
     await page.waitForURL(/\/my-teams/);
 
     // マイパーティでアイテムが表示されることを確認
@@ -60,7 +60,7 @@ test.describe('アイテム選択', () => {
     await page.locator('text=リザードン').first().click();
 
     // メガストーンを検索
-    const itemInput = page.locator('input[placeholder*="アイテム"]').first();
+    const itemInput = page.locator('input[placeholder*="持ち物"]').first();
 
     if (await itemInput.count() > 0) {
       await itemInput.fill('リザードナイトX');

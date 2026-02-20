@@ -10,10 +10,9 @@ import Image from 'next/image';
 interface PokemonCardProps {
   pokemon: Pokemon;
   onClick?: () => void;
-  showStats?: boolean;
 }
 
-export default function PokemonCard({ pokemon, onClick, showStats = true }: PokemonCardProps) {
+export default function PokemonCard({ pokemon, onClick }: PokemonCardProps) {
   // Pokemon データを取得（画像・タイプ情報）
   interface PokemonData {
     id: number;

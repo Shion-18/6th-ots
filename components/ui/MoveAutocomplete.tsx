@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { getTypeBgColor } from '@/lib/type-colors';
+import { PokemonType } from '@/types/pokemon';
 
 interface MoveDetail {
   id: number;
@@ -157,7 +158,7 @@ export default function MoveAutocomplete({
                   <span className="font-bold text-gray-800 text-sm">
                     {move.nameJa}
                   </span>
-                  <span className={`text-xs px-2 py-0.5 rounded text-white ${getTypeBgColor(move.type)}`}>
+                  <span className={`text-xs px-2 py-0.5 rounded text-white ${getTypeBgColor(move.type as PokemonType)}`}>
                     {move.type}
                   </span>
                   <span className="text-xs text-gray-500">

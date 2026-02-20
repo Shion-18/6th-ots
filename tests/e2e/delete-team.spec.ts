@@ -22,7 +22,7 @@ test.describe('パーティ削除', () => {
       await saveButton.click();
     }
 
-    await page.locator('button:has-text("パーティを保存")').click();
+    await page.locator('[data-testid="save-team"]').click();
     await page.waitForURL(/\/my-teams/);
 
     // パーティが表示されることを確認

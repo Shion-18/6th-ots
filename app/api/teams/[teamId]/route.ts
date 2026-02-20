@@ -8,7 +8,7 @@ import { isValidUUID } from '@/lib/user-id';
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
     const userId = request.headers.get('x-user-id');
@@ -20,7 +20,7 @@ export async function DELETE(
       );
     }
 
-    const teamId = params.teamId;
+    const { teamId } = await params;
     const key = `user:${userId}:teams`;
     const teams = await kv.get<Team[]>(key) || [];
 

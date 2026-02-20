@@ -29,7 +29,7 @@ test.describe('既存ポケモンの編集', () => {
     }
 
     // アイテムを設定
-    const itemInput = page.locator('input[placeholder*="アイテム"]').first();
+    const itemInput = page.locator('input[placeholder*="持ち物"]').first();
     if (await itemInput.count() > 0) {
       await itemInput.fill('いのちのたま');
       await page.locator('text=いのちのたま').first().click();
@@ -42,7 +42,7 @@ test.describe('既存ポケモンの編集', () => {
     }
 
     // パーティ保存
-    await page.locator('button:has-text("パーティを保存")').click();
+    await page.locator('[data-testid="save-team"]').click();
     await page.waitForURL(/\/my-teams/);
 
     // 編集ボタンをクリック
@@ -65,7 +65,7 @@ test.describe('既存ポケモンの編集', () => {
     await page.locator('text=くさむすび').first().click();
 
     // アイテムを変更
-    const newItemInput = page.locator('input[placeholder*="アイテム"]').first();
+    const newItemInput = page.locator('input[placeholder*="持ち物"]').first();
     if (await newItemInput.count() > 0) {
       await newItemInput.clear();
       await newItemInput.fill('こだわりスカーフ');
@@ -83,7 +83,7 @@ test.describe('既存ポケモンの編集', () => {
     await expect(page.locator('text=こだわりスカーフ')).toBeVisible();
 
     // パーティ保存
-    await page.locator('button:has-text("パーティを保存")').click();
+    await page.locator('[data-testid="save-team"]').click();
 
     // リロードして永続化を確認
     await page.reload();

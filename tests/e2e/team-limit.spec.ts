@@ -24,7 +24,7 @@ test.describe('1パーティ制限', () => {
       await saveButton.click();
     }
 
-    await page.locator('button:has-text("パーティを保存")').click();
+    await page.locator('[data-testid="save-team"]').click();
     await page.waitForURL(/\/my-teams/);
 
     // 2つ目のパーティを作成
@@ -47,7 +47,7 @@ test.describe('1パーティ制限', () => {
       await dialog.accept();
     });
 
-    await page.locator('button:has-text("パーティを保存")').click();
+    await page.locator('[data-testid="save-team"]').click();
 
     // 上書きされた場合、パーティBのみが存在することを確認
     await page.waitForTimeout(500);

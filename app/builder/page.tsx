@@ -3,7 +3,8 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Team, Pokemon } from '@/types/pokemon';
-import { generateShareUrl, saveTeamToLocalStorage, overwriteTeamInLocalStorage, getTeamsFromLocalStorage, getTeamFromLocalStorage } from '@/lib/team-encoder';
+import { getTeamFromLocalStorage, getTeamsFromLocalStorage } from '@/lib/team-encoder';
+import { saveTeamToAPI, createShareLink } from '@/lib/team-storage';
 import PokemonCard from '@/components/ui/PokemonCard';
 import PokemonEditor from '@/components/ui/PokemonEditor';
 import TeamImageView from '@/components/ui/TeamImageView';
@@ -97,7 +98,7 @@ function BuilderPageContent() {
   };
 
   // パーティを保存
-  const saveTeam = () => {
+  const saveTeam = async () => {
     if (pokemon.length === 0) {
       alert('パーティにポケモンを追加してください');
       return;
@@ -114,47 +115,52 @@ function BuilderPageContent() {
       format: 'singles',
     };
 
-    const result = saveTeamToLocalStorage(team);
+    try {
+      const result = await saveTeamToAPI(team);
 
-    // 編集モードの場合は確認不要
-    if (isEditMode) {
-      if (result.success) {
-        alert('パーティを更新しました！');
-        router.push('/my-teams');
-      } else {
-        alert('更新に失敗しました');
-      }
-      return;
-    }
-
-    // 新規作成モードの既存ロジック
-    if (result.needsConfirmation) {
-      // 上書き確認ダイアログ
-      const confirmed = confirm(
-        `既に「${result.existingTeamName}」が保存されています。\n新しいパーティを保存すると、既存のパーティは削除されます。\n\n上書きしてもよろしいですか？`
-      );
-
-      if (confirmed) {
-        const overwriteSuccess = overwriteTeamInLocalStorage(team);
-        if (overwriteSuccess) {
-          setSavedTeams(getTeamsFromLocalStorage());
-          alert('パーティを保存しました！');
+      // 編集モードの場合は確認不要
+      if (isEditMode) {
+        if (result.success) {
+          alert('パーティを更新しました！');
           router.push('/my-teams');
         } else {
-          alert('保存に失敗しました');
+          alert('更新に失敗しました');
         }
+        return;
       }
-    } else if (result.success) {
-      setSavedTeams(getTeamsFromLocalStorage());
-      alert('パーティを保存しました！');
-      router.push('/my-teams');
-    } else {
+
+      // 新規作成モードのロジック
+      if (result.needsConfirmation) {
+        const confirmed = confirm(
+          `既に「${result.existingTeamName}」が保存されています。\n新しいパーティを保存すると、既存のパーティは削除されます。\n\n上書きしてもよろしいですか？`
+        );
+
+        if (confirmed) {
+          // overwriteフラグ付きで再送信
+          const overwriteResult = await saveTeamToAPI(team, true);
+          if (overwriteResult.success) {
+            setSavedTeams(getTeamsFromLocalStorage());
+            alert('パーティを保存しました！');
+            router.push('/my-teams');
+          } else {
+            alert('保存に失敗しました');
+          }
+        }
+      } else if (result.success) {
+        setSavedTeams(getTeamsFromLocalStorage());
+        alert('パーティを保存しました！');
+        router.push('/my-teams');
+      } else {
+        alert('保存に失敗しました');
+      }
+    } catch (error) {
+      console.error('Save failed:', error);
       alert('保存に失敗しました');
     }
   };
 
   // パーティを共有
-  const shareTeam = () => {
+  const shareTeam = async () => {
     if (pokemon.length === 0) {
       alert('パーティにポケモンを追加してください');
       return;
@@ -169,9 +175,18 @@ function BuilderPageContent() {
       format: 'singles',
     };
 
-    const url = generateShareUrl(team);
-    setShareUrl(url);
-    setShowQRModal(true);
+    try {
+      const result = await createShareLink(team);
+      if (result.shareUrl) {
+        setShareUrl(result.shareUrl);
+        setShowQRModal(true);
+      } else {
+        alert(result.error || '共有リンクの作成に失敗しました');
+      }
+    } catch (error) {
+      console.error('Share failed:', error);
+      alert('共有リンクの作成に失敗しました');
+    }
   };
 
   const loadTeam = (team: Team) => {
@@ -256,7 +271,7 @@ function BuilderPageContent() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {pokemon.map((p) => (
               <div key={p.id}>
-                <PokemonCard pokemon={p} showStats={true} />
+                <PokemonCard pokemon={p} />
                 <div className="flex gap-2 mt-2">
                   <button
                     onClick={() => handleEditPokemon(p)}
@@ -284,8 +299,9 @@ function BuilderPageContent() {
         </div>
 
         {/* アクションボタン */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <button
+            data-testid="save-team"
             onClick={saveTeam}
             disabled={pokemon.length === 0}
             className={`font-bold py-4 px-6 rounded-lg transition-colors ${

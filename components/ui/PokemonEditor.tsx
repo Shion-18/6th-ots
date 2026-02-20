@@ -318,6 +318,7 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
               キャンセル
             </button>
             <button
+              data-testid="save-pokemon"
               onClick={handleSave}
               disabled={!selectedSpecies || selectedMoves.length === 0}
               className={`flex-1 font-bold py-3 px-6 rounded-lg transition-colors ${
