@@ -19,14 +19,6 @@ export type PokemonType =
   | 'はがね'
   | 'フェアリー';
 
-// 性格
-export type Nature =
-  | 'がんばりや' | 'さみしがり' | 'ゆうかん' | 'いじっぱり' | 'やんちゃ'
-  | 'ずぶとい' | 'すなお' | 'のんき' | 'わんぱく' | 'のうてんき'
-  | 'おくびょう' | 'せっかち' | 'まじめ' | 'ようき' | 'むじゃき'
-  | 'ひかえめ' | 'おっとり' | 'れいせい' | 'てれや' | 'うっかりや'
-  | 'おだやか' | 'おとなしい' | 'なまいき' | 'しんちょう' | 'きまぐれ';
-
 // 性別
 export type Gender = 'オス' | 'メス' | '不明';
 
@@ -58,36 +50,6 @@ export interface BaseStats {
   speed: number;
 }
 
-// 個体値（IV）
-export interface IVs {
-  hp: number;
-  attack: number;
-  defense: number;
-  specialAttack: number;
-  specialDefense: number;
-  speed: number;
-}
-
-// 努力値（EV）
-export interface EVs {
-  hp: number;
-  attack: number;
-  defense: number;
-  specialAttack: number;
-  specialDefense: number;
-  speed: number;
-}
-
-// 実数値
-export interface Stats {
-  hp: number;
-  attack: number;
-  defense: number;
-  specialAttack: number;
-  specialDefense: number;
-  speed: number;
-}
-
 // ポケモンの基本データ
 export interface PokemonSpecies {
   id: number;
@@ -111,11 +73,8 @@ export interface Pokemon {
   gender?: Gender;
   ability: string; // 特性
   item?: string; // 持ち物
-  evs?: EVs; // 努力値（オプショナル）
-  ivs?: IVs; // 個体値（オプショナル）
   moves: string[]; // 技（最大4つ）
   shiny?: boolean; // 色違い
-  stats?: Stats; // 実数値（オプショナル）
 }
 
 // パーティ

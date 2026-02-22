@@ -3,20 +3,36 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Team } from '@/types/pokemon';
-import { getTeamsFromLocalStorage, deleteTeamFromLocalStorage, generateShareUrl } from '@/lib/team-encoder';
+import { getTeamsFromAPI, deleteTeamFromAPI, createShareLink } from '@/lib/team-storage';
 
 export default function MyTeamsPage() {
   const router = useRouter();
   const [teams, setTeams] = useState<Team[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setTeams(getTeamsFromLocalStorage());
+    const fetchTeams = async () => {
+      try {
+        const fetchedTeams = await getTeamsFromAPI();
+        setTeams(fetchedTeams);
+      } catch (error) {
+        console.error('Failed to fetch teams:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTeams();
   }, []);
 
-  const handleDelete = (teamId: string, teamName: string) => {
+  const handleDelete = async (teamId: string, teamName: string) => {
     if (confirm(`「${teamName}」を削除しますか？`)) {
-      deleteTeamFromLocalStorage(teamId);
-      setTeams(getTeamsFromLocalStorage());
+      const success = await deleteTeamFromAPI(teamId);
+      if (success) {
+        const updatedTeams = await getTeamsFromAPI();
+        setTeams(updatedTeams);
+      } else {
+        alert('削除に失敗しました');
+      }
     }
   };
 
@@ -24,13 +40,19 @@ export default function MyTeamsPage() {
     router.push(`/builder?teamId=${teamId}`);
   };
 
-  const handleShare = (team: Team) => {
-    const shareUrl = generateShareUrl(team);
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      alert('共有URLをコピーしました！\n\n相手にこのURLを送ってください。');
-    }).catch(() => {
-      alert('URLのコピーに失敗しました');
-    });
+  const handleShare = async (team: Team) => {
+    try {
+      const result = await createShareLink(team);
+      if (result.shareUrl) {
+        await navigator.clipboard.writeText(result.shareUrl);
+        alert('共有URLをコピーしました！\n\n相手にこのURLを送ってください。');
+      } else {
+        alert(result.error || '共有リンクの作成に失敗しました');
+      }
+    } catch (error) {
+      console.error('Share failed:', error);
+      alert('共有リンクの作成に失敗しました');
+    }
   };
 
   return (
@@ -55,7 +77,12 @@ export default function MyTeamsPage() {
 
       {/* コンテンツ */}
       <div className="max-w-4xl mx-auto px-4 py-6">
-        {teams.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-12 bg-white rounded-2xl shadow-lg">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">読み込み中...</p>
+          </div>
+        ) : teams.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-2xl shadow-lg">
             <p className="text-gray-500 text-lg mb-4">保存されたパーティがありません</p>
             <button
@@ -86,7 +113,7 @@ export default function MyTeamsPage() {
                       {team.pokemon.length}体 • {new Date(team.createdAt).toLocaleDateString('ja-JP')}
                     </p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <button
                       onClick={() => handleEdit(team.id)}
                       className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm"

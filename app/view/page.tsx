@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Team } from '@/types/pokemon';
 import { decodeTeam } from '@/lib/team-encoder';
+import { getSharedTeam } from '@/lib/team-storage';
 import TeamView from '@/components/ui/TeamView';
 import TeamImageView from '@/components/ui/TeamImageView';
 import { useImageGenerator } from '@/hooks/useImageGenerator';
@@ -19,23 +20,43 @@ function ViewPageContent() {
 
   useEffect(() => {
     const data = searchParams.get('data');
+    const shareId = searchParams.get('shareId');
 
-    if (!data) {
-      setError('パーティデータが見つかりません');
-      setLoading(false);
+    if (shareId) {
+      // shareId経由: KVから取得
+      getSharedTeam(shareId).then((sharedTeam) => {
+        if (sharedTeam) {
+          setTeam(sharedTeam);
+          setError(null);
+        } else {
+          setError('共有リンクが期限切れか見つかりません');
+        }
+      }).catch((err) => {
+        console.error('共有データ取得エラー:', err);
+        setError('共有データの取得に失敗しました');
+      }).finally(() => {
+        setLoading(false);
+      });
       return;
     }
 
-    try {
-      const decodedTeam = decodeTeam(decodeURIComponent(data));
-      setTeam(decodedTeam);
-      setError(null);
-    } catch (err) {
-      console.error('デコードエラー:', err);
-      setError('パーティデータの読み込みに失敗しました');
-    } finally {
-      setLoading(false);
+    if (data) {
+      // data経由: Base64デコード（後方互換）
+      try {
+        const decodedTeam = decodeTeam(decodeURIComponent(data));
+        setTeam(decodedTeam);
+        setError(null);
+      } catch (err) {
+        console.error('デコードエラー:', err);
+        setError('パーティデータの読み込みに失敗しました');
+      } finally {
+        setLoading(false);
+      }
+      return;
     }
+
+    setError('パーティデータが見つかりません');
+    setLoading(false);
   }, [searchParams]);
 
   const handleShare = () => {

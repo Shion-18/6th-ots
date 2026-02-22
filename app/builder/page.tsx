@@ -3,7 +3,8 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Team, Pokemon } from '@/types/pokemon';
-import { generateShareUrl, saveTeamToLocalStorage, overwriteTeamInLocalStorage, getTeamsFromLocalStorage, getTeamFromLocalStorage } from '@/lib/team-encoder';
+import { getTeamFromLocalStorage, getTeamsFromLocalStorage } from '@/lib/team-encoder';
+import { saveTeamToAPI, createShareLink } from '@/lib/team-storage';
 import PokemonCard from '@/components/ui/PokemonCard';
 import PokemonEditor from '@/components/ui/PokemonEditor';
 import TeamImageView from '@/components/ui/TeamImageView';
@@ -14,6 +15,7 @@ function BuilderPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [teamName, setTeamName] = useState('マイパーティ');
+  const [hasTeamNameBeenFocused, setHasTeamNameBeenFocused] = useState(false);
   const [pokemon, setPokemon] = useState<Pokemon[]>([]);
   const [editingPokemon, setEditingPokemon] = useState<Pokemon | null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -36,6 +38,7 @@ function BuilderPageContent() {
         setIsEditMode(true);
         setTeamName(team.name);
         setPokemon(team.pokemon);
+        setHasTeamNameBeenFocused(true);
       } else {
         alert('パーティが見つかりませんでした');
         router.push('/my-teams');
@@ -87,8 +90,15 @@ function BuilderPageContent() {
     }
   };
 
+  const handleTeamNameFocus = () => {
+    if (!hasTeamNameBeenFocused && teamName === 'マイパーティ') {
+      setTeamName('');
+      setHasTeamNameBeenFocused(true);
+    }
+  };
+
   // パーティを保存
-  const saveTeam = () => {
+  const saveTeam = async () => {
     if (pokemon.length === 0) {
       alert('パーティにポケモンを追加してください');
       return;
@@ -105,47 +115,52 @@ function BuilderPageContent() {
       format: 'singles',
     };
 
-    const result = saveTeamToLocalStorage(team);
+    try {
+      const result = await saveTeamToAPI(team);
 
-    // 編集モードの場合は確認不要
-    if (isEditMode) {
-      if (result.success) {
-        alert('パーティを更新しました！');
-        router.push('/my-teams');
-      } else {
-        alert('更新に失敗しました');
-      }
-      return;
-    }
-
-    // 新規作成モードの既存ロジック
-    if (result.needsConfirmation) {
-      // 上書き確認ダイアログ
-      const confirmed = confirm(
-        `既に「${result.existingTeamName}」が保存されています。\n新しいパーティを保存すると、既存のパーティは削除されます。\n\n上書きしてもよろしいですか？`
-      );
-
-      if (confirmed) {
-        const overwriteSuccess = overwriteTeamInLocalStorage(team);
-        if (overwriteSuccess) {
-          setSavedTeams(getTeamsFromLocalStorage());
-          alert('パーティを保存しました！');
+      // 編集モードの場合は確認不要
+      if (isEditMode) {
+        if (result.success) {
+          alert('パーティを更新しました！');
           router.push('/my-teams');
         } else {
-          alert('保存に失敗しました');
+          alert('更新に失敗しました');
         }
+        return;
       }
-    } else if (result.success) {
-      setSavedTeams(getTeamsFromLocalStorage());
-      alert('パーティを保存しました！');
-      router.push('/my-teams');
-    } else {
+
+      // 新規作成モードのロジック
+      if (result.needsConfirmation) {
+        const confirmed = confirm(
+          `既に「${result.existingTeamName}」が保存されています。\n新しいパーティを保存すると、既存のパーティは削除されます。\n\n上書きしてもよろしいですか？`
+        );
+
+        if (confirmed) {
+          // overwriteフラグ付きで再送信
+          const overwriteResult = await saveTeamToAPI(team, true);
+          if (overwriteResult.success) {
+            setSavedTeams(getTeamsFromLocalStorage());
+            alert('パーティを保存しました！');
+            router.push('/my-teams');
+          } else {
+            alert('保存に失敗しました');
+          }
+        }
+      } else if (result.success) {
+        setSavedTeams(getTeamsFromLocalStorage());
+        alert('パーティを保存しました！');
+        router.push('/my-teams');
+      } else {
+        alert('保存に失敗しました');
+      }
+    } catch (error) {
+      console.error('Save failed:', error);
       alert('保存に失敗しました');
     }
   };
 
   // パーティを共有
-  const shareTeam = () => {
+  const shareTeam = async () => {
     if (pokemon.length === 0) {
       alert('パーティにポケモンを追加してください');
       return;
@@ -160,9 +175,18 @@ function BuilderPageContent() {
       format: 'singles',
     };
 
-    const url = generateShareUrl(team);
-    setShareUrl(url);
-    setShowQRModal(true);
+    try {
+      const result = await createShareLink(team);
+      if (result.shareUrl) {
+        setShareUrl(result.shareUrl);
+        setShowQRModal(true);
+      } else {
+        alert(result.error || '共有リンクの作成に失敗しました');
+      }
+    } catch (error) {
+      console.error('Share failed:', error);
+      alert('共有リンクの作成に失敗しました');
+    }
   };
 
   const loadTeam = (team: Team) => {
@@ -199,7 +223,9 @@ function BuilderPageContent() {
       <div className="bg-white shadow-md">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex justify-between items-center mb-2">
-            <h1 className="text-2xl font-bold text-gray-800">パーティビルダー</h1>
+            <h1 className="text-2xl font-bold text-gray-800">
+              {isEditMode ? 'パーティを編集' : 'パーティビルダー'}
+            </h1>
             <button
               onClick={() => router.push('/')}
               className="text-gray-600 hover:text-gray-800"
@@ -211,6 +237,7 @@ function BuilderPageContent() {
             type="text"
             value={teamName}
             onChange={(e) => setTeamName(e.target.value.slice(0, 30))}
+            onFocus={handleTeamNameFocus}
             className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
             placeholder="パーティ名を入力"
             maxLength={30}
@@ -243,22 +270,22 @@ function BuilderPageContent() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {pokemon.map((p) => (
-              <div key={p.id} className="relative">
-                <div className="absolute top-2 right-2 z-10 flex gap-2">
+              <div key={p.id}>
+                <PokemonCard pokemon={p} />
+                <div className="flex gap-2 mt-2">
                   <button
                     onClick={() => handleEditPokemon(p)}
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold w-8 h-8 rounded-full shadow-lg"
+                    className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors"
                   >
-                    ✎
+                    ✎ 編集
                   </button>
                   <button
                     onClick={() => handleDeletePokemon(p.id)}
-                    className="bg-red-500 hover:bg-red-600 text-white font-bold w-8 h-8 rounded-full shadow-lg"
+                    className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors"
                   >
-                    ×
+                    × 削除
                   </button>
                 </div>
-                <PokemonCard pokemon={p} showStats={true} />
               </div>
             ))}
           </div>
@@ -272,8 +299,9 @@ function BuilderPageContent() {
         </div>
 
         {/* アクションボタン */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <button
+            data-testid="save-team"
             onClick={saveTeam}
             disabled={pokemon.length === 0}
             className={`font-bold py-4 px-6 rounded-lg transition-colors ${
@@ -311,6 +339,7 @@ function BuilderPageContent() {
               if (confirm('パーティをリセットしますか？')) {
                 setPokemon([]);
                 setTeamName('マイパーティ');
+                setHasTeamNameBeenFocused(false);
               }
             }}
             className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded-lg transition-colors"
@@ -339,5 +368,20 @@ function BuilderPageContent() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function BuilderPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">読み込み中...</p>
+        </div>
+      </div>
+    }>
+      <BuilderPageContent />
+    </Suspense>
   );
 }

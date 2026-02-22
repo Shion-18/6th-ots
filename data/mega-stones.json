@@ -1,0 +1,386 @@
+[
+  {
+    "id": "venusaurite",
+    "name": "フシギバナナイト",
+    "basePokemonId": 3,
+    "basePokemonName": "フシギバナ",
+    "megaFormId": 10033,
+    "megaFormName": "メガフシギバナ"
+  },
+  {
+    "id": "charizardite-x",
+    "name": "リザードナイトX",
+    "basePokemonId": 6,
+    "basePokemonName": "リザードン",
+    "megaFormId": 10034,
+    "megaFormName": "メガリザードンX"
+  },
+  {
+    "id": "charizardite-y",
+    "name": "リザードナイトY",
+    "basePokemonId": 6,
+    "basePokemonName": "リザードン",
+    "megaFormId": 10035,
+    "megaFormName": "メガリザードンY"
+  },
+  {
+    "id": "blastoisinite",
+    "name": "カメックスナイト",
+    "basePokemonId": 9,
+    "basePokemonName": "カメックス",
+    "megaFormId": 10036,
+    "megaFormName": "メガカメックス"
+  },
+  {
+    "id": "beedrillite",
+    "name": "スピアナイト",
+    "basePokemonId": 15,
+    "basePokemonName": "スピアー",
+    "megaFormId": 10090,
+    "megaFormName": "メガスピアー"
+  },
+  {
+    "id": "pidgeotite",
+    "name": "ピジョットナイト",
+    "basePokemonId": 18,
+    "basePokemonName": "ピジョット",
+    "megaFormId": 10073,
+    "megaFormName": "メガピジョット"
+  },
+  {
+    "id": "alakazite",
+    "name": "フーディンナイト",
+    "basePokemonId": 65,
+    "basePokemonName": "フーディン",
+    "megaFormId": 10037,
+    "megaFormName": "メガフーディン"
+  },
+  {
+    "id": "slowbronite",
+    "name": "ヤドランナイト",
+    "basePokemonId": 80,
+    "basePokemonName": "ヤドラン",
+    "megaFormId": 10071,
+    "megaFormName": "メガヤドラン"
+  },
+  {
+    "id": "gengarite",
+    "name": "ゲンガーナイト",
+    "basePokemonId": 94,
+    "basePokemonName": "ゲンガー",
+    "megaFormId": 10038,
+    "megaFormName": "メガゲンガー"
+  },
+  {
+    "id": "kangaskhanite",
+    "name": "ガルーラナイト",
+    "basePokemonId": 115,
+    "basePokemonName": "ガルーラ",
+    "megaFormId": 10039,
+    "megaFormName": "メガガルーラ"
+  },
+  {
+    "id": "pinsirite",
+    "name": "カイロスナイト",
+    "basePokemonId": 127,
+    "basePokemonName": "カイロス",
+    "megaFormId": 10040,
+    "megaFormName": "メガカイロス"
+  },
+  {
+    "id": "gyaradosite",
+    "name": "ギャラドスナイト",
+    "basePokemonId": 130,
+    "basePokemonName": "ギャラドス",
+    "megaFormId": 10041,
+    "megaFormName": "メガギャラドス"
+  },
+  {
+    "id": "aerodactylite",
+    "name": "プテラナイト",
+    "basePokemonId": 142,
+    "basePokemonName": "プテラ",
+    "megaFormId": 10042,
+    "megaFormName": "メガプテラ"
+  },
+  {
+    "id": "mewtwonite-x",
+    "name": "ミュウツナイトX",
+    "basePokemonId": 150,
+    "basePokemonName": "ミュウツー",
+    "megaFormId": 10043,
+    "megaFormName": "メガミュウツーX"
+  },
+  {
+    "id": "mewtwonite-y",
+    "name": "ミュウツナイトY",
+    "basePokemonId": 150,
+    "basePokemonName": "ミュウツー",
+    "megaFormId": 10044,
+    "megaFormName": "メガミュウツーY"
+  },
+  {
+    "id": "ampharosite",
+    "name": "デンリュウナイト",
+    "basePokemonId": 181,
+    "basePokemonName": "デンリュウ",
+    "megaFormId": 10045,
+    "megaFormName": "メガデンリュウ"
+  },
+  {
+    "id": "steelixite",
+    "name": "ハガネールナイト",
+    "basePokemonId": 208,
+    "basePokemonName": "ハガネール",
+    "megaFormId": 10072,
+    "megaFormName": "メガハガネール"
+  },
+  {
+    "id": "scizorite",
+    "name": "ハッサムナイト",
+    "basePokemonId": 212,
+    "basePokemonName": "ハッサム",
+    "megaFormId": 10046,
+    "megaFormName": "メガハッサム"
+  },
+  {
+    "id": "heracronite",
+    "name": "ヘラクロスナイト",
+    "basePokemonId": 214,
+    "basePokemonName": "ヘラクロス",
+    "megaFormId": 10047,
+    "megaFormName": "メガヘラクロス"
+  },
+  {
+    "id": "houndoominite",
+    "name": "ヘルガーナイト",
+    "basePokemonId": 229,
+    "basePokemonName": "ヘルガー",
+    "megaFormId": 10048,
+    "megaFormName": "メガヘルガー"
+  },
+  {
+    "id": "tyranitarite",
+    "name": "バンギラスナイト",
+    "basePokemonId": 248,
+    "basePokemonName": "バンギラス",
+    "megaFormId": 10049,
+    "megaFormName": "メガバンギラス"
+  },
+  {
+    "id": "sceptilite",
+    "name": "ジュカインナイト",
+    "basePokemonId": 254,
+    "basePokemonName": "ジュカイン",
+    "megaFormId": 10065,
+    "megaFormName": "メガジュカイン"
+  },
+  {
+    "id": "blazikenite",
+    "name": "バシャーモナイト",
+    "basePokemonId": 257,
+    "basePokemonName": "バシャーモ",
+    "megaFormId": 10050,
+    "megaFormName": "メガバシャーモ"
+  },
+  {
+    "id": "swampertite",
+    "name": "ラグラージナイト",
+    "basePokemonId": 260,
+    "basePokemonName": "ラグラージ",
+    "megaFormId": 10064,
+    "megaFormName": "メガラグラージ"
+  },
+  {
+    "id": "gardevoirite",
+    "name": "サーナイトナイト",
+    "basePokemonId": 282,
+    "basePokemonName": "サーナイト",
+    "megaFormId": 10051,
+    "megaFormName": "メガサーナイト"
+  },
+  {
+    "id": "sablenite",
+    "name": "ヤミラミナイト",
+    "basePokemonId": 302,
+    "basePokemonName": "ヤミラミ",
+    "megaFormId": 10066,
+    "megaFormName": "メガヤミラミ"
+  },
+  {
+    "id": "mawilite",
+    "name": "クチートナイト",
+    "basePokemonId": 303,
+    "basePokemonName": "クチート",
+    "megaFormId": 10052,
+    "megaFormName": "メガクチート"
+  },
+  {
+    "id": "aggronite",
+    "name": "ボスゴドラナイト",
+    "basePokemonId": 306,
+    "basePokemonName": "ボスゴドラ",
+    "megaFormId": 10053,
+    "megaFormName": "メガボスゴドラ"
+  },
+  {
+    "id": "medichamite",
+    "name": "チャーレムナイト",
+    "basePokemonId": 308,
+    "basePokemonName": "チャーレム",
+    "megaFormId": 10054,
+    "megaFormName": "メガチャーレム"
+  },
+  {
+    "id": "manectite",
+    "name": "ライボルトナイト",
+    "basePokemonId": 310,
+    "basePokemonName": "ライボルト",
+    "megaFormId": 10055,
+    "megaFormName": "メガライボルト"
+  },
+  {
+    "id": "sharpedonite",
+    "name": "サメハダーナイト",
+    "basePokemonId": 319,
+    "basePokemonName": "サメハダー",
+    "megaFormId": 10070,
+    "megaFormName": "メガサメハダー"
+  },
+  {
+    "id": "cameruptite",
+    "name": "バクーダナイト",
+    "basePokemonId": 323,
+    "basePokemonName": "バクーダ",
+    "megaFormId": 10087,
+    "megaFormName": "メガバクーダ"
+  },
+  {
+    "id": "altarianite",
+    "name": "チルタリスナイト",
+    "basePokemonId": 334,
+    "basePokemonName": "チルタリス",
+    "megaFormId": 10067,
+    "megaFormName": "メガチルタリス"
+  },
+  {
+    "id": "banettite",
+    "name": "ジュペッタナイト",
+    "basePokemonId": 354,
+    "basePokemonName": "ジュペッタ",
+    "megaFormId": 10056,
+    "megaFormName": "メガジュペッタ"
+  },
+  {
+    "id": "absolite",
+    "name": "アブソルナイト",
+    "basePokemonId": 359,
+    "basePokemonName": "アブソル",
+    "megaFormId": 10057,
+    "megaFormName": "メガアブソル"
+  },
+  {
+    "id": "glalitite",
+    "name": "オニゴーリナイト",
+    "basePokemonId": 362,
+    "basePokemonName": "オニゴーリ",
+    "megaFormId": 10074,
+    "megaFormName": "メガオニゴーリ"
+  },
+  {
+    "id": "salamencite",
+    "name": "ボーマンダナイト",
+    "basePokemonId": 373,
+    "basePokemonName": "ボーマンダ",
+    "megaFormId": 10089,
+    "megaFormName": "メガボーマンダ"
+  },
+  {
+    "id": "metagrossite",
+    "name": "メタグロスナイト",
+    "basePokemonId": 376,
+    "basePokemonName": "メタグロス",
+    "megaFormId": 10076,
+    "megaFormName": "メガメタグロス"
+  },
+  {
+    "id": "latiasite",
+    "name": "ラティアスナイト",
+    "basePokemonId": 380,
+    "basePokemonName": "ラティアス",
+    "megaFormId": 10062,
+    "megaFormName": "メガラティアス"
+  },
+  {
+    "id": "latiosite",
+    "name": "ラティオスナイト",
+    "basePokemonId": 381,
+    "basePokemonName": "ラティオス",
+    "megaFormId": 10063,
+    "megaFormName": "メガラティオス"
+  },
+  {
+    "id": "rayquazite",
+    "name": "レックウザナイト",
+    "basePokemonId": 384,
+    "basePokemonName": "レックウザ",
+    "megaFormId": 10079,
+    "megaFormName": "メガレックウザ"
+  },
+  {
+    "id": "lopunnite",
+    "name": "ミミロップナイト",
+    "basePokemonId": 428,
+    "basePokemonName": "ミミロップ",
+    "megaFormId": 10088,
+    "megaFormName": "メガミミロップ"
+  },
+  {
+    "id": "garchompite",
+    "name": "ガブリアスナイト",
+    "basePokemonId": 445,
+    "basePokemonName": "ガブリアス",
+    "megaFormId": 10058,
+    "megaFormName": "メガガブリアス"
+  },
+  {
+    "id": "lucarionite",
+    "name": "ルカリオナイト",
+    "basePokemonId": 448,
+    "basePokemonName": "ルカリオ",
+    "megaFormId": 10059,
+    "megaFormName": "メガルカリオ"
+  },
+  {
+    "id": "abomasite",
+    "name": "ユキノオーナイト",
+    "basePokemonId": 460,
+    "basePokemonName": "ユキノオー",
+    "megaFormId": 10060,
+    "megaFormName": "メガユキノオー"
+  },
+  {
+    "id": "galladite",
+    "name": "エルレイドナイト",
+    "basePokemonId": 475,
+    "basePokemonName": "エルレイド",
+    "megaFormId": 10068,
+    "megaFormName": "メガエルレイド"
+  },
+  {
+    "id": "audinite",
+    "name": "タブンネナイト",
+    "basePokemonId": 531,
+    "basePokemonName": "タブンネ",
+    "megaFormId": 10069,
+    "megaFormName": "メガタブンネ"
+  },
+  {
+    "id": "diancite",
+    "name": "ディアンシーナイト",
+    "basePokemonId": 719,
+    "basePokemonName": "ディアンシー",
+    "megaFormId": 10075,
+    "megaFormName": "メガディアンシー"
+  }
+]

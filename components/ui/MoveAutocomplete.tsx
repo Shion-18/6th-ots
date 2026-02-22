@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { getTypeBgColor } from '@/lib/type-colors';
+import { PokemonType } from '@/types/pokemon';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 
 interface MoveDetail {
   id: number;
@@ -27,6 +30,7 @@ export default function MoveAutocomplete({
   placeholder = '技を検索...',
 }: MoveAutocompleteProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebouncedValue(searchTerm, 200);
   const [filteredMoves, setFilteredMoves] = useState<MoveDetail[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
@@ -34,30 +38,29 @@ export default function MoveAutocomplete({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!searchTerm.trim()) {
+    if (!debouncedSearchTerm.trim()) {
       setFilteredMoves([]);
       setIsOpen(false);
       return;
     }
 
     const filtered = availableMoves.filter((move) => {
-      // Exclude already selected moves
       if (selectedMoves.includes(move.nameJa)) {
         return false;
       }
 
-      const searchLower = searchTerm.toLowerCase();
+      const searchLower = debouncedSearchTerm.toLowerCase();
       return (
-        move.nameJa.includes(searchTerm) ||
+        move.nameJa.includes(debouncedSearchTerm) ||
         move.name.toLowerCase().includes(searchLower) ||
-        move.type.includes(searchTerm)
+        move.type.includes(debouncedSearchTerm)
       );
     });
 
-    setFilteredMoves(filtered.slice(0, 10)); // Show max 10 results
+    setFilteredMoves(filtered.slice(0, 10));
     setIsOpen(filtered.length > 0);
     setHighlightedIndex(0);
-  }, [searchTerm, availableMoves, selectedMoves]);
+  }, [debouncedSearchTerm, availableMoves, selectedMoves]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -109,30 +112,6 @@ export default function MoveAutocomplete({
     }
   };
 
-  const getTypeColor = (type: string): string => {
-    const colors: { [key: string]: string } = {
-      'ノーマル': 'bg-gray-400',
-      'ほのお': 'bg-red-500',
-      'みず': 'bg-blue-500',
-      'でんき': 'bg-yellow-400',
-      'くさ': 'bg-green-500',
-      'こおり': 'bg-cyan-400',
-      'かくとう': 'bg-orange-600',
-      'どく': 'bg-purple-500',
-      'じめん': 'bg-yellow-600',
-      'ひこう': 'bg-indigo-400',
-      'エスパー': 'bg-pink-500',
-      'むし': 'bg-lime-500',
-      'いわ': 'bg-yellow-700',
-      'ゴースト': 'bg-purple-700',
-      'ドラゴン': 'bg-indigo-600',
-      'あく': 'bg-gray-800',
-      'はがね': 'bg-gray-500',
-      'フェアリー': 'bg-pink-300',
-    };
-    return colors[type] || 'bg-gray-400';
-  };
-
   const getCategoryIcon = (category: string): string => {
     if (category === '物理') return '💥';
     if (category === '特殊') return '✨';
@@ -180,7 +159,7 @@ export default function MoveAutocomplete({
                   <span className="font-bold text-gray-800 text-sm">
                     {move.nameJa}
                   </span>
-                  <span className={`text-xs px-2 py-0.5 rounded text-white ${getTypeColor(move.type)}`}>
+                  <span className={`text-xs px-2 py-0.5 rounded text-white ${getTypeBgColor(move.type as PokemonType)}`}>
                     {move.type}
                   </span>
                   <span className="text-xs text-gray-500">
