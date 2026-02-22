@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { CompetitiveItem, MegaStone } from '@/lib/item-helpers';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 
 interface ItemAutocompleteProps {
   competitiveItems: CompetitiveItem[];
@@ -19,6 +20,7 @@ export default function ItemAutocomplete({
   placeholder = '持ち物を検索...',
 }: ItemAutocompleteProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebouncedValue(searchTerm, 200);
   const [filteredItems, setFilteredItems] = useState<Array<{ name: string; category: string; isMegaStone: boolean }>>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
@@ -26,18 +28,17 @@ export default function ItemAutocomplete({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!searchTerm.trim()) {
+    if (!debouncedSearchTerm.trim()) {
       setFilteredItems([]);
       setIsOpen(false);
       return;
     }
 
-    const searchLower = searchTerm.toLowerCase();
+    const searchLower = debouncedSearchTerm.toLowerCase();
 
-    // Filter regular competitive items
     const filteredCompetitive = competitiveItems
       .filter((item) =>
-        item.name.includes(searchTerm) ||
+        item.name.includes(debouncedSearchTerm) ||
         item.id.toLowerCase().includes(searchLower)
       )
       .map((item) => ({
@@ -46,12 +47,11 @@ export default function ItemAutocomplete({
         isMegaStone: false,
       }));
 
-    // Filter mega stones
     const filteredMega = megaStones
       .filter((stone) =>
-        stone.name.includes(searchTerm) ||
+        stone.name.includes(debouncedSearchTerm) ||
         stone.id.toLowerCase().includes(searchLower) ||
-        stone.basePokemonName.includes(searchTerm)
+        stone.basePokemonName.includes(debouncedSearchTerm)
       )
       .map((stone) => ({
         name: stone.name,
@@ -60,10 +60,10 @@ export default function ItemAutocomplete({
       }));
 
     const combined = [...filteredCompetitive, ...filteredMega];
-    setFilteredItems(combined.slice(0, 15)); // Show max 15 results
+    setFilteredItems(combined.slice(0, 15));
     setIsOpen(combined.length > 0);
     setHighlightedIndex(0);
-  }, [searchTerm, competitiveItems, megaStones]);
+  }, [debouncedSearchTerm, competitiveItems, megaStones]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

@@ -23,7 +23,6 @@ describe('move-helpers', () => {
       const move = getMoveData('かえんほうしゃ');
 
       expect(move).toBeTruthy();
-      expect(move?.nameJa).toBe('かえんほうしゃ');
       expect(move?.type).toBe('ほのお');
       expect(move?.category).toBe('特殊');
       expect(move?.power).toBe(90);
@@ -34,7 +33,6 @@ describe('move-helpers', () => {
       const move = getMoveData('１０まんボルト');
 
       expect(move).toBeTruthy();
-      expect(move?.nameJa).toBe('１０まんボルト');
       expect(move?.type).toBe('でんき');
       expect(move?.category).toBe('特殊');
       expect(move?.power).toBe(90);

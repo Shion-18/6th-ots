@@ -59,7 +59,15 @@ export default function Home() {
                   try {
                     const urlObj = new URL(url);
                     if (urlObj.pathname === '/view') {
-                      router.push(url);
+                      const shareId = urlObj.searchParams.get('shareId');
+                      const data = urlObj.searchParams.get('data');
+                      if (shareId) {
+                        router.push(`/view?shareId=${encodeURIComponent(shareId)}`);
+                      } else if (data) {
+                        router.push(`/view?data=${encodeURIComponent(data)}`);
+                      } else {
+                        alert('正しいURLを入力してください');
+                      }
                     } else {
                       alert('正しいURLを入力してください');
                     }

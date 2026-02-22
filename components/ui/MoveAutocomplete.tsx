@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { getTypeBgColor } from '@/lib/type-colors';
 import { PokemonType } from '@/types/pokemon';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 
 interface MoveDetail {
   id: number;
@@ -29,6 +30,7 @@ export default function MoveAutocomplete({
   placeholder = '技を検索...',
 }: MoveAutocompleteProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebouncedValue(searchTerm, 200);
   const [filteredMoves, setFilteredMoves] = useState<MoveDetail[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
@@ -36,30 +38,29 @@ export default function MoveAutocomplete({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!searchTerm.trim()) {
+    if (!debouncedSearchTerm.trim()) {
       setFilteredMoves([]);
       setIsOpen(false);
       return;
     }
 
     const filtered = availableMoves.filter((move) => {
-      // Exclude already selected moves
       if (selectedMoves.includes(move.nameJa)) {
         return false;
       }
 
-      const searchLower = searchTerm.toLowerCase();
+      const searchLower = debouncedSearchTerm.toLowerCase();
       return (
-        move.nameJa.includes(searchTerm) ||
+        move.nameJa.includes(debouncedSearchTerm) ||
         move.name.toLowerCase().includes(searchLower) ||
-        move.type.includes(searchTerm)
+        move.type.includes(debouncedSearchTerm)
       );
     });
 
-    setFilteredMoves(filtered.slice(0, 10)); // Show max 10 results
+    setFilteredMoves(filtered.slice(0, 10));
     setIsOpen(filtered.length > 0);
     setHighlightedIndex(0);
-  }, [searchTerm, availableMoves, selectedMoves]);
+  }, [debouncedSearchTerm, availableMoves, selectedMoves]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

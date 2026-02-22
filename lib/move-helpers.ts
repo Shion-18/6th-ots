@@ -1,10 +1,7 @@
 // Move type helper utilities
-import pokemonMovesData from '@/data/pokemon-moves.json';
+import moveTypeMapData from '@/data/move-type-map.json';
 
 interface MoveDetail {
-  id: number;
-  name: string;
-  nameJa: string;
   type: string;
   category: string;
   power: number | null;
@@ -12,35 +9,7 @@ interface MoveDetail {
   pp: number;
 }
 
-interface PokemonMovesData {
-  pokemonId: number;
-  pokemonName: string;
-  moves: MoveDetail[];
-}
-
-// Create a Map for fast lookup
-let moveTypeMap: Map<string, string> | null = null;
-let allMovesMap: Map<string, MoveDetail> | null = null;
-
-function initializeMoveTypeMap(): Map<string, string> {
-  if (moveTypeMap) return moveTypeMap;
-
-  moveTypeMap = new Map();
-  allMovesMap = new Map();
-
-  // Extract all unique moves from pokemon-moves.json
-  (pokemonMovesData as PokemonMovesData[]).forEach((pokemonMoves) => {
-    pokemonMoves.moves.forEach((move) => {
-      // Use nameJa (Japanese name) as the key
-      if (!moveTypeMap!.has(move.nameJa)) {
-        moveTypeMap!.set(move.nameJa, move.type);
-        allMovesMap!.set(move.nameJa, move);
-      }
-    });
-  });
-
-  return moveTypeMap;
-}
+const moveTypeMap = moveTypeMapData as Record<string, MoveDetail>;
 
 /**
  * Get the type for a given move name
@@ -48,8 +17,7 @@ function initializeMoveTypeMap(): Map<string, string> {
  * @returns The type of the move, or null if not found
  */
 export function getMoveType(moveName: string): string | null {
-  const map = initializeMoveTypeMap();
-  return map.get(moveName) || null;
+  return moveTypeMap[moveName]?.type || null;
 }
 
 /**
@@ -58,8 +26,7 @@ export function getMoveType(moveName: string): string | null {
  * @returns The full move data, or null if not found
  */
 export function getMoveData(moveName: string): MoveDetail | null {
-  initializeMoveTypeMap(); // Ensure maps are initialized
-  return allMovesMap?.get(moveName) || null;
+  return moveTypeMap[moveName] || null;
 }
 
 /**
@@ -68,6 +35,5 @@ export function getMoveData(moveName: string): MoveDetail | null {
  * @returns Array of types in the same order (null for not found)
  */
 export function getMoveTypes(moveNames: string[]): (string | null)[] {
-  const map = initializeMoveTypeMap();
-  return moveNames.map((name) => map.get(name) || null);
+  return moveNames.map((name) => moveTypeMap[name]?.type || null);
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { memo, useMemo } from 'react';
 import { Pokemon } from '@/types/pokemon';
 import TypeIcon from './TypeIcon';
 import { getMoveType } from '@/lib/move-helpers';
@@ -14,13 +15,20 @@ interface PokemonData {
   types: string[];
 }
 
+// O(1) lookup instead of O(n) .find()
+const pokemonLookup = new Map<number, PokemonData>(
+  (allPokemon as PokemonData[]).map(p => [p.id, p])
+);
+
 interface CompactPokemonCardProps {
   pokemon: Pokemon;
 }
 
-export default function CompactPokemonCard({ pokemon }: CompactPokemonCardProps) {
-  // Find Pokemon data by speciesId
-  const pokemonData = (allPokemon as PokemonData[]).find((p) => p.id === pokemon.speciesId);
+function CompactPokemonCardInner({ pokemon }: CompactPokemonCardProps) {
+  const pokemonData = useMemo(
+    () => pokemonLookup.get(pokemon.speciesId),
+    [pokemon.speciesId]
+  );
 
   if (!pokemonData) {
     return (
@@ -106,3 +114,5 @@ export default function CompactPokemonCard({ pokemon }: CompactPokemonCardProps)
     </div>
   );
 }
+
+export default memo(CompactPokemonCardInner);

@@ -1,19 +1,29 @@
 import { kv } from '@vercel/kv';
 import { NextRequest, NextResponse } from 'next/server';
 import { Team } from '@/types/pokemon';
-import { isValidUUID } from '@/lib/user-id';
+import { getSessionUserId } from '@/lib/session';
+import { SaveTeamBodySchema, checkContentLength } from '@/lib/api-validation';
+import { rateLimit } from '@/lib/rate-limit';
 
 /**
  * GET /api/teams - ユーザーの全パーティを取得
  */
 export async function GET(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id');
+    const userId = await getSessionUserId();
 
-    if (!userId || !isValidUUID(userId)) {
+    if (!userId) {
       return NextResponse.json(
-        { success: false, error: 'Invalid or missing user ID' },
-        { status: 400 }
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const rl = await rateLimit(`get-teams:${userId}`, 60, 60);
+    if (!rl.success) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests' },
+        { status: 429, headers: { 'Retry-After': String(rl.reset - Math.floor(Date.now() / 1000)) } }
       );
     }
 
@@ -39,25 +49,41 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id');
+    const userId = await getSessionUserId();
 
-    if (!userId || !isValidUUID(userId)) {
+    if (!userId) {
       return NextResponse.json(
-        { success: false, error: 'Invalid or missing user ID' },
-        { status: 400 }
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const rl = await rateLimit(`post-teams:${userId}`, 20, 60);
+    if (!rl.success) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests' },
+        { status: 429, headers: { 'Retry-After': String(rl.reset - Math.floor(Date.now() / 1000)) } }
+      );
+    }
+
+    if (!checkContentLength(request)) {
+      return NextResponse.json(
+        { success: false, error: 'Request body too large' },
+        { status: 413 }
       );
     }
 
     const body = await request.json();
-    const { team, overwrite = false } = body;
+    const result = SaveTeamBodySchema.safeParse(body);
 
-    // バリデーション
-    if (!team || !team.id || !team.name || !Array.isArray(team.pokemon)) {
+    if (!result.success) {
       return NextResponse.json(
-        { success: false, error: 'Invalid team data' },
+        { success: false, error: 'Invalid team data', details: result.error.issues },
         { status: 400 }
       );
     }
+
+    const { team, overwrite } = result.data;
 
     const key = `user:${userId}:teams`;
     const existingTeams = await kv.get<Team[]>(key) || [];

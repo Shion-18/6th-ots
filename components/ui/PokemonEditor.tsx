@@ -7,7 +7,6 @@ import MoveAutocomplete from './MoveAutocomplete';
 import ItemAutocomplete from './ItemAutocomplete';
 import TypeIcon from './TypeIcon';
 import allPokemon from '@/data/all-pokemon.json';
-import pokemonMoves from '@/data/pokemon-moves.json';
 import Image from 'next/image';
 import { getCompetitiveItems, getMegaStonesForPokemon } from '@/lib/item-helpers';
 
@@ -49,19 +48,28 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
     pp: number;
   }
 
-  interface PokemonMovesData {
-    pokemonId: number;
-    pokemonName: string;
-    moves: MoveDetail[];
-  }
-
   const [selectedSpecies, setSelectedSpecies] = useState<PokemonData | null>(null);
   const [availableMoves, setAvailableMoves] = useState<MoveDetail[]>([]);
+  const [movesLoading, setMovesLoading] = useState(false);
   const [nickname, setNickname] = useState('');
   const [level, setLevel] = useState(50);
   const [ability, setAbility] = useState('');
   const [item, setItem] = useState('');
   const [selectedMoves, setSelectedMoves] = useState<string[]>([]);
+
+  const loadMovesForPokemon = async (pokemonId: number) => {
+    setMovesLoading(true);
+    try {
+      const response = await fetch(`/api/pokemon-moves/${pokemonId}`);
+      const data = await response.json();
+      setAvailableMoves(data.moves || []);
+    } catch (error) {
+      console.error('Failed to load moves:', error);
+      setAvailableMoves([]);
+    } finally {
+      setMovesLoading(false);
+    }
+  };
 
   // 既存のポケモンを編集する場合は初期値を設定
   useEffect(() => {
@@ -74,14 +82,7 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
         setAbility(pokemon.ability);
         setItem(pokemon.item || '');
         setSelectedMoves(pokemon.moves);
-
-        // Load available moves for this Pokemon
-        const movesData = (pokemonMoves as PokemonMovesData[]).find(
-          (pm) => pm.pokemonId === species.id
-        );
-        if (movesData) {
-          setAvailableMoves(movesData.moves);
-        }
+        loadMovesForPokemon(species.id);
       }
     }
   }, [pokemon]);
@@ -89,19 +90,8 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
   const handleSpeciesSelect = (species: PokemonData) => {
     setSelectedSpecies(species);
     setAbility(species.abilities[0]);
-
-    // Load available moves for this Pokemon
-    const movesData = (pokemonMoves as PokemonMovesData[]).find(
-      (pm) => pm.pokemonId === species.id
-    );
-    if (movesData) {
-      setAvailableMoves(movesData.moves);
-    } else {
-      setAvailableMoves([]);
-    }
-
-    // Reset selected moves when changing Pokemon
     setSelectedMoves([]);
+    loadMovesForPokemon(species.id);
   };
 
   const handleMoveSelect = (moveName: string) => {
@@ -294,6 +284,8 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
                   placeholder={
                     selectedMoves.length >= 4
                       ? '技は4つまでです'
+                      : movesLoading
+                      ? '技を読み込み中...'
                       : availableMoves.length > 0
                       ? '技を検索して追加...'
                       : 'ポケモンを選択すると技が表示されます'

@@ -1,8 +1,9 @@
 import { kv } from '@vercel/kv';
 import { NextRequest, NextResponse } from 'next/server';
-import { Team } from '@/types/pokemon';
-import { isValidUUID } from '@/lib/user-id';
+import { getSessionUserId } from '@/lib/session';
 import { nanoid } from 'nanoid';
+import { ShareTeamBodySchema, checkContentLength } from '@/lib/api-validation';
+import { rateLimit } from '@/lib/rate-limit';
 
 const DEFAULT_TTL = 30 * 24 * 60 * 60; // 30日（秒）
 
@@ -11,28 +12,45 @@ const DEFAULT_TTL = 30 * 24 * 60 * 60; // 30日（秒）
  */
 export async function POST(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id');
+    const userId = await getSessionUserId();
 
-    if (!userId || !isValidUUID(userId)) {
+    if (!userId) {
       return NextResponse.json(
-        { success: false, error: 'Invalid or missing user ID' },
-        { status: 400 }
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // レートリミット: 10回/分（userId単位）
+    const rateLimitResult = await rateLimit(`share:post:${userId}`, 10, 60);
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests' },
+        { status: 429, headers: { 'Retry-After': String(rateLimitResult.reset - Math.floor(Date.now() / 1000)) } }
+      );
+    }
+
+    if (!checkContentLength(request)) {
+      return NextResponse.json(
+        { success: false, error: 'Request body too large' },
+        { status: 413 }
       );
     }
 
     const body = await request.json();
-    const { team, ttl = DEFAULT_TTL } = body;
+    const result = ShareTeamBodySchema.safeParse(body);
 
-    // バリデーション
-    if (!team || !team.id || !team.name) {
+    if (!result.success) {
       return NextResponse.json(
-        { success: false, error: 'Invalid team data' },
+        { success: false, error: 'Invalid team data', details: result.error.issues },
         { status: 400 }
       );
     }
 
-    // 共有ID生成（10文字のURL-safe文字列）
-    const shareId = nanoid(10);
+    const { team, ttl = DEFAULT_TTL } = result.data;
+
+    // 共有ID生成（21文字のURL-safe文字列、128ビットエントロピー）
+    const shareId = nanoid(21);
     const key = `shared:${shareId}`;
 
     // KVに保存（TTL付き）

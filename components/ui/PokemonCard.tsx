@@ -1,5 +1,6 @@
 'use client';
 
+import { memo, useMemo } from 'react';
 import { Pokemon } from '@/types/pokemon';
 import { getTypeColor, getTypeBgColor } from '@/lib/type-colors';
 import TypeIcon from './TypeIcon';
@@ -7,22 +8,27 @@ import { getMoveType } from '@/lib/move-helpers';
 import allPokemon from '@/data/all-pokemon.json';
 import Image from 'next/image';
 
+interface PokemonData {
+  id: number;
+  nameJa: string;
+  sprite: string;
+  types: string[];
+}
+
+// O(1) lookup instead of O(n) .find()
+const pokemonLookup = new Map<number, PokemonData>(
+  (allPokemon as PokemonData[]).map(p => [p.id, p])
+);
+
 interface PokemonCardProps {
   pokemon: Pokemon;
   onClick?: () => void;
 }
 
-export default function PokemonCard({ pokemon, onClick }: PokemonCardProps) {
-  // Pokemon データを取得（画像・タイプ情報）
-  interface PokemonData {
-    id: number;
-    nameJa: string;
-    sprite: string;
-    types: string[];
-  }
-
-  const pokemonData = (allPokemon as PokemonData[]).find(
-    (p) => p.id === pokemon.speciesId
+function PokemonCardInner({ pokemon, onClick }: PokemonCardProps) {
+  const pokemonData = useMemo(
+    () => pokemonLookup.get(pokemon.speciesId),
+    [pokemon.speciesId]
   );
 
   if (!pokemonData) {
@@ -128,3 +134,5 @@ export default function PokemonCard({ pokemon, onClick }: PokemonCardProps) {
     </div>
   );
 }
+
+export default memo(PokemonCardInner);

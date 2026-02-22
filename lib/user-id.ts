@@ -33,6 +33,32 @@ export function isValidUUID(uuid: string): boolean {
 }
 
 /**
+ * セッションCookieが存在しない場合、APIに認証リクエストを送信する。
+ * アプリ起動時に1度だけ呼ぶ。
+ */
+export async function ensureSession(): Promise<void> {
+  if (typeof window === 'undefined') return;
+
+  try {
+    // セッション状態を確認
+    const checkRes = await fetch('/api/auth/session');
+    const checkData = await checkRes.json();
+
+    if (checkData.authenticated) return;
+
+    // Cookieがない場合は発行
+    const userId = getUserId();
+    await fetch('/api/auth/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    });
+  } catch (error) {
+    console.error('Failed to ensure session:', error);
+  }
+}
+
+/**
  * ユーザーIDをリセットする（デバッグ用）
  */
 export function resetUserId(): void {

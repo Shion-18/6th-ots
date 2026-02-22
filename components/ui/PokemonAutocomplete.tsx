@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import allPokemon from '@/data/all-pokemon.json';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 
 interface PokemonData {
   id: number;
@@ -36,6 +37,7 @@ export default function PokemonAutocomplete({
   selectedPokemon,
 }: PokemonAutocompleteProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebouncedValue(searchTerm, 250);
   const [filteredPokemon, setFilteredPokemon] = useState<PokemonData[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
@@ -43,26 +45,26 @@ export default function PokemonAutocomplete({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!searchTerm.trim()) {
+    if (!debouncedSearchTerm.trim()) {
       setFilteredPokemon([]);
       setIsOpen(false);
       return;
     }
 
     const filtered = (allPokemon as PokemonData[]).filter((p) => {
-      const searchLower = searchTerm.toLowerCase();
+      const searchLower = debouncedSearchTerm.toLowerCase();
       return (
-        p.nameJa.includes(searchTerm) ||
+        p.nameJa.includes(debouncedSearchTerm) ||
         p.nameEn.toLowerCase().includes(searchLower) ||
         p.name.toLowerCase().includes(searchLower) ||
-        p.id.toString().includes(searchTerm)
+        p.id.toString().includes(debouncedSearchTerm)
       );
     });
 
-    setFilteredPokemon(filtered.slice(0, 10)); // Show max 10 results
+    setFilteredPokemon(filtered.slice(0, 10));
     setIsOpen(filtered.length > 0);
     setHighlightedIndex(0);
-  }, [searchTerm]);
+  }, [debouncedSearchTerm]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
