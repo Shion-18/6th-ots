@@ -299,12 +299,12 @@ function BuilderPageContent() {
         </div>
 
         {/* アクションボタン */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
           <button
             data-testid="save-team"
             onClick={saveTeam}
             disabled={pokemon.length === 0}
-            className={`font-bold py-4 px-6 rounded-lg transition-colors ${
+            className={`font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base ${
               pokemon.length === 0
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-purple-500 hover:bg-purple-600 text-white'
@@ -315,7 +315,7 @@ function BuilderPageContent() {
           <button
             onClick={shareTeam}
             disabled={pokemon.length === 0}
-            className={`font-bold py-4 px-6 rounded-lg transition-colors ${
+            className={`font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base ${
               pokemon.length === 0
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-blue-500 hover:bg-blue-600 text-white'
@@ -326,7 +326,7 @@ function BuilderPageContent() {
           <button
             onClick={generateImage}
             disabled={pokemon.length === 0 || isGenerating}
-            className={`font-bold py-4 px-6 rounded-lg transition-colors ${
+            className={`font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base ${
               pokemon.length === 0 || isGenerating
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-green-500 hover:bg-green-600 text-white'
@@ -342,7 +342,7 @@ function BuilderPageContent() {
                 setHasTeamNameBeenFocused(false);
               }
             }}
-            className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded-lg transition-colors"
+            className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base"
           >
             リセット
           </button>

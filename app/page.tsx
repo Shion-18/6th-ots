@@ -1,11 +1,37 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import CompactPokemonCard from '@/components/ui/CompactPokemonCard';
 import { sampleTeam } from '@/lib/sample-team';
 
 export default function Home() {
   const router = useRouter();
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const [inputUrl, setInputUrl] = useState('');
+  const [urlError, setUrlError] = useState('');
+
+  const handleUrlSubmit = () => {
+    if (!inputUrl.trim()) return;
+    try {
+      const urlObj = new URL(inputUrl.trim());
+      if (urlObj.pathname === '/view') {
+        const shareId = urlObj.searchParams.get('shareId');
+        const data = urlObj.searchParams.get('data');
+        if (shareId) {
+          router.push(`/view?shareId=${encodeURIComponent(shareId)}`);
+        } else if (data) {
+          router.push(`/view?data=${encodeURIComponent(data)}`);
+        } else {
+          setUrlError('正しいURLを入力してください');
+        }
+      } else {
+        setUrlError('正しいURLを入力してください');
+      }
+    } catch {
+      setUrlError('正しいURLを入力してください');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
@@ -20,14 +46,14 @@ export default function Home() {
       </div>
 
       {/* メインコンテンツ */}
-      <div className="max-w-4xl mx-auto px-4 py-12">
+      <div className="max-w-4xl mx-auto px-4 py-6 sm:py-12">
         {/* ヒーローセクション */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-          <div className="text-center mb-8">
-            <h2 className="text-4xl font-bold text-gray-800 mb-4">
+        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8 mb-8">
+          <div className="text-center mb-6 sm:mb-8">
+            <h2 className="text-2xl sm:text-4xl font-bold text-gray-800 mb-4">
               パーティを共有して<br />対戦を始めよう
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-base sm:text-lg text-gray-600">
               オープンチームシートルールで、スムーズに対戦開始
             </p>
           </div>
@@ -54,27 +80,9 @@ export default function Home() {
 
             <button
               onClick={() => {
-                const url = prompt('相手から受け取ったURLを貼り付けてください');
-                if (url) {
-                  try {
-                    const urlObj = new URL(url);
-                    if (urlObj.pathname === '/view') {
-                      const shareId = urlObj.searchParams.get('shareId');
-                      const data = urlObj.searchParams.get('data');
-                      if (shareId) {
-                        router.push(`/view?shareId=${encodeURIComponent(shareId)}`);
-                      } else if (data) {
-                        router.push(`/view?data=${encodeURIComponent(data)}`);
-                      } else {
-                        alert('正しいURLを入力してください');
-                      }
-                    } else {
-                      alert('正しいURLを入力してください');
-                    }
-                  } catch {
-                    alert('正しいURLを入力してください');
-                  }
-                }
+                setShowUrlInput(true);
+                setUrlError('');
+                setInputUrl('');
               }}
               className="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-bold py-6 px-6 rounded-xl shadow-lg transition-all transform hover:scale-105"
             >
@@ -83,6 +91,41 @@ export default function Home() {
               <div className="text-xs opacity-90 mt-1">URL入力</div>
             </button>
           </div>
+
+          {/* URL入力エリア（インライン） */}
+          {showUrlInput && (
+            <div className="mt-6 bg-gray-50 rounded-xl p-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                相手から受け取ったURLを貼り付け
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={inputUrl}
+                  onChange={(e) => { setInputUrl(e.target.value); setUrlError(''); }}
+                  placeholder="https://..."
+                  className="flex-1 min-w-0 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  autoFocus
+                  onKeyDown={(e) => e.key === 'Enter' && handleUrlSubmit()}
+                />
+                <button
+                  onClick={handleUrlSubmit}
+                  className="bg-green-500 hover:bg-green-600 text-white font-bold px-4 py-2 rounded-lg text-sm whitespace-nowrap transition-colors"
+                >
+                  表示
+                </button>
+                <button
+                  onClick={() => setShowUrlInput(false)}
+                  className="text-gray-400 hover:text-gray-600 px-2 text-lg"
+                >
+                  ×
+                </button>
+              </div>
+              {urlError && (
+                <p className="text-red-500 text-xs mt-2">{urlError}</p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* サンプルパーティ */}
@@ -118,8 +161,8 @@ export default function Home() {
         </div>
 
         {/* 使い方 */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-          <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">使い方</h3>
+        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8 mb-8">
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6 text-center">使い方</h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="text-center">
               <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
@@ -164,8 +207,8 @@ export default function Home() {
         </div>
 
         {/* 機能紹介 */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-          <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">特徴</h3>
+        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8 mb-8">
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6 text-center">特徴</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-4 bg-blue-50 rounded-xl">
               <div className="text-3xl mb-3">📱</div>

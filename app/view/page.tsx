@@ -59,13 +59,10 @@ function ViewPageContent() {
     setLoading(false);
   }, [searchParams]);
 
-  const handleShare = () => {
-    const currentUrl = window.location.href;
-    navigator.clipboard.writeText(currentUrl).then(() => {
-      alert('URLをコピーしました！');
-    }).catch(() => {
-      alert('URLのコピーに失敗しました');
-    });
+  const handleShare = async () => {
+    const { copyToClipboard } = await import('@/lib/clipboard');
+    const ok = await copyToClipboard(window.location.href);
+    alert(ok ? 'URLをコピーしました！' : 'URLのコピーに失敗しました');
   };
 
   if (loading) {
@@ -111,7 +108,7 @@ function ViewPageContent() {
       </div>
 
       {/* 画像生成ボタン（固定位置） */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed right-6 z-50" style={{ bottom: 'max(1.5rem, env(safe-area-inset-bottom, 1.5rem))' }}>
         <button
           onClick={generateImage}
           disabled={isGenerating}
