@@ -22,6 +22,7 @@ const TeamSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
   format: z.enum(['singles', 'doubles']).optional(),
+  version: z.number().int().min(0).optional(),
 });
 
 // POST /api/teams リクエストボディ
