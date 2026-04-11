@@ -265,7 +265,7 @@ function BuilderPageContent() {
           <h2 className="text-lg font-bold text-gray-800 mb-4">
             パーティ ({pokemon.length}/6)
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {pokemon.map((p) => (
               <div key={p.id}>
                 <PokemonCard pokemon={p} />
