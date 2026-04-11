@@ -141,7 +141,7 @@ export default function MyTeamsPage() {
                 </div>
 
                 {/* ポケモンリスト */}
-                <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
                   {team.pokemon.map((pokemon) => (
                     <div key={pokemon.id} className="bg-gray-100 rounded-lg p-2 text-center">
                       <div className="font-bold text-sm text-gray-800">
