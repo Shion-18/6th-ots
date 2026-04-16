@@ -4,21 +4,8 @@ import { memo, useMemo } from 'react';
 import { Pokemon } from '@/types/pokemon';
 import TypeIcon from './TypeIcon';
 import { getMoveType } from '@/lib/move-helpers';
-import allPokemon from '@/data/all-pokemon.json';
+import { getPokemonData } from '@/lib/pokemon-data';
 import Image from 'next/image';
-
-interface PokemonData {
-  id: number;
-  name: string;
-  nameJa: string;
-  sprite: string;
-  types: string[];
-}
-
-// O(1) lookup instead of O(n) .find()
-const pokemonLookup = new Map<number, PokemonData>(
-  (allPokemon as PokemonData[]).map(p => [p.id, p])
-);
 
 interface CompactPokemonCardProps {
   pokemon: Pokemon;
@@ -26,7 +13,7 @@ interface CompactPokemonCardProps {
 
 function CompactPokemonCardInner({ pokemon }: CompactPokemonCardProps) {
   const pokemonData = useMemo(
-    () => pokemonLookup.get(pokemon.speciesId),
+    () => getPokemonData(pokemon.speciesId),
     [pokemon.speciesId]
   );
 
