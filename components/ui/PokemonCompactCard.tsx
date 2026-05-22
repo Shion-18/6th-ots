@@ -1,56 +1,37 @@
 'use client';
 
-import { Pokemon } from '@/types/pokemon';
-import allPokemon from '@/data/all-pokemon.json';
+import { memo, useMemo } from 'react';
+import { Pokemon, PokemonType } from '@/types/pokemon';
+import { getPokemonData } from '@/lib/pokemon-data';
+import { getTypeBgColor } from '@/lib/type-colors';
 
 interface PokemonCompactCardProps {
   pokemon: Pokemon;
 }
 
-interface PokemonData {
-  id: number;
-  name: string;
-  nameJa: string;
-  sprite: string;
-  types: string[];
-}
-
-export default function PokemonCompactCard({ pokemon }: PokemonCompactCardProps) {
-  // ポケモンデータを取得
-  const pokemonData = (allPokemon as PokemonData[]).find(
-    (p) => p.id === pokemon.speciesId
+/**
+ * 画像エクスポート（html2canvas）用のコンパクトカード。
+ *
+ * 画面表示用の {@link CompactPokemonCard} とは視覚設計を分けている:
+ * - 横並び・大きめスプライト・大きめフォント（1200px の PNG 向け）
+ * - html2canvas が Next.js `<Image>` の内部 src 解決で崩れるのを避けるため
+ *   ここではあえて raw `<img>` を使う
+ */
+function PokemonCompactCardInner({ pokemon }: PokemonCompactCardProps) {
+  const pokemonData = useMemo(
+    () => getPokemonData(pokemon.speciesId),
+    [pokemon.speciesId]
   );
 
-  const sprite = pokemonData?.sprite || '';
-  const types = pokemonData?.types || [];
-
-  // タイプカラーマッピング
-  const typeColors: { [key: string]: string } = {
-    'ノーマル': 'bg-gray-400',
-    'ほのお': 'bg-red-500',
-    'みず': 'bg-blue-500',
-    'でんき': 'bg-yellow-400',
-    'くさ': 'bg-green-500',
-    'こおり': 'bg-cyan-400',
-    'かくとう': 'bg-orange-600',
-    'どく': 'bg-purple-500',
-    'じめん': 'bg-yellow-600',
-    'ひこう': 'bg-indigo-400',
-    'エスパー': 'bg-pink-500',
-    'むし': 'bg-lime-500',
-    'いわ': 'bg-yellow-700',
-    'ゴースト': 'bg-purple-700',
-    'ドラゴン': 'bg-indigo-600',
-    'あく': 'bg-gray-700',
-    'はがね': 'bg-gray-500',
-    'フェアリー': 'bg-pink-400',
-  };
+  const sprite = pokemonData?.sprite ?? '';
+  const types = pokemonData?.types ?? [];
 
   return (
     <div className="bg-white rounded-xl shadow-md p-4 flex gap-4">
-      {/* 左側: ポケモン画像 */}
+      {/* 左側: ポケモン画像（raw <img> は html2canvas 互換性のため意図的） */}
       <div className="flex-shrink-0 w-20 h-20">
         {sprite && (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={sprite}
             alt={pokemon.species}
@@ -76,9 +57,9 @@ export default function PokemonCompactCard({ pokemon }: PokemonCompactCardProps)
           {types.map((type) => (
             <span
               key={type}
-              className={`text-xs px-2 py-0.5 rounded text-white font-medium ${
-                typeColors[type] || 'bg-gray-400'
-              }`}
+              className={`text-xs px-2 py-0.5 rounded text-white font-medium ${getTypeBgColor(
+                type as PokemonType
+              )}`}
             >
               {type}
             </span>
@@ -99,11 +80,13 @@ export default function PokemonCompactCard({ pokemon }: PokemonCompactCardProps)
 
         {/* 技 */}
         <div className="text-sm text-gray-700">
-          {pokemon.moves.map((move, index) => (
-            <div key={index}>・{move}</div>
+          {pokemon.moves.map((move) => (
+            <div key={move}>・{move}</div>
           ))}
         </div>
       </div>
     </div>
   );
 }
+
+export default memo(PokemonCompactCardInner);

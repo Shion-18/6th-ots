@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Team } from '@/types/pokemon';
-import { getTeamsFromAPI, deleteTeamFromAPI, createShareLink } from '@/lib/team-storage';
+import { getTeamsFromAPI, deleteTeamFromAPI } from '@/lib/team-storage';
+import { generateShareUrl } from '@/lib/team-encoder';
 import QRCodeDisplay from '@/components/ui/QRCodeDisplay';
 
 export default function MyTeamsPage() {
@@ -44,16 +45,12 @@ export default function MyTeamsPage() {
     router.push(`/builder?teamId=${teamId}`);
   };
 
-  const handleShare = async (team: Team) => {
+  const handleShare = (team: Team) => {
     try {
-      const result = await createShareLink(team);
-      if (result.shareUrl) {
-        setShareUrl(result.shareUrl);
-        setShareTeamName(team.name);
-        setShowQRModal(true);
-      } else {
-        alert(result.error || '共有リンクの作成に失敗しました');
-      }
+      const url = generateShareUrl(team);
+      setShareUrl(url);
+      setShareTeamName(team.name);
+      setShowQRModal(true);
     } catch (error) {
       console.error('Share failed:', error);
       alert('共有リンクの作成に失敗しました');
