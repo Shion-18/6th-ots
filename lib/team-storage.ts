@@ -1,10 +1,21 @@
 import { Team } from '@/types/pokemon';
 import { getTeamsFromLocalStorage, saveTeamToLocalStorage } from './team-encoder';
 
+export type SaveDestination = 'cloud' | 'local' | 'failed';
+
+export interface SaveResult {
+  success: boolean;
+  savedTo: SaveDestination;
+  needsConfirmation?: boolean;
+  existingTeamName?: string;
+  error?: string;
+  team?: Team;
+}
+
 /**
- * APIを通じてパーティを保存する
+ * APIを通じてパーティを保存する（失敗時はlocalStorageにフォールバック）
  */
-export async function saveTeamToAPI(team: Team, overwrite = false): Promise<{ success: boolean; needsConfirmation?: boolean; existingTeamName?: string }> {
+export async function saveTeamToAPI(team: Team, overwrite = false): Promise<SaveResult> {
   try {
     const response = await fetch('/api/teams', {
       method: 'POST',
@@ -15,14 +26,22 @@ export async function saveTeamToAPI(team: Team, overwrite = false): Promise<{ su
     const data = await response.json();
 
     if (data.success) {
-      saveTeamToLocalStorage(team);
+      // KV保存成功 → localStorageにもバックアップ
+      const savedTeam = data.team || team;
+      saveTeamToLocalStorage(savedTeam);
+      return { success: true, savedTo: 'cloud', team: savedTeam };
     }
 
-    return data;
+    if (data.needsConfirmation) {
+      return { success: false, savedTo: 'failed', needsConfirmation: true, existingTeamName: data.existingTeamName };
+    }
+
+    return { success: false, savedTo: 'failed', error: data.error || '保存に失敗しました' };
   } catch (error) {
-    console.error('API save failed:', error);
-    const result = saveTeamToLocalStorage(team);
-    return result;
+    // ネットワーク障害 → localStorageにフォールバック
+    console.error('API save failed, falling back to localStorage:', error);
+    saveTeamToLocalStorage(team);
+    return { success: true, savedTo: 'local', team };
   }
 }
 
@@ -62,84 +81,3 @@ export async function deleteTeamFromAPI(teamId: string): Promise<boolean> {
   }
 }
 
-/**
- * 共有リンクを生成する
- */
-export async function createShareLink(team: Team): Promise<{ shareUrl?: string; error?: string }> {
-  try {
-    const response = await fetch('/api/share', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ team })
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return { shareUrl: data.shareUrl };
-  } catch (error) {
-    console.error('Share link creation failed:', error);
-    return { error: '共有リンクの作成に失敗しました' };
-  }
-}
-
-/**
- * 共有IDからパーティを取得する
- */
-export async function getSharedTeam(shareId: string): Promise<Team | null> {
-  try {
-    const response = await fetch(`/api/share/${shareId}`);
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        console.log('Share link expired or not found');
-        return null;
-      }
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.team || null;
-  } catch (error) {
-    console.error('Shared team fetch failed:', error);
-    return null;
-  }
-}
-
-/**
- * localStorageからKVへの自動マイグレーション
- */
-export async function migrateLocalStorageToKV(): Promise<boolean> {
-  if (typeof window === 'undefined') return false;
-
-  const migrationKey = 'pokemon-app-migrated';
-
-  if (localStorage.getItem(migrationKey)) {
-    return false;
-  }
-
-  try {
-    const localTeams = getTeamsFromLocalStorage();
-
-    if (localTeams.length === 0) {
-      localStorage.setItem(migrationKey, 'true');
-      return false;
-    }
-
-    for (const team of localTeams) {
-      const result = await saveTeamToAPI(team);
-      if (!result.success && result.needsConfirmation) {
-        await saveTeamToAPI(team, true);
-      }
-    }
-
-    localStorage.setItem(migrationKey, 'true');
-    console.log('Successfully migrated teams to cloud storage');
-    return true;
-  } catch (error) {
-    console.error('Migration failed:', error);
-    return false;
-  }
-}

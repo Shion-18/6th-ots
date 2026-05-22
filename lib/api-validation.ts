@@ -22,6 +22,7 @@ const TeamSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
   format: z.enum(['singles', 'doubles']).optional(),
+  version: z.number().int().min(0).optional(),
 });
 
 // POST /api/teams リクエストボディ
@@ -29,16 +30,6 @@ export const SaveTeamBodySchema = z.object({
   team: TeamSchema,
   overwrite: z.boolean().optional().default(false),
 });
-
-// POST /api/share リクエストボディ
-const MAX_TTL = 30 * 24 * 60 * 60; // 30日
-export const ShareTeamBodySchema = z.object({
-  team: TeamSchema,
-  ttl: z.number().int().min(300).max(MAX_TTL).optional(),
-});
-
-// shareIdパラメータ
-export const ShareIdSchema = z.string().regex(/^[A-Za-z0-9_-]+$/).min(10).max(30);
 
 // teamIdパラメータ
 export const TeamIdSchema = z.string().min(1).max(100);

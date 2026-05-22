@@ -3,13 +3,14 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Team, Pokemon } from '@/types/pokemon';
-import { getTeamFromLocalStorage, getTeamsFromLocalStorage } from '@/lib/team-encoder';
-import { saveTeamToAPI, createShareLink } from '@/lib/team-storage';
+import { getTeamFromLocalStorage, getTeamsFromLocalStorage, generateShareUrl } from '@/lib/team-encoder';
+import { saveTeamToAPI } from '@/lib/team-storage';
 import PokemonCard from '@/components/ui/PokemonCard';
 import PokemonEditor from '@/components/ui/PokemonEditor';
 import TeamImageView from '@/components/ui/TeamImageView';
 import { useImageGenerator } from '@/hooks/useImageGenerator';
 import QRCodeDisplay from '@/components/ui/QRCodeDisplay';
+import { useToast, ToastContainer } from '@/components/ui/Toast';
 
 function BuilderPageContent() {
   const router = useRouter();
@@ -19,32 +20,30 @@ function BuilderPageContent() {
   const [pokemon, setPokemon] = useState<Pokemon[]>([]);
   const [editingPokemon, setEditingPokemon] = useState<Pokemon | null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
-  const [savedTeams, setSavedTeams] = useState<Team[]>([]);
+  const [, setSavedTeams] = useState<Team[]>([]);
   const [showQRModal, setShowQRModal] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [editingTeamId, setEditingTeamId] = useState<string | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  const { toasts, showToast, dismissToast } = useToast();
 
-  // 編集モードの初期化
+  // 編集モードの初期化 — localStorageから読み込み
   useEffect(() => {
-    const teamId = searchParams.get('teamId');
+    const teamIdParam = searchParams.get('teamId');
+    if (!teamIdParam) return;
 
-    if (teamId) {
-      // 編集モード
-      const team = getTeamFromLocalStorage(teamId);
-
-      if (team) {
-        setEditingTeamId(teamId);
-        setIsEditMode(true);
-        setTeamName(team.name);
-        setPokemon(team.pokemon);
-        setHasTeamNameBeenFocused(true);
-      } else {
-        alert('パーティが見つかりませんでした');
-        router.push('/my-teams');
-      }
+    const localTeam = getTeamFromLocalStorage(teamIdParam);
+    if (localTeam) {
+      setEditingTeamId(teamIdParam);
+      setIsEditMode(true);
+      setTeamName(localTeam.name);
+      setPokemon(localTeam.pokemon);
+      setHasTeamNameBeenFocused(true);
+    } else {
+      showToast('error', 'パーティが見つかりませんでした');
+      router.push('/my-teams');
     }
-  }, [searchParams, router]);
+  }, [searchParams, router, showToast]);
 
   // 画像生成用のチームデータ
   const currentTeam: Team = {
@@ -121,10 +120,10 @@ function BuilderPageContent() {
       // 編集モードの場合は確認不要
       if (isEditMode) {
         if (result.success) {
-          alert('パーティを更新しました！');
-          router.push('/my-teams');
+          showToast('success', 'パーティを更新しました');
+          setTimeout(() => router.push('/my-teams'), 1000);
         } else {
-          alert('更新に失敗しました');
+          showToast('error', '更新に失敗しました');
         }
         return;
       }
@@ -136,26 +135,25 @@ function BuilderPageContent() {
         );
 
         if (confirmed) {
-          // overwriteフラグ付きで再送信
           const overwriteResult = await saveTeamToAPI(team, true);
           if (overwriteResult.success) {
             setSavedTeams(getTeamsFromLocalStorage());
-            alert('パーティを保存しました！');
-            router.push('/my-teams');
+            showToast('success', 'パーティを保存しました');
+            setTimeout(() => router.push('/my-teams'), 1000);
           } else {
-            alert('保存に失敗しました');
+            showToast('error', '保存に失敗しました');
           }
         }
       } else if (result.success) {
         setSavedTeams(getTeamsFromLocalStorage());
-        alert('パーティを保存しました！');
-        router.push('/my-teams');
+        showToast('success', 'パーティを保存しました');
+        setTimeout(() => router.push('/my-teams'), 1000);
       } else {
-        alert('保存に失敗しました');
+        showToast('error', result.error || '保存に失敗しました');
       }
     } catch (error) {
       console.error('Save failed:', error);
-      alert('保存に失敗しました');
+      showToast('error', '保存に失敗しました');
     }
   };
 
@@ -176,13 +174,9 @@ function BuilderPageContent() {
     };
 
     try {
-      const result = await createShareLink(team);
-      if (result.shareUrl) {
-        setShareUrl(result.shareUrl);
-        setShowQRModal(true);
-      } else {
-        alert(result.error || '共有リンクの作成に失敗しました');
-      }
+      const url = generateShareUrl(team);
+      setShareUrl(url);
+      setShowQRModal(true);
     } catch (error) {
       console.error('Share failed:', error);
       alert('共有リンクの作成に失敗しました');
@@ -198,6 +192,9 @@ function BuilderPageContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+      {/* トースト通知 */}
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+
       {/* エディタモーダル */}
       {isEditorOpen && (
         <PokemonEditor
@@ -268,7 +265,7 @@ function BuilderPageContent() {
           <h2 className="text-lg font-bold text-gray-800 mb-4">
             パーティ ({pokemon.length}/6)
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {pokemon.map((p) => (
               <div key={p.id}>
                 <PokemonCard pokemon={p} />
@@ -299,12 +296,12 @@ function BuilderPageContent() {
         </div>
 
         {/* アクションボタン */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
           <button
             data-testid="save-team"
             onClick={saveTeam}
             disabled={pokemon.length === 0}
-            className={`font-bold py-4 px-6 rounded-lg transition-colors ${
+            className={`font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base ${
               pokemon.length === 0
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-purple-500 hover:bg-purple-600 text-white'
@@ -315,7 +312,7 @@ function BuilderPageContent() {
           <button
             onClick={shareTeam}
             disabled={pokemon.length === 0}
-            className={`font-bold py-4 px-6 rounded-lg transition-colors ${
+            className={`font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base ${
               pokemon.length === 0
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-blue-500 hover:bg-blue-600 text-white'
@@ -326,7 +323,7 @@ function BuilderPageContent() {
           <button
             onClick={generateImage}
             disabled={pokemon.length === 0 || isGenerating}
-            className={`font-bold py-4 px-6 rounded-lg transition-colors ${
+            className={`font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base ${
               pokemon.length === 0 || isGenerating
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-green-500 hover:bg-green-600 text-white'
@@ -342,7 +339,7 @@ function BuilderPageContent() {
                 setHasTeamNameBeenFocused(false);
               }
             }}
-            className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded-lg transition-colors"
+            className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base"
           >
             リセット
           </button>

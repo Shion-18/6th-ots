@@ -7,6 +7,9 @@ test.describe('パーティ共有', () => {
   });
 
   test('共有URLを生成して表示できる', async ({ page }) => {
+    // dialogハンドラー（alert/confirmを自動承認）
+    page.on('dialog', dialog => dialog.accept());
+
     // パーティを作成・保存
     await page.goto('/builder');
 
@@ -17,10 +20,14 @@ test.describe('パーティ共有', () => {
     await page.locator('input[placeholder*="検索"]').first().fill('ピカチュウ');
     await page.locator('text=ピカチュウ').first().click();
 
-    const saveButton = page.locator('button:has-text("保存")').first();
-    if (await saveButton.count() > 0) {
-      await saveButton.click();
-    }
+    // 技を1つ追加（保存ボタン有効化に必要）
+    const moveInput = page.locator('input[placeholder*="技"]').first();
+    await moveInput.fill('１０まんボルト');
+    await page.waitForTimeout(300);
+    await page.locator('text=１０まんボルト').first().click();
+
+    // ポケモン保存
+    await page.locator('[data-testid="save-pokemon"]').click();
 
     await page.locator('[data-testid="save-team"]').click();
     await page.waitForURL(/\/my-teams/);
@@ -29,43 +36,21 @@ test.describe('パーティ共有', () => {
     const shareButton = page.locator('button:has-text("共有")').first();
     await shareButton.click();
 
-    // 共有URLが生成されることを確認
-    await page.waitForTimeout(500);
+    // QRモーダルが表示されるまで待機
+    await page.waitForSelector('input[type="url"]', { timeout: 10000 });
 
-    // URLに `/view?data=` または `/view?shareId=` が含まれることを確認
-    const shareUrlInput = page.locator('input[type="text"]').filter({ hasText: /view/ });
-    const shareUrlText = page.locator('text=/view\\?/');
+    // 共有URLを取得（readOnly input[type="url"]）
+    const shareUrl = await page.locator('input[type="url"]').inputValue();
+    expect(shareUrl).toMatch(/\/view\?shareId=/);
 
-    const hasUrlInput = await shareUrlInput.count() > 0;
-    const hasUrlText = await shareUrlText.count() > 0;
+    // QRコード（SVG）が表示されていることを確認
+    const qrSvg = page.locator('#qr-code-svg');
+    await expect(qrSvg).toBeVisible();
 
-    expect(hasUrlInput || hasUrlText).toBeTruthy();
-
-    // QRコードが表示されることを確認
-    const qrCode = page.locator('canvas, img[alt*="QR"]');
-    const qrExists = await qrCode.count() > 0;
-    expect(qrExists).toBeTruthy();
-
-    // 実際の共有URLを取得
-    let shareUrl = '';
-    if (hasUrlInput) {
-      shareUrl = await shareUrlInput.inputValue();
-    } else {
-      const urlText = await page.locator('text=/http.*view/').first().textContent();
-      shareUrl = urlText || '';
-    }
-
-    // URLが有効な形式か確認
-    expect(shareUrl).toMatch(/\/view\?/);
-
-    // 新しいタブで共有URLを開く（シミュレーション）
-    if (shareUrl) {
-      const urlParams = new URL(shareUrl, 'http://localhost:3003').search;
-      await page.goto(`/view${urlParams}`);
-
-      // パーティが表示されることを確認
-      await expect(page.locator('text=共有テスト')).toBeVisible();
-      await expect(page.locator('text=ピカチュウ')).toBeVisible();
-    }
+    // 共有URLを開いてパーティが表示されることを確認
+    const urlPath = new URL(shareUrl).pathname + new URL(shareUrl).search;
+    await page.goto(urlPath);
+    await expect(page.locator('text=共有テスト')).toBeVisible();
+    await expect(page.locator('text=ピカチュウ')).toBeVisible();
   });
 });

@@ -4,7 +4,6 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Team } from '@/types/pokemon';
 import { decodeTeam } from '@/lib/team-encoder';
-import { getSharedTeam } from '@/lib/team-storage';
 import TeamView from '@/components/ui/TeamView';
 import TeamImageView from '@/components/ui/TeamImageView';
 import { useImageGenerator } from '@/hooks/useImageGenerator';
@@ -20,28 +19,8 @@ function ViewPageContent() {
 
   useEffect(() => {
     const data = searchParams.get('data');
-    const shareId = searchParams.get('shareId');
-
-    if (shareId) {
-      // shareId経由: KVから取得
-      getSharedTeam(shareId).then((sharedTeam) => {
-        if (sharedTeam) {
-          setTeam(sharedTeam);
-          setError(null);
-        } else {
-          setError('共有リンクが期限切れか見つかりません');
-        }
-      }).catch((err) => {
-        console.error('共有データ取得エラー:', err);
-        setError('共有データの取得に失敗しました');
-      }).finally(() => {
-        setLoading(false);
-      });
-      return;
-    }
 
     if (data) {
-      // data経由: Base64デコード（後方互換）
       try {
         const decodedTeam = decodeTeam(decodeURIComponent(data));
         setTeam(decodedTeam);
@@ -59,13 +38,10 @@ function ViewPageContent() {
     setLoading(false);
   }, [searchParams]);
 
-  const handleShare = () => {
-    const currentUrl = window.location.href;
-    navigator.clipboard.writeText(currentUrl).then(() => {
-      alert('URLをコピーしました！');
-    }).catch(() => {
-      alert('URLのコピーに失敗しました');
-    });
+  const handleShare = async () => {
+    const { copyToClipboard } = await import('@/lib/clipboard');
+    const ok = await copyToClipboard(window.location.href);
+    alert(ok ? 'URLをコピーしました！' : 'URLのコピーに失敗しました');
   };
 
   if (loading) {
@@ -111,7 +87,7 @@ function ViewPageContent() {
       </div>
 
       {/* 画像生成ボタン（固定位置） */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed right-6 z-50" style={{ bottom: 'max(1.5rem, env(safe-area-inset-bottom, 1.5rem))' }}>
         <button
           onClick={generateImage}
           disabled={isGenerating}

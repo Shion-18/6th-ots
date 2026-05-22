@@ -1,11 +1,64 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import CompactPokemonCard from '@/components/ui/CompactPokemonCard';
 import { sampleTeam } from '@/lib/sample-team';
 
+// カメラ API はクライアント専用なので SSR を無効化して lazy-load
+const QRScanner = dynamic(() => import('@/components/ui/QRScanner'), {
+  ssr: false,
+});
+
+type OtherTeamMode = 'closed' | 'choose' | 'url' | 'qr';
+
 export default function Home() {
   const router = useRouter();
+  const [otherTeamMode, setOtherTeamMode] = useState<OtherTeamMode>('closed');
+  const [inputUrl, setInputUrl] = useState('');
+  const [urlError, setUrlError] = useState('');
+  const [scanError, setScanError] = useState('');
+
+  const routeFromUrl = (rawUrl: string): boolean => {
+    try {
+      const urlObj = new URL(rawUrl.trim());
+      if (urlObj.pathname === '/view') {
+        const data = urlObj.searchParams.get('data');
+        if (data) {
+          router.push(`/view?data=${encodeURIComponent(data)}`);
+          return true;
+        }
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
+  const handleUrlSubmit = () => {
+    if (!inputUrl.trim()) return;
+    if (!routeFromUrl(inputUrl)) {
+      setUrlError('正しいURLを入力してください');
+    }
+  };
+
+  const handleQRScan = (decodedText: string) => {
+    if (routeFromUrl(decodedText)) {
+      setOtherTeamMode('closed');
+      setScanError('');
+    } else {
+      setScanError('このQRコードは対応していません。共有URLを読み取ってください。');
+      setOtherTeamMode('choose');
+    }
+  };
+
+  const closeOtherTeam = () => {
+    setOtherTeamMode('closed');
+    setInputUrl('');
+    setUrlError('');
+    setScanError('');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
@@ -20,14 +73,14 @@ export default function Home() {
       </div>
 
       {/* メインコンテンツ */}
-      <div className="max-w-4xl mx-auto px-4 py-12">
+      <div className="max-w-4xl mx-auto px-4 py-6 sm:py-12">
         {/* ヒーローセクション */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-          <div className="text-center mb-8">
-            <h2 className="text-4xl font-bold text-gray-800 mb-4">
+        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8 mb-8">
+          <div className="text-center mb-6 sm:mb-8">
+            <h2 className="text-2xl sm:text-4xl font-bold text-gray-800 mb-4">
               パーティを共有して<br />対戦を始めよう
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-base sm:text-lg text-gray-600">
               オープンチームシートルールで、スムーズに対戦開始
             </p>
           </div>
@@ -54,35 +107,100 @@ export default function Home() {
 
             <button
               onClick={() => {
-                const url = prompt('相手から受け取ったURLを貼り付けてください');
-                if (url) {
-                  try {
-                    const urlObj = new URL(url);
-                    if (urlObj.pathname === '/view') {
-                      const shareId = urlObj.searchParams.get('shareId');
-                      const data = urlObj.searchParams.get('data');
-                      if (shareId) {
-                        router.push(`/view?shareId=${encodeURIComponent(shareId)}`);
-                      } else if (data) {
-                        router.push(`/view?data=${encodeURIComponent(data)}`);
-                      } else {
-                        alert('正しいURLを入力してください');
-                      }
-                    } else {
-                      alert('正しいURLを入力してください');
-                    }
-                  } catch {
-                    alert('正しいURLを入力してください');
-                  }
-                }
+                setOtherTeamMode('choose');
+                setUrlError('');
+                setScanError('');
+                setInputUrl('');
               }}
               className="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-bold py-6 px-6 rounded-xl shadow-lg transition-all transform hover:scale-105"
             >
               <div className="text-3xl mb-2">👁️</div>
               <div className="text-lg">相手のパーティ</div>
-              <div className="text-xs opacity-90 mt-1">URL入力</div>
+              <div className="text-xs opacity-90 mt-1">QR / URL</div>
             </button>
           </div>
+
+          {/* 相手のパーティ受信エリア */}
+          {otherTeamMode === 'choose' && (
+            <div className="mt-6 bg-gray-50 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm font-semibold text-gray-700">
+                  受け取り方法を選んでください
+                </p>
+                <button
+                  onClick={closeOtherTeam}
+                  className="text-gray-400 hover:text-gray-600 text-lg leading-none"
+                  aria-label="閉じる"
+                >
+                  ×
+                </button>
+              </div>
+              {scanError && (
+                <p className="text-red-500 text-xs mb-3">{scanError}</p>
+              )}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button
+                  onClick={() => setOtherTeamMode('qr')}
+                  className="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-bold py-4 px-4 rounded-lg shadow transition-all"
+                >
+                  <div className="text-2xl mb-1">📷</div>
+                  <div className="text-sm">QRコードをスキャン</div>
+                </button>
+                <button
+                  onClick={() => {
+                    setOtherTeamMode('url');
+                    setUrlError('');
+                  }}
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-4 px-4 rounded-lg shadow transition-all"
+                >
+                  <div className="text-2xl mb-1">🔗</div>
+                  <div className="text-sm">URLを入力</div>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {otherTeamMode === 'url' && (
+            <div className="mt-6 bg-gray-50 rounded-xl p-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                相手から受け取ったURLを貼り付け
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={inputUrl}
+                  onChange={(e) => { setInputUrl(e.target.value); setUrlError(''); }}
+                  placeholder="https://..."
+                  className="flex-1 min-w-0 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  autoFocus
+                  onKeyDown={(e) => e.key === 'Enter' && handleUrlSubmit()}
+                />
+                <button
+                  onClick={handleUrlSubmit}
+                  className="bg-green-500 hover:bg-green-600 text-white font-bold px-4 py-2 rounded-lg text-sm whitespace-nowrap transition-colors"
+                >
+                  表示
+                </button>
+                <button
+                  onClick={closeOtherTeam}
+                  className="text-gray-400 hover:text-gray-600 px-2 text-lg"
+                  aria-label="閉じる"
+                >
+                  ×
+                </button>
+              </div>
+              {urlError && (
+                <p className="text-red-500 text-xs mt-2">{urlError}</p>
+              )}
+            </div>
+          )}
+
+          {otherTeamMode === 'qr' && (
+            <QRScanner
+              onScan={handleQRScan}
+              onClose={() => setOtherTeamMode('choose')}
+            />
+          )}
         </div>
 
         {/* サンプルパーティ */}
@@ -118,8 +236,8 @@ export default function Home() {
         </div>
 
         {/* 使い方 */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-          <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">使い方</h3>
+        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8 mb-8">
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6 text-center">使い方</h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="text-center">
               <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
@@ -135,9 +253,9 @@ export default function Home() {
               <div className="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-purple-600">2</span>
               </div>
-              <h4 className="font-bold text-gray-800 mb-2">URL共有</h4>
+              <h4 className="font-bold text-gray-800 mb-2">QR/URL共有</h4>
               <p className="text-sm text-gray-600">
-                生成されたURLを対戦相手に送信
+                生成されたQRコードまたはURLを対戦相手に共有
               </p>
             </div>
 
@@ -147,7 +265,7 @@ export default function Home() {
               </div>
               <h4 className="font-bold text-gray-800 mb-2">相手のパーティ確認</h4>
               <p className="text-sm text-gray-600">
-                相手からもらったURLを開く
+                QRをスキャンするかURLを開く
               </p>
             </div>
 
@@ -164,8 +282,8 @@ export default function Home() {
         </div>
 
         {/* 機能紹介 */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-          <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">特徴</h3>
+        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8 mb-8">
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6 text-center">特徴</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-4 bg-blue-50 rounded-xl">
               <div className="text-3xl mb-3">📱</div>
@@ -179,7 +297,7 @@ export default function Home() {
               <div className="text-3xl mb-3">⚡</div>
               <h4 className="font-bold text-gray-800 mb-2">簡単操作</h4>
               <p className="text-sm text-gray-600">
-                URLをコピー&ペーストするだけで即座に共有
+                QRスキャン or URLコピーで即座に共有
               </p>
             </div>
 

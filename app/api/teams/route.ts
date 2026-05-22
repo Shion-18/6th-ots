@@ -92,12 +92,13 @@ export async function POST(request: NextRequest) {
 
     if (teamIndex >= 0) {
       // 既存パーティの更新
-      existingTeams[teamIndex] = team;
+      const updatedTeam = { ...team, updatedAt: new Date().toISOString() };
+      existingTeams[teamIndex] = updatedTeam;
       await kv.set(key, existingTeams);
 
       return NextResponse.json({
         success: true,
-        team,
+        team: updatedTeam,
         needsConfirmation: false
       });
     } else {
@@ -112,18 +113,19 @@ export async function POST(request: NextRequest) {
         }, { status: 409 });
       }
 
+      const newTeam = { ...team, updatedAt: new Date().toISOString() };
+
       if (overwrite) {
         // 既存パーティを全て上書き
-        await kv.set(key, [team]);
+        await kv.set(key, [newTeam]);
       } else {
-        // 追加
-        existingTeams.push(team);
+        existingTeams.push(newTeam);
         await kv.set(key, existingTeams);
       }
 
       return NextResponse.json({
         success: true,
-        team,
+        team: newTeam,
         needsConfirmation: false
       });
     }

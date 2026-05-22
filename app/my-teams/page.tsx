@@ -3,12 +3,17 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Team } from '@/types/pokemon';
-import { getTeamsFromAPI, deleteTeamFromAPI, createShareLink } from '@/lib/team-storage';
+import { getTeamsFromAPI, deleteTeamFromAPI } from '@/lib/team-storage';
+import { generateShareUrl } from '@/lib/team-encoder';
+import QRCodeDisplay from '@/components/ui/QRCodeDisplay';
 
 export default function MyTeamsPage() {
   const router = useRouter();
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
+  const [shareTeamName, setShareTeamName] = useState('');
 
   useEffect(() => {
     const fetchTeams = async () => {
@@ -40,15 +45,12 @@ export default function MyTeamsPage() {
     router.push(`/builder?teamId=${teamId}`);
   };
 
-  const handleShare = async (team: Team) => {
+  const handleShare = (team: Team) => {
     try {
-      const result = await createShareLink(team);
-      if (result.shareUrl) {
-        await navigator.clipboard.writeText(result.shareUrl);
-        alert('共有URLをコピーしました！\n\n相手にこのURLを送ってください。');
-      } else {
-        alert(result.error || '共有リンクの作成に失敗しました');
-      }
+      const url = generateShareUrl(team);
+      setShareUrl(url);
+      setShareTeamName(team.name);
+      setShowQRModal(true);
     } catch (error) {
       console.error('Share failed:', error);
       alert('共有リンクの作成に失敗しました');
@@ -136,7 +138,7 @@ export default function MyTeamsPage() {
                 </div>
 
                 {/* ポケモンリスト */}
-                <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
                   {team.pokemon.map((pokemon) => (
                     <div key={pokemon.id} className="bg-gray-100 rounded-lg p-2 text-center">
                       <div className="font-bold text-sm text-gray-800">
@@ -153,6 +155,15 @@ export default function MyTeamsPage() {
           </div>
         )}
       </div>
+
+      {/* QRコードモーダル */}
+      {showQRModal && shareUrl && (
+        <QRCodeDisplay
+          url={shareUrl}
+          teamName={shareTeamName}
+          onClose={() => setShowQRModal(false)}
+        />
+      )}
     </div>
   );
 }
