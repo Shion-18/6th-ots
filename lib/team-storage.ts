@@ -9,12 +9,11 @@ export interface SaveResult {
   needsConfirmation?: boolean;
   existingTeamName?: string;
   error?: string;
-  team?: Team; // サーバーから返されたチーム（version更新済み）
-  serverTeam?: Team; // 競合時のサーバー側チーム
+  team?: Team;
 }
 
 /**
- * APIを通じてパーティを保存する
+ * APIを通じてパーティを保存する（失敗時はlocalStorageにフォールバック）
  */
 export async function saveTeamToAPI(team: Team, overwrite = false): Promise<SaveResult> {
   try {
@@ -35,10 +34,6 @@ export async function saveTeamToAPI(team: Team, overwrite = false): Promise<Save
 
     if (data.needsConfirmation) {
       return { success: false, savedTo: 'failed', needsConfirmation: true, existingTeamName: data.existingTeamName };
-    }
-
-    if (data.error === 'conflict') {
-      return { success: false, savedTo: 'failed', error: 'conflict', serverTeam: data.serverTeam };
     }
 
     return { success: false, savedTo: 'failed', error: data.error || '保存に失敗しました' };
@@ -86,70 +81,3 @@ export async function deleteTeamFromAPI(teamId: string): Promise<boolean> {
   }
 }
 
-/**
- * localStorageからKVへの自動マイグレーション
- * - KVにデータがあればupdatedAtを比較し、新しい方を採用
- * - KVが空ならlocalStorageのデータをそのまま移行
- */
-export async function migrateLocalStorageToKV(): Promise<{ migrated: boolean; source?: 'local' | 'cloud' }> {
-  if (typeof window === 'undefined') return { migrated: false };
-
-  const migrationKey = 'pokemon-app-migrated-v2';
-
-  if (localStorage.getItem(migrationKey)) {
-    return { migrated: false };
-  }
-
-  try {
-    const localTeams = getTeamsFromLocalStorage();
-    let cloudTeams: Team[] = [];
-
-    try {
-      cloudTeams = await getTeamsFromAPI();
-    } catch {
-      // API障害時はマイグレーションをスキップ（次回再試行）
-      return { migrated: false };
-    }
-
-    if (localTeams.length === 0 && cloudTeams.length === 0) {
-      localStorage.setItem(migrationKey, 'true');
-      return { migrated: false };
-    }
-
-    // KVにデータがなく、localStorageにある → アップロード
-    if (cloudTeams.length === 0 && localTeams.length > 0) {
-      const result = await saveTeamToAPI(localTeams[0]);
-      if (result.success) {
-        localStorage.setItem(migrationKey, 'true');
-        return { migrated: true, source: 'local' };
-      }
-      return { migrated: false };
-    }
-
-    // 両方にデータがある → updatedAtを比較して新しい方を採用
-    if (cloudTeams.length > 0 && localTeams.length > 0) {
-      const cloudLatest = new Date(cloudTeams[0].updatedAt).getTime();
-      const localLatest = new Date(localTeams[0].updatedAt).getTime();
-
-      if (localLatest > cloudLatest) {
-        // ローカルが新しい → KVに上書き
-        const localTeam = { ...localTeams[0], version: (cloudTeams[0].version ?? 0) + 1 };
-        await saveTeamToAPI(localTeam, true);
-      } else {
-        // クラウドが新しいか同じ → localStorageを更新
-        saveTeamToLocalStorage(cloudTeams[0]);
-      }
-    }
-
-    // KVにだけデータがある → localStorageにバックアップ
-    if (cloudTeams.length > 0 && localTeams.length === 0) {
-      saveTeamToLocalStorage(cloudTeams[0]);
-    }
-
-    localStorage.setItem(migrationKey, 'true');
-    return { migrated: true, source: cloudTeams.length > 0 ? 'cloud' : 'local' };
-  } catch (error) {
-    console.error('Migration failed:', error);
-    return { migrated: false };
-  }
-}

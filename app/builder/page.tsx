@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Team, Pokemon } from '@/types/pokemon';
 import { getTeamFromLocalStorage, getTeamsFromLocalStorage, generateShareUrl } from '@/lib/team-encoder';
-import { saveTeamToAPI, getTeamsFromAPI } from '@/lib/team-storage';
+import { saveTeamToAPI } from '@/lib/team-storage';
 import PokemonCard from '@/components/ui/PokemonCard';
 import PokemonEditor from '@/components/ui/PokemonEditor';
 import TeamImageView from '@/components/ui/TeamImageView';
@@ -27,72 +27,22 @@ function BuilderPageContent() {
   const [isEditMode, setIsEditMode] = useState(false);
   const { toasts, showToast, dismissToast } = useToast();
 
-  const [isLoading, setIsLoading] = useState(false);
-
-  // 編集モードの初期化 — KVから読み込み、失敗時はlocalStorageフォールバック
+  // 編集モードの初期化 — localStorageから読み込み
   useEffect(() => {
     const teamIdParam = searchParams.get('teamId');
     if (!teamIdParam) return;
 
-    // クロージャ内で non-null を保証
-    const teamId: string = teamIdParam;
-    let cancelled = false;
-
-    async function loadTeam() {
-      setIsLoading(true);
-      try {
-        // まずKVから取得を試みる
-        const teams = await getTeamsFromAPI();
-        const team = teams.find(t => t.id === teamId);
-
-        if (cancelled) return;
-
-        if (team) {
-          setEditingTeamId(teamId);
-          setIsEditMode(true);
-          setTeamName(team.name);
-          setPokemon(team.pokemon);
-          setHasTeamNameBeenFocused(true);
-          return;
-        }
-
-        // KVになければlocalStorageフォールバック
-        const localTeam = getTeamFromLocalStorage(teamId);
-        if (cancelled) return;
-
-        if (localTeam) {
-          setEditingTeamId(teamId);
-          setIsEditMode(true);
-          setTeamName(localTeam.name);
-          setPokemon(localTeam.pokemon);
-          setHasTeamNameBeenFocused(true);
-          showToast('warning', 'ローカルデータから読み込みました');
-        } else {
-          showToast('error', 'パーティが見つかりませんでした');
-          router.push('/my-teams');
-        }
-      } catch {
-        if (cancelled) return;
-        // API障害時はlocalStorageから読む
-        const localTeam = getTeamFromLocalStorage(teamId);
-        if (localTeam) {
-          setEditingTeamId(teamId);
-          setIsEditMode(true);
-          setTeamName(localTeam.name);
-          setPokemon(localTeam.pokemon);
-          setHasTeamNameBeenFocused(true);
-          showToast('warning', 'オフラインのためローカルデータから読み込みました');
-        } else {
-          showToast('error', 'パーティが見つかりませんでした');
-          router.push('/my-teams');
-        }
-      } finally {
-        if (!cancelled) setIsLoading(false);
-      }
+    const localTeam = getTeamFromLocalStorage(teamIdParam);
+    if (localTeam) {
+      setEditingTeamId(teamIdParam);
+      setIsEditMode(true);
+      setTeamName(localTeam.name);
+      setPokemon(localTeam.pokemon);
+      setHasTeamNameBeenFocused(true);
+    } else {
+      showToast('error', 'パーティが見つかりませんでした');
+      router.push('/my-teams');
     }
-
-    loadTeam();
-    return () => { cancelled = true; };
   }, [searchParams, router, showToast]);
 
   // 画像生成用のチームデータ
@@ -167,24 +117,10 @@ function BuilderPageContent() {
     try {
       const result = await saveTeamToAPI(team);
 
-      // 競合エラー（楽観的ロック）
-      if (result.error === 'conflict') {
-        showToast('error', '別のタブまたはデバイスで更新されています。ページを再読み込みしてください。');
-        return;
-      }
-
       // 編集モードの場合は確認不要
       if (isEditMode) {
         if (result.success) {
-          if (result.savedTo === 'local') {
-            showToast('warning', 'オフラインのため端末に保存しました。通信回復後にクラウドに同期されます。');
-          } else {
-            showToast('success', 'パーティを更新しました');
-          }
-          // version更新をローカルステートに反映
-          if (result.team?.version) {
-            team.version = result.team.version;
-          }
+          showToast('success', 'パーティを更新しました');
           setTimeout(() => router.push('/my-teams'), 1000);
         } else {
           showToast('error', '更新に失敗しました');
@@ -202,12 +138,7 @@ function BuilderPageContent() {
           const overwriteResult = await saveTeamToAPI(team, true);
           if (overwriteResult.success) {
             setSavedTeams(getTeamsFromLocalStorage());
-            showToast(
-              overwriteResult.savedTo === 'local' ? 'warning' : 'success',
-              overwriteResult.savedTo === 'local'
-                ? 'オフラインのため端末に保存しました'
-                : 'パーティを保存しました'
-            );
+            showToast('success', 'パーティを保存しました');
             setTimeout(() => router.push('/my-teams'), 1000);
           } else {
             showToast('error', '保存に失敗しました');
@@ -215,12 +146,7 @@ function BuilderPageContent() {
         }
       } else if (result.success) {
         setSavedTeams(getTeamsFromLocalStorage());
-        showToast(
-          result.savedTo === 'local' ? 'warning' : 'success',
-          result.savedTo === 'local'
-            ? 'オフラインのため端末に保存しました'
-            : 'パーティを保存しました'
-        );
+        showToast('success', 'パーティを保存しました');
         setTimeout(() => router.push('/my-teams'), 1000);
       } else {
         showToast('error', result.error || '保存に失敗しました');
