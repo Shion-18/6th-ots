@@ -16,11 +16,8 @@ export default function Home() {
     try {
       const urlObj = new URL(inputUrl.trim());
       if (urlObj.pathname === '/view') {
-        const shareId = urlObj.searchParams.get('shareId');
         const data = urlObj.searchParams.get('data');
-        if (shareId) {
-          router.push(`/view?shareId=${encodeURIComponent(shareId)}`);
-        } else if (data) {
+        if (data) {
           router.push(`/view?data=${encodeURIComponent(data)}`);
         } else {
           setUrlError('正しいURLを入力してください');

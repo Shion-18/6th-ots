@@ -3,8 +3,8 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Team, Pokemon } from '@/types/pokemon';
-import { getTeamFromLocalStorage, getTeamsFromLocalStorage } from '@/lib/team-encoder';
-import { saveTeamToAPI, createShareLink, getTeamsFromAPI } from '@/lib/team-storage';
+import { getTeamFromLocalStorage, getTeamsFromLocalStorage, generateShareUrl } from '@/lib/team-encoder';
+import { saveTeamToAPI, getTeamsFromAPI } from '@/lib/team-storage';
 import PokemonCard from '@/components/ui/PokemonCard';
 import PokemonEditor from '@/components/ui/PokemonEditor';
 import TeamImageView from '@/components/ui/TeamImageView';
@@ -248,13 +248,9 @@ function BuilderPageContent() {
     };
 
     try {
-      const result = await createShareLink(team);
-      if (result.shareUrl) {
-        setShareUrl(result.shareUrl);
-        setShowQRModal(true);
-      } else {
-        alert(result.error || '共有リンクの作成に失敗しました');
-      }
+      const url = generateShareUrl(team);
+      setShareUrl(url);
+      setShowQRModal(true);
     } catch (error) {
       console.error('Share failed:', error);
       alert('共有リンクの作成に失敗しました');

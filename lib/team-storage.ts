@@ -87,52 +87,6 @@ export async function deleteTeamFromAPI(teamId: string): Promise<boolean> {
 }
 
 /**
- * 共有リンクを生成する
- */
-export async function createShareLink(team: Team): Promise<{ shareUrl?: string; error?: string }> {
-  try {
-    const response = await fetch('/api/share', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ team })
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return { shareUrl: data.shareUrl };
-  } catch (error) {
-    console.error('Share link creation failed:', error);
-    return { error: '共有リンクの作成に失敗しました' };
-  }
-}
-
-/**
- * 共有IDからパーティを取得する
- */
-export async function getSharedTeam(shareId: string): Promise<Team | null> {
-  try {
-    const response = await fetch(`/api/share/${shareId}`);
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        console.log('Share link expired or not found');
-        return null;
-      }
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.team || null;
-  } catch (error) {
-    console.error('Shared team fetch failed:', error);
-    return null;
-  }
-}
-
-/**
  * localStorageからKVへの自動マイグレーション
  * - KVにデータがあればupdatedAtを比較し、新しい方を採用
  * - KVが空ならlocalStorageのデータをそのまま移行
