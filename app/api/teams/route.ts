@@ -1,14 +1,13 @@
-import { kv } from '@vercel/kv';
 import { NextRequest, NextResponse } from 'next/server';
-import { Team } from '@/types/pokemon';
 import { getSessionUserId } from '@/lib/session';
 import { SaveTeamBodySchema, checkContentLength } from '@/lib/api-validation';
 import { rateLimit } from '@/lib/rate-limit';
+import { getSupabase, toTeam, TeamRow } from '@/lib/supabase';
 
 /**
  * GET /api/teams - ユーザーの全パーティを取得
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const userId = await getSessionUserId();
 
@@ -27,13 +26,26 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const key = `user:${userId}:teams`;
-    const teams = await kv.get<Team[]>(key);
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('teams')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (error) {
+      console.error('Error fetching teams from Supabase:', error);
+      return NextResponse.json(
+        { success: false, error: 'Failed to fetch teams' },
+        { status: 500 }
+      );
+    }
+
+    const teams = (data as TeamRow[]).map(toTeam);
 
     return NextResponse.json({
       success: true,
-      teams: teams || [],
-      count: teams?.length || 0
+      teams,
+      count: teams.length,
     });
   } catch (error) {
     console.error('Error fetching teams:', error);
@@ -84,51 +96,130 @@ export async function POST(request: NextRequest) {
     }
 
     const { team, overwrite } = result.data;
+    const supabase = getSupabase();
+    const now = new Date().toISOString();
 
-    const key = `user:${userId}:teams`;
-    const existingTeams = await kv.get<Team[]>(key) || [];
+    // 既存チーム（同IDかつ同ユーザー）の確認
+    const { data: existing, error: selectError } = await supabase
+      .from('teams')
+      .select('id')
+      .eq('id', team.id)
+      .eq('user_id', userId)
+      .maybeSingle();
 
-    const teamIndex = existingTeams.findIndex(t => t.id === team.id);
+    if (selectError) {
+      console.error('Error checking existing team:', selectError);
+      return NextResponse.json(
+        { success: false, error: 'Failed to save team' },
+        { status: 500 }
+      );
+    }
 
-    if (teamIndex >= 0) {
-      // 既存パーティの更新
-      const updatedTeam = { ...team, updatedAt: new Date().toISOString() };
-      existingTeams[teamIndex] = updatedTeam;
-      await kv.set(key, existingTeams);
+    if (existing) {
+      // 既存チームの更新（同IDが存在）
+      const { data: updated, error: updateError } = await supabase
+        .from('teams')
+        .update({
+          name: team.name,
+          pokemon: team.pokemon,
+          format: team.format ?? null,
+          updated_at: now,
+        })
+        .eq('id', team.id)
+        .eq('user_id', userId)
+        .select()
+        .single();
+
+      if (updateError || !updated) {
+        console.error('Error updating team:', updateError);
+        return NextResponse.json(
+          { success: false, error: 'Failed to update team' },
+          { status: 500 }
+        );
+      }
 
       return NextResponse.json({
         success: true,
-        team: updatedTeam,
-        needsConfirmation: false
-      });
-    } else {
-      // 新規パーティの保存
-      if (existingTeams.length >= 1 && !overwrite) {
-        // 1パーティ制限に達している
-        return NextResponse.json({
-          success: false,
-          needsConfirmation: true,
-          existingTeamName: existingTeams[0].name,
-          message: 'Team limit reached'
-        }, { status: 409 });
-      }
-
-      const newTeam = { ...team, updatedAt: new Date().toISOString() };
-
-      if (overwrite) {
-        // 既存パーティを全て上書き
-        await kv.set(key, [newTeam]);
-      } else {
-        existingTeams.push(newTeam);
-        await kv.set(key, existingTeams);
-      }
-
-      return NextResponse.json({
-        success: true,
-        team: newTeam,
-        needsConfirmation: false
+        team: toTeam(updated as TeamRow),
+        needsConfirmation: false,
       });
     }
+
+    // 新規保存: 1チーム制限チェック
+    const { count, error: countError } = await supabase
+      .from('teams')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId);
+
+    if (countError) {
+      console.error('Error counting teams:', countError);
+      return NextResponse.json(
+        { success: false, error: 'Failed to save team' },
+        { status: 500 }
+      );
+    }
+
+    if ((count ?? 0) >= 1 && !overwrite) {
+      // 1チーム制限に達している → 既存チーム名を返して確認ダイアログを出させる
+      const { data: existingTeam } = await supabase
+        .from('teams')
+        .select('name')
+        .eq('user_id', userId)
+        .limit(1)
+        .single();
+
+      return NextResponse.json({
+        success: false,
+        needsConfirmation: true,
+        existingTeamName: existingTeam?.name ?? '',
+        message: 'Team limit reached',
+      }, { status: 409 });
+    }
+
+    // 上書きの場合は既存チームを全削除
+    if (overwrite) {
+      const { error: deleteError } = await supabase
+        .from('teams')
+        .delete()
+        .eq('user_id', userId);
+
+      if (deleteError) {
+        console.error('Error deleting existing teams:', deleteError);
+        return NextResponse.json(
+          { success: false, error: 'Failed to overwrite team' },
+          { status: 500 }
+        );
+      }
+    }
+
+    // 新規チーム挿入
+    const { data: inserted, error: insertError } = await supabase
+      .from('teams')
+      .insert({
+        id: team.id,
+        user_id: userId,
+        name: team.name,
+        pokemon: team.pokemon,
+        format: team.format ?? null,
+        created_at: team.createdAt || now,
+        updated_at: now,
+      })
+      .select()
+      .single();
+
+    if (insertError || !inserted) {
+      console.error('Error inserting team:', insertError);
+      return NextResponse.json(
+        { success: false, error: 'Failed to save team' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      team: toTeam(inserted as TeamRow),
+      needsConfirmation: false,
+    });
   } catch (error) {
     console.error('Error saving team:', error);
     return NextResponse.json(

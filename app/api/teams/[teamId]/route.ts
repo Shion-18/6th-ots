@@ -1,15 +1,14 @@
-import { kv } from '@vercel/kv';
 import { NextRequest, NextResponse } from 'next/server';
-import { Team } from '@/types/pokemon';
 import { getSessionUserId } from '@/lib/session';
 import { TeamIdSchema } from '@/lib/api-validation';
 import { rateLimit } from '@/lib/rate-limit';
+import { getSupabase } from '@/lib/supabase';
 
 /**
  * DELETE /api/teams/[teamId] - 特定のパーティを削除
  */
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
@@ -39,24 +38,32 @@ export async function DELETE(
       );
     }
 
-    const key = `user:${userId}:teams`;
-    const teams = await kv.get<Team[]>(key) || [];
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('teams')
+      .delete()
+      .eq('id', teamId)
+      .eq('user_id', userId)
+      .select();
 
-    const filteredTeams = teams.filter(t => t.id !== teamId);
+    if (error) {
+      console.error('Error deleting team:', error);
+      return NextResponse.json(
+        { success: false, error: 'Failed to delete team' },
+        { status: 500 }
+      );
+    }
 
-    if (filteredTeams.length === teams.length) {
-      // パーティが見つからない
+    if (!data || data.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Team not found' },
         { status: 404 }
       );
     }
 
-    await kv.set(key, filteredTeams);
-
     return NextResponse.json({
       success: true,
-      deletedTeamId: teamId
+      deletedTeamId: teamId,
     });
   } catch (error) {
     console.error('Error deleting team:', error);

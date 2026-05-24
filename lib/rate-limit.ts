@@ -1,5 +1,3 @@
-import { kv } from '@vercel/kv';
-
 interface RateLimitResult {
   success: boolean;
   remaining: number;
@@ -7,37 +5,32 @@ interface RateLimitResult {
 }
 
 /**
- * スライディングウィンドウ方式のレートリミット（Vercel KV使用）
+ * インメモリのスライディングウィンドウ方式レートリミット。
+ * 10人規模のアプリ向け。サーバーレスのcold startでリセットされるが、
+ * その挙動は「ややゆるくなる」だけで実害なし。
  */
+const buckets = new Map<string, number[]>();
+
 export async function rateLimit(
   identifier: string,
   maxRequests: number = 30,
   windowSeconds: number = 60
 ): Promise<RateLimitResult> {
-  const key = `ratelimit:${identifier}`;
   const now = Math.floor(Date.now() / 1000);
   const windowStart = now - windowSeconds;
 
-  const requestId = `${now}:${Math.random().toString(36).slice(2, 8)}`;
+  const timestamps = buckets.get(identifier) ?? [];
+  // 古いタイムスタンプを削除
+  const recent = timestamps.filter((t) => t > windowStart);
+  recent.push(now);
+  buckets.set(identifier, recent);
 
-  try {
-    const pipe = kv.pipeline();
-    pipe.zremrangebyscore(key, 0, windowStart);
-    pipe.zadd(key, { score: now, member: requestId });
-    pipe.zcard(key);
-    pipe.expire(key, windowSeconds);
+  // メモリ膨張防止: ウィンドウ外を完全に切ったあとの長さで判定
+  const count = recent.length;
 
-    const results = await pipe.exec();
-    const count = results[2] as number;
-
-    return {
-      success: count <= maxRequests,
-      remaining: Math.max(0, maxRequests - count),
-      reset: now + windowSeconds,
-    };
-  } catch (error) {
-    // KV障害時はレートリミットをバイパス（可用性優先）
-    console.error('Rate limit check failed:', error);
-    return { success: true, remaining: maxRequests, reset: now + windowSeconds };
-  }
+  return {
+    success: count <= maxRequests,
+    remaining: Math.max(0, maxRequests - count),
+    reset: now + windowSeconds,
+  };
 }
