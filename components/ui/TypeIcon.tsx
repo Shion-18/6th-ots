@@ -1,6 +1,7 @@
 'use client';
 
 import { getTypeColor } from '@/lib/type-colors';
+import { PokemonType } from '@/types/pokemon';
 
 interface TypeIconProps {
   type: string;
@@ -16,7 +17,7 @@ const sizeClasses = {
 };
 
 export default function TypeIcon({ type, size = 'sm', className = '' }: TypeIconProps) {
-  const bgColor = getTypeColor(type as any);
+  const bgColor = getTypeColor(type as PokemonType);
 
   return (
     <span

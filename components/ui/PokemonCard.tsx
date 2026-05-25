@@ -2,7 +2,6 @@
 
 import { memo, useMemo } from 'react';
 import { Pokemon } from '@/types/pokemon';
-import { getTypeColor, getTypeBgColor } from '@/lib/type-colors';
 import TypeIcon from './TypeIcon';
 import { getMoveType } from '@/lib/move-helpers';
 import allPokemon from '@/data/all-pokemon.json';

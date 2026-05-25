@@ -22,12 +22,15 @@ export async function generateTeamImage(
 ): Promise<void> {
   try {
     // html2canvasで画像生成
-    const canvas = await html2canvas(element, {
+    // 型定義は @types/html2canvas にあるが、width/height は内部的に受け付ける。
+    // ライブラリの型エラーを避けるため Parameters<...>[1] を Partial で広げる。
+    const options: Partial<Parameters<typeof html2canvas>[1]> = {
       allowTaint: true, // 外部画像読み込み許可
       logging: false, // コンソールログ抑制
       width: 1200,
       height: element.scrollHeight,
-    } as any); // 型エラー回避
+    };
+    const canvas = await html2canvas(element, options as Parameters<typeof html2canvas>[1]);
 
     // Canvasをblobに変換してダウンロード
     canvas.toBlob((blob) => {

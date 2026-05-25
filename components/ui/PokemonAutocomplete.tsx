@@ -45,8 +45,12 @@ export default function PokemonAutocomplete({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // debounce後の検索語に応じてfilteredPokemonを更新する。
+    // この effect はユーザー入力 → 検索結果の同期処理として意図的に setState を使う。
     if (!debouncedSearchTerm.trim()) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFilteredPokemon([]);
+       
       setIsOpen(false);
       return;
     }
@@ -61,8 +65,11 @@ export default function PokemonAutocomplete({
       );
     });
 
+     
     setFilteredPokemon(filtered.slice(0, 10));
+     
     setIsOpen(filtered.length > 0);
+     
     setHighlightedIndex(0);
   }, [debouncedSearchTerm]);
 

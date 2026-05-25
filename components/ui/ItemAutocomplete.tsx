@@ -28,8 +28,11 @@ export default function ItemAutocomplete({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // debounce後の検索語に応じてfilteredItemsを更新する（意図的なsetState）
     if (!debouncedSearchTerm.trim()) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFilteredItems([]);
+       
       setIsOpen(false);
       return;
     }
@@ -60,8 +63,11 @@ export default function ItemAutocomplete({
       }));
 
     const combined = [...filteredCompetitive, ...filteredMega];
+     
     setFilteredItems(combined.slice(0, 15));
+     
     setIsOpen(combined.length > 0);
+     
     setHighlightedIndex(0);
   }, [debouncedSearchTerm, competitiveItems, megaStones]);
 
