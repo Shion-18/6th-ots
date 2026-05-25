@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Team } from '@/types/pokemon';
 import { decodeTeam } from '@/lib/team-encoder';
 import TeamView from '@/components/ui/TeamView';
@@ -62,12 +63,12 @@ function ViewPageContent() {
           <div className="text-red-500 text-5xl mb-4">⚠️</div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">エラー</h2>
           <p className="text-gray-600 mb-6">{error}</p>
-          <a
+          <Link
             href="/"
             className="inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
           >
             ホームに戻る
-          </a>
+          </Link>
         </div>
       </div>
     );

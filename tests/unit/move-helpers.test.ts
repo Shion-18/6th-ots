@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach } from 'vitest';
+import { describe, test, expect } from 'vitest';
 import { getMoveType, getMoveData } from '@/lib/move-helpers';
 
 describe('move-helpers', () => {

@@ -25,19 +25,29 @@ function BuilderPageContent() {
   const [shareUrl, setShareUrl] = useState('');
   const [editingTeamId, setEditingTeamId] = useState<string | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  // 新規作成時用の安定したID（マウント時に一度だけ生成）
+  const [newTeamId] = useState(() => `team-${Date.now()}`);
+  // 新規作成時の createdAt も一度だけ生成
+  const [newTeamCreatedAt] = useState(() => new Date().toISOString());
   const { toasts, showToast, dismissToast } = useToast();
 
-  // 編集モードの初期化 — localStorageから読み込み
+  // 編集モードの初期化 — URLパラメータ + localStorage（外部入力）から状態を同期
   useEffect(() => {
     const teamIdParam = searchParams.get('teamId');
     if (!teamIdParam) return;
 
     const localTeam = getTeamFromLocalStorage(teamIdParam);
     if (localTeam) {
+      // 外部状態（URL/localStorage）→ React stateの同期は意図的なsetState
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEditingTeamId(teamIdParam);
+       
       setIsEditMode(true);
+       
       setTeamName(localTeam.name);
+       
       setPokemon(localTeam.pokemon);
+       
       setHasTeamNameBeenFocused(true);
     } else {
       showToast('error', 'パーティが見つかりませんでした');
@@ -45,15 +55,16 @@ function BuilderPageContent() {
     }
   }, [searchParams, router, showToast]);
 
-  // 画像生成用のチームデータ
+  // 画像生成用のチームデータ（renderごとに新しい updatedAt を渡したい場合は
+  // useImageGenerator 側で必要になった時点で生成する。ここではビュー目的のみ）
   const currentTeam: Team = {
-    id: isEditMode ? editingTeamId! : `team-${Date.now()}`,
+    id: isEditMode && editingTeamId ? editingTeamId : newTeamId,
     name: teamName,
     pokemon,
-    createdAt: isEditMode
-      ? getTeamFromLocalStorage(editingTeamId!)?.createdAt || new Date().toISOString()
-      : new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: isEditMode && editingTeamId
+      ? getTeamFromLocalStorage(editingTeamId)?.createdAt || newTeamCreatedAt
+      : newTeamCreatedAt,
+    updatedAt: newTeamCreatedAt,
     format: 'singles',
   };
 
@@ -180,13 +191,6 @@ function BuilderPageContent() {
     } catch (error) {
       console.error('Share failed:', error);
       alert('共有リンクの作成に失敗しました');
-    }
-  };
-
-  const loadTeam = (team: Team) => {
-    if (confirm(`「${team.name}」を読み込みますか？\n現在の編集内容は失われます。`)) {
-      setTeamName(team.name);
-      setPokemon(team.pokemon);
     }
   };
 

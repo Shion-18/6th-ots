@@ -12,7 +12,24 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // One-off data-fetching scripts and Playwright E2E specs:
+    // not part of the runtime bundle and lint strictness adds friction.
+    "scripts/**",
+    "tests/e2e/**",
   ]),
+  {
+    rules: {
+      // 「意図的に未使用」を `_` プレフィックスで明示できるようにする
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
+    },
+  },
 ]);
 
 export default eslintConfig;

@@ -38,8 +38,11 @@ export default function MoveAutocomplete({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // debounce後の検索語に応じてfilteredMovesを更新する（意図的なsetState）
     if (!debouncedSearchTerm.trim()) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFilteredMoves([]);
+       
       setIsOpen(false);
       return;
     }
@@ -57,8 +60,11 @@ export default function MoveAutocomplete({
       );
     });
 
+     
     setFilteredMoves(filtered.slice(0, 10));
+     
     setIsOpen(filtered.length > 0);
+     
     setHighlightedIndex(0);
   }, [debouncedSearchTerm, availableMoves, selectedMoves]);
 
