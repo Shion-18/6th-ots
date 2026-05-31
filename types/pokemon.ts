@@ -85,6 +85,7 @@ export interface Team {
   createdAt: string;
   updatedAt: string;
   format?: 'singles' | 'doubles'; // シングル/ダブル
+  version?: number; // 楽観ロック用: 保存毎に +1
 }
 
 // URL共有用のエンコードされたパーティデータ

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Pokemon } from '@/types/pokemon';
 import PokemonAutocomplete from './PokemonAutocomplete';
 import MoveAutocomplete from './MoveAutocomplete';
@@ -56,6 +56,49 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
   const [ability, setAbility] = useState('');
   const [item, setItem] = useState('');
   const [selectedMoves, setSelectedMoves] = useState<string[]>([]);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  // ESCで閉じる & 開いたときに最初のフォーカス可能要素にフォーカス & 軽量フォーカストラップ
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    const getFocusable = (): HTMLElement[] => {
+      const selector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+      return Array.from(dialog.querySelectorAll<HTMLElement>(selector));
+    };
+
+    // 開いた直後に最初のフォーカス可能要素にフォーカス
+    const focusables = getFocusable();
+    if (focusables.length > 0) {
+      focusables[0].focus();
+    }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onCancel();
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const f = getFocusable();
+      if (f.length === 0) return;
+      const first = f[0];
+      const last = f[f.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onCancel]);
 
   const loadMovesForPokemon = async (pokemonId: number) => {
     setMovesLoading(true);
@@ -106,14 +149,16 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
 
   const handleSave = () => {
     if (!selectedSpecies) {
-      alert('ポケモンを選択してください');
+      setValidationError('ポケモンを選択してください');
       return;
     }
 
     if (selectedMoves.length === 0) {
-      alert('技を最低1つ選択してください');
+      setValidationError('技を最低1つ選択してください');
       return;
     }
+
+    setValidationError(null);
 
     const newPokemon: Pokemon = {
       id: pokemon?.id || `${Date.now()}-${Math.random()}`,
@@ -130,11 +175,17 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
+    <div
+      ref={dialogRef}
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="pokemon-editor-title"
+    >
       <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         {/* ヘッダー */}
         <div className="sticky top-0 bg-gradient-to-r from-blue-500 to-purple-500 text-white p-4 rounded-t-2xl">
-          <h2 className="text-xl sm:text-2xl font-bold">
+          <h2 id="pokemon-editor-title" className="text-xl sm:text-2xl font-bold">
             {pokemon ? 'ポケモンを編集' : 'ポケモンを追加'}
           </h2>
         </div>
@@ -299,6 +350,16 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
                 )}
               </div>
             </>
+          )}
+
+          {/* バリデーションエラー */}
+          {validationError && (
+            <div
+              role="alert"
+              className="mt-2 px-4 py-2 bg-red-50 border-2 border-red-200 text-red-700 rounded-lg text-sm font-medium"
+            >
+              {validationError}
+            </div>
           )}
 
           {/* アクションボタン */}

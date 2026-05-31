@@ -1,47 +1,59 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useEffect, useState, use } from 'react';
+import Link from 'next/link';
 import { Team } from '@/types/pokemon';
-import { decodeTeam } from '@/lib/team-encoder';
 import TeamView from '@/components/ui/TeamView';
 import TeamImageView from '@/components/ui/TeamImageView';
 import { useImageGenerator } from '@/hooks/useImageGenerator';
+import { useToast, ToastContainer } from '@/components/ui/Toast';
 
-function ViewPageContent() {
-  const searchParams = useSearchParams();
+export default function ViewPage({ params }: { params: Promise<{ shortId: string }> }) {
+  const { shortId } = use(params);
   const [team, setTeam] = useState<Team | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // 画像生成フック
   const { imageRef, isGenerating, generateImage } = useImageGenerator(team);
+  const { toasts, showToast, dismissToast } = useToast();
 
   useEffect(() => {
-    const data = searchParams.get('data');
-
-    if (data) {
+    let cancelled = false;
+    (async () => {
       try {
-        const decodedTeam = decodeTeam(decodeURIComponent(data));
-        setTeam(decodedTeam);
-        setError(null);
+        const res = await fetch(`/api/share/${encodeURIComponent(shortId)}`);
+        if (cancelled) return;
+
+        if (res.status === 404) {
+          setError('共有リンクが見つかりません。期限切れの可能性があります。');
+        } else if (!res.ok) {
+          setError('パーティデータの読み込みに失敗しました');
+        } else {
+          const data = await res.json();
+          if (data.success && data.team) {
+            setTeam(data.team);
+            setError(null);
+          } else {
+            setError('パーティデータの読み込みに失敗しました');
+          }
+        }
       } catch (err) {
-        console.error('デコードエラー:', err);
+        if (cancelled) return;
+        console.error('共有チーム取得エラー:', err);
         setError('パーティデータの読み込みに失敗しました');
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
-      return;
-    }
-
-    setError('パーティデータが見つかりません');
-    setLoading(false);
-  }, [searchParams]);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [shortId]);
 
   const handleShare = async () => {
     const { copyToClipboard } = await import('@/lib/clipboard');
     const ok = await copyToClipboard(window.location.href);
-    alert(ok ? 'URLをコピーしました！' : 'URLのコピーに失敗しました');
+    showToast(ok ? 'success' : 'error', ok ? 'URLをコピーしました' : 'URLのコピーに失敗しました');
   };
 
   if (loading) {
@@ -62,12 +74,12 @@ function ViewPageContent() {
           <div className="text-red-500 text-5xl mb-4">⚠️</div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">エラー</h2>
           <p className="text-gray-600 mb-6">{error}</p>
-          <a
+          <Link
             href="/"
             className="inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
           >
             ホームに戻る
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -79,14 +91,13 @@ function ViewPageContent() {
 
   return (
     <>
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
       <TeamView team={team} onShare={handleShare} />
 
-      {/* 非表示の画像生成用ビュー */}
       <div className="hidden">
         <TeamImageView team={team} elementRef={imageRef} />
       </div>
 
-      {/* 画像生成ボタン（固定位置） */}
       <div className="fixed right-6 z-50" style={{ bottom: 'max(1.5rem, env(safe-area-inset-bottom, 1.5rem))' }}>
         <button
           onClick={generateImage}
@@ -101,20 +112,5 @@ function ViewPageContent() {
         </button>
       </div>
     </>
-  );
-}
-
-export default function ViewPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">読み込み中...</p>
-        </div>
-      </div>
-    }>
-      <ViewPageContent />
-    </Suspense>
   );
 }

@@ -6,6 +6,7 @@ import { Team } from '@/types/pokemon';
 import { getTeamsFromAPI, deleteTeamFromAPI } from '@/lib/team-storage';
 import { generateShareUrl } from '@/lib/team-encoder';
 import QRCodeDisplay from '@/components/ui/QRCodeDisplay';
+import { useToast, ToastContainer } from '@/components/ui/Toast';
 
 export default function MyTeamsPage() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export default function MyTeamsPage() {
   const [showQRModal, setShowQRModal] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [shareTeamName, setShareTeamName] = useState('');
+  const { toasts, showToast, dismissToast } = useToast();
 
   useEffect(() => {
     const fetchTeams = async () => {
@@ -36,7 +38,7 @@ export default function MyTeamsPage() {
         const updatedTeams = await getTeamsFromAPI();
         setTeams(updatedTeams);
       } else {
-        alert('削除に失敗しました');
+        showToast('error', '削除に失敗しました');
       }
     }
   };
@@ -45,20 +47,21 @@ export default function MyTeamsPage() {
     router.push(`/builder?teamId=${teamId}`);
   };
 
-  const handleShare = (team: Team) => {
+  const handleShare = async (team: Team) => {
     try {
-      const url = generateShareUrl(team);
+      const url = await generateShareUrl(team);
       setShareUrl(url);
       setShareTeamName(team.name);
       setShowQRModal(true);
     } catch (error) {
       console.error('Share failed:', error);
-      alert('共有リンクの作成に失敗しました');
+      showToast('error', error instanceof Error ? error.message : '共有リンクの作成に失敗しました');
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
       {/* ヘッダー */}
       <div className="bg-white shadow-md">
         <div className="max-w-4xl mx-auto px-4 py-4">

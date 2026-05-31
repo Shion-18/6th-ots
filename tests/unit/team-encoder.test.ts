@@ -1,7 +1,5 @@
 import { describe, test, expect, beforeEach } from 'vitest';
 import {
-  encodeTeam,
-  decodeTeam,
   saveTeamToLocalStorage,
   getTeamsFromLocalStorage,
   deleteTeamFromLocalStorage,
@@ -123,83 +121,4 @@ describe('team-encoder', () => {
     });
   });
 
-  // テスト5: パーティエンコード/デコード - ラウンドトリップ
-  describe('encodeTeam / decodeTeam - ラウンドトリップ', () => {
-    test('エンコード→デコードでデータが完全に復元される', () => {
-      const team: Team = {
-        id: 'team-123',
-        name: 'テストパーティ',
-        pokemon: [
-          {
-            id: 'p1',
-            speciesId: 25,
-            species: 'ピカチュウ',
-            level: 50,
-            ability: 'せいでんき',
-            moves: ['10まんボルト', 'でんじは', 'アイアンテール', 'ボルテッカー'],
-            item: 'いのちのたま',
-            nature: 'ようき',
-            evs: { hp: 4, attack: 252, defense: 0, specialAttack: 0, specialDefense: 0, speed: 252 },
-            ivs: { hp: 31, attack: 31, defense: 31, specialAttack: 31, specialDefense: 31, speed: 31 },
-          },
-        ],
-        createdAt: '2026-02-09T00:00:00Z',
-        updatedAt: '2026-02-09T00:00:00Z',
-      };
-
-      const encoded = encodeTeam(team);
-      const decoded = decodeTeam(encoded);
-
-      expect(decoded).toEqual(team);
-      expect(decoded.pokemon[0].species).toBe('ピカチュウ');
-      expect(decoded.pokemon[0].moves).toEqual(['10まんボルト', 'でんじは', 'アイアンテール', 'ボルテッカー']);
-    });
-  });
-
-  // テスト6: パーティエンコード - 日本語文字対応
-  describe('encodeTeam - 日本語文字対応', () => {
-    test('日本語文字（ポケモン名、技名）が正しくエンコードされる', () => {
-      const team: Team = {
-        id: 'team-1',
-        name: 'かえんパーティ',
-        pokemon: [
-          {
-            id: 'p1',
-            speciesId: 6,
-            species: 'リザードン',
-            level: 50,
-            ability: 'もうか',
-            moves: ['かえんほうしゃ', 'りゅうのまい'],
-            nature: 'いじっぱり',
-            evs: { hp: 0, attack: 252, defense: 0, specialAttack: 0, specialDefense: 4, speed: 252 },
-            ivs: { hp: 31, attack: 31, defense: 31, specialAttack: 31, specialDefense: 31, speed: 31 },
-          },
-        ],
-        createdAt: '2026-02-09T00:00:00Z',
-        updatedAt: '2026-02-09T00:00:00Z',
-      };
-
-      const encoded = encodeTeam(team);
-      expect(encoded).toBeTruthy();
-      expect(encoded).not.toContain('�'); // 文字化けなし
-
-      const decoded = decodeTeam(encoded);
-      expect(decoded.name).toBe('かえんパーティ');
-      expect(decoded.pokemon[0].species).toBe('リザードン');
-      expect(decoded.pokemon[0].moves).toContain('かえんほうしゃ');
-      expect(decoded.pokemon[0].moves).toContain('りゅうのまい');
-    });
-  });
-
-  // テスト7: パーティデコード - エラーハンドリング
-  describe('decodeTeam - エラーハンドリング', () => {
-    test('不正なBase64でエラーがスローされる', () => {
-      expect(() => decodeTeam('invalid!!!')).toThrow();
-    });
-
-    test('破損したJSONでエラーがスローされる', () => {
-      const invalidBase64 = btoa('{ invalid json }');
-      expect(() => decodeTeam(invalidBase64)).toThrow();
-    });
-  });
 });

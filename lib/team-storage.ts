@@ -8,19 +8,22 @@ export interface SaveResult {
   savedTo: SaveDestination;
   needsConfirmation?: boolean;
   existingTeamName?: string;
+  versionConflict?: boolean;
+  currentTeam?: Team;
   error?: string;
   team?: Team;
 }
 
 /**
  * APIを通じてパーティを保存する（失敗時はlocalStorageにフォールバック）
+ * @param force true の場合は楽観ロックチェックをスキップして強制上書き
  */
-export async function saveTeamToAPI(team: Team, overwrite = false): Promise<SaveResult> {
+export async function saveTeamToAPI(team: Team, overwrite = false, force = false): Promise<SaveResult> {
   try {
     const response = await fetch('/api/teams', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ team, overwrite })
+      body: JSON.stringify({ team, overwrite, force })
     });
 
     const data = await response.json();
@@ -30,6 +33,15 @@ export async function saveTeamToAPI(team: Team, overwrite = false): Promise<Save
       const savedTeam = data.team || team;
       saveTeamToLocalStorage(savedTeam);
       return { success: true, savedTo: 'cloud', team: savedTeam };
+    }
+
+    if (data.code === 'VERSION_CONFLICT') {
+      return {
+        success: false,
+        savedTo: 'failed',
+        versionConflict: true,
+        currentTeam: data.currentTeam,
+      };
     }
 
     if (data.needsConfirmation) {

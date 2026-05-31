@@ -22,6 +22,27 @@ export default function QRCodeDisplay({ url, teamName, size = 256, onClose }: QR
     }
   };
 
+  const handleWebShare = async () => {
+    const shareData = {
+      text: `[ポケパ] ${teamName}`,
+      url,
+    };
+
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (err) {
+        // ユーザがキャンセルした場合は何もしない
+        if (err instanceof Error && err.name === 'AbortError') return;
+        console.error('Web Share failed, falling back to clipboard:', err);
+      }
+    }
+
+    // 未対応・失敗時はクリップボードにフォールバック
+    await handleCopy();
+  };
+
   const handleDownload = () => {
     const svg = document.getElementById('qr-code-svg');
     if (!svg) return;
@@ -95,19 +116,27 @@ export default function QRCodeDisplay({ url, teamName, size = 256, onClose }: QR
         </div>
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-2">
           <button
-            onClick={handleCopy}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition-colors text-sm sm:text-base"
+            onClick={handleWebShare}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition-colors text-sm sm:text-base"
           >
-            {copied ? 'コピー完了!' : 'URLをコピー'}
+            📤 他のアプリで送る
           </button>
-          <button
-            onClick={handleDownload}
-            className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition-colors text-sm sm:text-base"
-          >
-            QRダウンロード
-          </button>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={handleCopy}
+              className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 px-4 rounded-lg transition-colors text-sm sm:text-base"
+            >
+              {copied ? 'コピー完了!' : '📋 URLをコピー'}
+            </button>
+            <button
+              onClick={handleDownload}
+              className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 px-4 rounded-lg transition-colors text-sm sm:text-base"
+            >
+              💾 QRを保存
+            </button>
+          </div>
         </div>
 
         {/* Info */}

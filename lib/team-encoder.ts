@@ -1,53 +1,28 @@
 import { Team } from '@/types/pokemon';
 
-// パーティデータをBase64エンコード
-export function encodeTeam(team: Team): string {
-  try {
-    const json = JSON.stringify(team);
-    // Base64エンコード（日本語対応）
-    const base64 = btoa(unescape(encodeURIComponent(json)));
-    return base64;
-  } catch (error) {
-    console.error('パーティのエンコードに失敗しました:', error);
-    throw new Error('パーティデータのエンコードに失敗しました');
-  }
-}
+/**
+ * 共有用URLを生成する。
+ * サーバに POST /api/share してスナップショット保存 → 短縮URL `/view/<shortId>` を返す。
+ */
+export async function generateShareUrl(team: Team, baseUrl?: string): Promise<string> {
+  const response = await fetch('/api/share', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ team }),
+  });
 
-// Base64デコードしてパーティデータを取得
-export function decodeTeam(encodedData: string): Team {
-  try {
-    // Base64デコード（日本語対応）
-    const json = decodeURIComponent(escape(atob(encodedData)));
-    const team = JSON.parse(json) as Team;
-    return team;
-  } catch (error) {
-    console.error('パーティのデコードに失敗しました:', error);
-    throw new Error('パーティデータのデコードに失敗しました');
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.error || '共有リンクの作成に失敗しました');
   }
-}
 
-// 共有用URLを生成
-export function generateShareUrl(team: Team, baseUrl?: string): string {
-  const encoded = encodeTeam(team);
+  const data = await response.json();
+  if (!data.success || !data.shortId) {
+    throw new Error(data.error || '共有リンクの作成に失敗しました');
+  }
+
   const base = baseUrl || (typeof window !== 'undefined' ? window.location.origin : '');
-  return `${base}/view?data=${encodeURIComponent(encoded)}`;
-}
-
-// URLからパーティデータを取得
-export function getTeamFromUrl(url: string): Team | null {
-  try {
-    const urlObj = new URL(url);
-    const encodedData = urlObj.searchParams.get('data');
-
-    if (!encodedData) {
-      return null;
-    }
-
-    return decodeTeam(decodeURIComponent(encodedData));
-  } catch (error) {
-    console.error('URLからのパーティ取得に失敗しました:', error);
-    return null;
-  }
+  return `${base}/view/${data.shortId}`;
 }
 
 // LocalStorageにパーティを保存

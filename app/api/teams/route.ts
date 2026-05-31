@@ -4,6 +4,7 @@ import { Team } from '@/types/pokemon';
 import { getSessionUserId } from '@/lib/session';
 import { SaveTeamBodySchema, checkContentLength } from '@/lib/api-validation';
 import { rateLimit } from '@/lib/rate-limit';
+import { syncShareSnapshot } from '@/lib/share-sync';
 
 /**
  * GET /api/teams - ユーザーの全パーティを取得
@@ -83,7 +84,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { team, overwrite } = result.data;
+    const { team, overwrite, force } = result.data;
 
     const key = `user:${userId}:teams`;
     const existingTeams = await kv.get<Team[]>(key) || [];
@@ -91,15 +92,44 @@ export async function POST(request: NextRequest) {
     const teamIndex = existingTeams.findIndex(t => t.id === team.id);
 
     if (teamIndex >= 0) {
-      // 既存パーティの更新
-      const updatedTeam = { ...team, updatedAt: new Date().toISOString() };
+      // 既存パーティの更新 — 楽観ロックチェック
+      const existing = existingTeams[teamIndex];
+      const existingVersion = existing.version ?? 0;
+      const incomingVersion = team.version ?? 0;
+
+      if (!force && existingVersion !== incomingVersion) {
+        return NextResponse.json(
+          {
+            success: false,
+            code: 'VERSION_CONFLICT',
+            error: '他の端末でこのパーティが更新されています',
+            currentTeam: existing,
+          },
+          { status: 409 }
+        );
+      }
+
+      const updatedTeam = {
+        ...team,
+        version: existingVersion + 1,
+        updatedAt: new Date().toISOString(),
+      };
       existingTeams[teamIndex] = updatedTeam;
       await kv.set(key, existingTeams);
+
+      let shareSyncWarning: string | undefined;
+      try {
+        await syncShareSnapshot(updatedTeam.id, updatedTeam);
+      } catch (err) {
+        console.error('Failed to sync share snapshot:', err);
+        shareSyncWarning = '共有スナップショットの更新に失敗しました';
+      }
 
       return NextResponse.json({
         success: true,
         team: updatedTeam,
-        needsConfirmation: false
+        needsConfirmation: false,
+        ...(shareSyncWarning ? { shareSyncWarning } : {}),
       });
     } else {
       // 新規パーティの保存
@@ -113,7 +143,7 @@ export async function POST(request: NextRequest) {
         }, { status: 409 });
       }
 
-      const newTeam = { ...team, updatedAt: new Date().toISOString() };
+      const newTeam = { ...team, version: 1, updatedAt: new Date().toISOString() };
 
       if (overwrite) {
         // 既存パーティを全て上書き
@@ -123,10 +153,19 @@ export async function POST(request: NextRequest) {
         await kv.set(key, existingTeams);
       }
 
+      let shareSyncWarning: string | undefined;
+      try {
+        await syncShareSnapshot(newTeam.id, newTeam);
+      } catch (err) {
+        console.error('Failed to sync share snapshot:', err);
+        shareSyncWarning = '共有スナップショットの更新に失敗しました';
+      }
+
       return NextResponse.json({
         success: true,
         team: newTeam,
-        needsConfirmation: false
+        needsConfirmation: false,
+        ...(shareSyncWarning ? { shareSyncWarning } : {}),
       });
     }
   } catch (error) {

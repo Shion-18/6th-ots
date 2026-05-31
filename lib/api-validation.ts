@@ -29,10 +29,20 @@ const TeamSchema = z.object({
 export const SaveTeamBodySchema = z.object({
   team: TeamSchema,
   overwrite: z.boolean().optional().default(false),
+  // 楽観ロック: 競合検出をスキップして強制上書きする
+  force: z.boolean().optional().default(false),
 });
 
 // teamIdパラメータ
 export const TeamIdSchema = z.string().min(1).max(100);
+
+// POST /api/share リクエストボディ
+export const ShareTeamBodySchema = z.object({
+  team: TeamSchema,
+});
+
+// shortIdパラメータ (nanoid 8文字, URL-safe)
+export const ShortIdSchema = z.string().regex(/^[A-Za-z0-9_-]{8}$/);
 
 // リクエストサイズ上限（50KB）
 export const MAX_REQUEST_SIZE = 50_000;
