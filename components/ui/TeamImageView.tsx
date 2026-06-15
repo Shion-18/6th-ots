@@ -18,10 +18,6 @@ export default function TeamImageView({ team, elementRef }: TeamImageViewProps) 
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-white mb-2">{team.name}</h1>
         <div className="flex gap-4 text-white text-sm opacity-80">
-          <span>
-            {team.format === 'singles' ? 'シングルバトル' : 'ダブルバトル'}
-          </span>
-          <span>•</span>
           <span>{team.pokemon.length}体</span>
           <span>•</span>
           <span>ID: {team.id}</span>

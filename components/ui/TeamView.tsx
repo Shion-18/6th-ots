@@ -18,7 +18,7 @@ export default function TeamView({ team, onShare }: TeamViewProps) {
             <div>
               <h1 className="text-lg sm:text-2xl font-bold text-gray-800">{team.name}</h1>
               <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                {team.format === 'singles' ? 'シングルバトル' : 'ダブルバトル'} • {team.pokemon.length}体
+                {team.pokemon.length}体
               </p>
             </div>
             {onShare && (

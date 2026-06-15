@@ -84,7 +84,6 @@ export interface Team {
   pokemon: Pokemon[];
   createdAt: string;
   updatedAt: string;
-  format?: 'singles' | 'doubles'; // シングル/ダブル
   version?: number; // 楽観ロック用: 保存毎に +1
 }
 

@@ -3,7 +3,6 @@ import { Team } from '@/types/pokemon';
 export const sampleTeam: Team = {
   id: 'sample-team-1',
   name: 'サンプルパーティ',
-  format: 'doubles',
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
   pokemon: [

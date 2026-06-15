@@ -52,6 +52,8 @@ export default function PokemonAutocomplete({
     }
 
     const filtered = (allPokemon as PokemonData[]).filter((p) => {
+      // メガフォームは種族として直接選ばせない（ベース種族＋メガストーンで表現する）
+      if (p.megaOf !== undefined) return false;
       const searchLower = debouncedSearchTerm.toLowerCase();
       return (
         p.nameJa.includes(debouncedSearchTerm) ||

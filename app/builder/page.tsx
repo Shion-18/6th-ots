@@ -93,7 +93,6 @@ function BuilderPageContent() {
       ? getTeamFromLocalStorage(editingTeamId!)?.createdAt || new Date().toISOString()
       : new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    format: 'singles',
   };
 
   const { imageRef, isGenerating, generateImage } = useImageGenerator(currentTeam);
@@ -150,7 +149,6 @@ function BuilderPageContent() {
         ? getTeamFromLocalStorage(editingTeamId!)?.createdAt || new Date().toISOString()
         : new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      format: 'singles',
       version: isEditMode ? editingVersion : 0,
     };
 
@@ -216,7 +214,6 @@ function BuilderPageContent() {
       pokemon,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      format: 'singles',
     };
 
     try {

@@ -8867,6 +8867,72 @@
     ]
   },
   {
+    "id": 10001,
+    "name": "deoxys-attack",
+    "nameEn": "Deoxys-Attack",
+    "nameJa": "デオキシス(アタックフォルム)",
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10001.png",
+    "types": [
+      "エスパー"
+    ],
+    "baseStats": {
+      "hp": 50,
+      "attack": 180,
+      "defense": 20,
+      "spAttack": 180,
+      "spDefense": 20,
+      "speed": 150
+    },
+    "abilities": [
+      "プレッシャー"
+    ],
+    "formOf": 386
+  },
+  {
+    "id": 10002,
+    "name": "deoxys-defense",
+    "nameEn": "Deoxys-Defense",
+    "nameJa": "デオキシス(ディフェンスフォルム)",
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10002.png",
+    "types": [
+      "エスパー"
+    ],
+    "baseStats": {
+      "hp": 50,
+      "attack": 70,
+      "defense": 160,
+      "spAttack": 70,
+      "spDefense": 160,
+      "speed": 90
+    },
+    "abilities": [
+      "プレッシャー"
+    ],
+    "formOf": 386
+  },
+  {
+    "id": 10003,
+    "name": "deoxys-speed",
+    "nameEn": "Deoxys-Speed",
+    "nameJa": "デオキシス(スピードフォルム)",
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10003.png",
+    "types": [
+      "エスパー"
+    ],
+    "baseStats": {
+      "hp": 50,
+      "attack": 95,
+      "defense": 90,
+      "spAttack": 95,
+      "spDefense": 90,
+      "speed": 180
+    },
+    "abilities": [
+      "プレッシャー"
+    ],
+    "formOf": 386
+  },
+  {
     "id": 387,
     "name": "turtwig",
     "nameEn": "Turtwig",
@@ -11177,6 +11243,29 @@
       "プレッシャー",
       "テレパシー"
     ]
+  },
+  {
+    "id": 10007,
+    "name": "giratina-origin",
+    "nameEn": "Giratina-Origin",
+    "nameJa": "ギラティナ(オリジンフォルム)",
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10007.png",
+    "types": [
+      "ゴースト",
+      "ドラゴン"
+    ],
+    "baseStats": {
+      "hp": 150,
+      "attack": 120,
+      "defense": 100,
+      "spAttack": 120,
+      "spDefense": 100,
+      "speed": 90
+    },
+    "abilities": [
+      "ふゆう"
+    ],
+    "formOf": 487
   },
   {
     "id": 488,
@@ -14827,6 +14916,52 @@
     ]
   },
   {
+    "id": 10023,
+    "name": "kyurem-white",
+    "nameEn": "Kyurem-White",
+    "nameJa": "ホワイトキュレム",
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10023.png",
+    "types": [
+      "ドラゴン",
+      "こおり"
+    ],
+    "baseStats": {
+      "hp": 125,
+      "attack": 120,
+      "defense": 90,
+      "spAttack": 170,
+      "spDefense": 100,
+      "speed": 95
+    },
+    "abilities": [
+      "ターボブレイズ"
+    ],
+    "formOf": 646
+  },
+  {
+    "id": 10022,
+    "name": "kyurem-black",
+    "nameEn": "Kyurem-Black",
+    "nameJa": "ブラックキュレム",
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10022.png",
+    "types": [
+      "ドラゴン",
+      "こおり"
+    ],
+    "baseStats": {
+      "hp": 125,
+      "attack": 170,
+      "defense": 100,
+      "spAttack": 120,
+      "spDefense": 90,
+      "speed": 95
+    },
+    "abilities": [
+      "テラボルテージ"
+    ],
+    "formOf": 646
+  },
+  {
     "id": 647,
     "name": "keldeo-ordinary",
     "nameEn": "Keldeo-ordinary",
@@ -15531,7 +15666,7 @@
     "id": 678,
     "name": "meowstic-male",
     "nameEn": "Meowstic-male",
-    "nameJa": "ニャオニクス",
+    "nameJa": "ニャオニクス♂",
     "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/678.png",
     "types": [
       "エスパー"
@@ -15549,6 +15684,30 @@
       "すりぬけ",
       "いたずらごころ"
     ]
+  },
+  {
+    "id": 10025,
+    "name": "meowstic-female",
+    "nameEn": "Meowstic-female",
+    "nameJa": "ニャオニクス♀",
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10025.png",
+    "types": [
+      "エスパー"
+    ],
+    "baseStats": {
+      "hp": 74,
+      "attack": 48,
+      "defense": 76,
+      "spAttack": 83,
+      "spDefense": 81,
+      "speed": 104
+    },
+    "abilities": [
+      "するどいめ",
+      "すりぬけ",
+      "かちき"
+    ],
+    "formOf": 678
   },
   {
     "id": 679,
@@ -16288,6 +16447,81 @@
     ]
   },
   {
+    "id": 10027,
+    "name": "pumpkaboo-small",
+    "nameEn": "Pumpkaboo-Small",
+    "nameJa": "バケッチャ(ちいさいサイズ)",
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10027.png",
+    "types": [
+      "ゴースト",
+      "くさ"
+    ],
+    "baseStats": {
+      "hp": 44,
+      "attack": 66,
+      "defense": 70,
+      "spAttack": 44,
+      "spDefense": 55,
+      "speed": 56
+    },
+    "abilities": [
+      "ものひろい",
+      "おみとおし",
+      "ふみん"
+    ],
+    "formOf": 710
+  },
+  {
+    "id": 10028,
+    "name": "pumpkaboo-large",
+    "nameEn": "Pumpkaboo-Large",
+    "nameJa": "バケッチャ(おおきいサイズ)",
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10028.png",
+    "types": [
+      "ゴースト",
+      "くさ"
+    ],
+    "baseStats": {
+      "hp": 54,
+      "attack": 66,
+      "defense": 70,
+      "spAttack": 44,
+      "spDefense": 55,
+      "speed": 46
+    },
+    "abilities": [
+      "ものひろい",
+      "おみとおし",
+      "ふみん"
+    ],
+    "formOf": 710
+  },
+  {
+    "id": 10029,
+    "name": "pumpkaboo-super",
+    "nameEn": "Pumpkaboo-Super",
+    "nameJa": "バケッチャ(とくだいサイズ)",
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10029.png",
+    "types": [
+      "ゴースト",
+      "くさ"
+    ],
+    "baseStats": {
+      "hp": 59,
+      "attack": 66,
+      "defense": 70,
+      "spAttack": 44,
+      "spDefense": 55,
+      "speed": 41
+    },
+    "abilities": [
+      "ものひろい",
+      "おみとおし",
+      "ふみん"
+    ],
+    "formOf": 710
+  },
+  {
     "id": 711,
     "name": "gourgeist-average",
     "nameEn": "Gourgeist-average",
@@ -16310,6 +16544,81 @@
       "おみとおし",
       "ふみん"
     ]
+  },
+  {
+    "id": 10030,
+    "name": "gourgeist-small",
+    "nameEn": "Gourgeist-Small",
+    "nameJa": "パンプジン(ちいさいサイズ)",
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10030.png",
+    "types": [
+      "ゴースト",
+      "くさ"
+    ],
+    "baseStats": {
+      "hp": 55,
+      "attack": 85,
+      "defense": 122,
+      "spAttack": 58,
+      "spDefense": 75,
+      "speed": 99
+    },
+    "abilities": [
+      "ものひろい",
+      "おみとおし",
+      "ふみん"
+    ],
+    "formOf": 711
+  },
+  {
+    "id": 10031,
+    "name": "gourgeist-large",
+    "nameEn": "Gourgeist-Large",
+    "nameJa": "パンプジン(おおきいサイズ)",
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10031.png",
+    "types": [
+      "ゴースト",
+      "くさ"
+    ],
+    "baseStats": {
+      "hp": 75,
+      "attack": 95,
+      "defense": 122,
+      "spAttack": 58,
+      "spDefense": 75,
+      "speed": 69
+    },
+    "abilities": [
+      "ものひろい",
+      "おみとおし",
+      "ふみん"
+    ],
+    "formOf": 711
+  },
+  {
+    "id": 10032,
+    "name": "gourgeist-super",
+    "nameEn": "Gourgeist-Super",
+    "nameJa": "パンプジン(とくだいサイズ)",
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10032.png",
+    "types": [
+      "ゴースト",
+      "くさ"
+    ],
+    "baseStats": {
+      "hp": 85,
+      "attack": 100,
+      "defense": 122,
+      "spAttack": 58,
+      "spDefense": 75,
+      "speed": 54
+    },
+    "abilities": [
+      "ものひろい",
+      "おみとおし",
+      "ふみん"
+    ],
+    "formOf": 711
   },
   {
     "id": 712,

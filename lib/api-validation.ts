@@ -3,7 +3,8 @@ import { z } from 'zod';
 // ポケモン個体のバリデーション
 const PokemonSchema = z.object({
   id: z.string().min(1).max(100),
-  speciesId: z.number().int().min(1).max(10000),
+  // 通常種は 1〜721、フォーム違い(ニャオニクス♀やロトム各種など)は 10000番台
+  speciesId: z.number().int().min(1).max(100000),
   species: z.string().min(1).max(30),
   nickname: z.string().max(12).optional(),
   level: z.number().int().min(1).max(50),
@@ -21,7 +22,6 @@ const TeamSchema = z.object({
   pokemon: z.array(PokemonSchema).min(1).max(6),
   createdAt: z.string(),
   updatedAt: z.string(),
-  format: z.enum(['singles', 'doubles']).optional(),
   version: z.number().int().min(0).optional(),
 });
 
