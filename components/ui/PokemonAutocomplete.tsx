@@ -12,14 +12,6 @@ interface PokemonData {
   nameJa: string;
   sprite: string;
   types: string[];
-  baseStats: {
-    hp: number;
-    attack: number;
-    defense: number;
-    spAttack: number;
-    spDefense: number;
-    speed: number;
-  };
   abilities: string[];
   megaOf?: number;
   formOf?: number;
