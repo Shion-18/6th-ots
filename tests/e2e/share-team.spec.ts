@@ -41,7 +41,7 @@ test.describe('パーティ共有', () => {
 
     // 共有URLを取得（readOnly input[type="url"]）
     const shareUrl = await page.locator('input[type="url"]').inputValue();
-    expect(shareUrl).toMatch(/\/view\?shareId=/);
+    expect(shareUrl).toMatch(/\/view\/[A-Za-z0-9_-]{8}/);
 
     // QRコード（SVG）が表示されていることを確認
     const qrSvg = page.locator('#qr-code-svg');

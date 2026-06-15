@@ -65,7 +65,6 @@ function BuilderPageContent() {
       ? getTeamFromLocalStorage(editingTeamId)?.createdAt || newTeamCreatedAt
       : newTeamCreatedAt,
     updatedAt: newTeamCreatedAt,
-    format: 'singles',
   };
 
   const { imageRef, isGenerating, generateImage } = useImageGenerator(currentTeam);
@@ -122,7 +121,6 @@ function BuilderPageContent() {
         ? getTeamFromLocalStorage(editingTeamId!)?.createdAt || new Date().toISOString()
         : new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      format: 'singles',
     };
 
     try {
@@ -181,7 +179,6 @@ function BuilderPageContent() {
       pokemon,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      format: 'singles',
     };
 
     try {

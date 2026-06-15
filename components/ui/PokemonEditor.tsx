@@ -117,7 +117,9 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
 
     const newPokemon: Pokemon = {
       id: pokemon?.id || `${Date.now()}-${Math.random()}`,
-      speciesId: selectedSpecies.megaOf || selectedSpecies.formOf || selectedSpecies.id,
+      // メガフォームは基本種族IDで保存（メガストーンで表現）。フォーム違い(ロトム等)は
+      // 自身のIDを保持してフォームが潰れないようにする。
+      speciesId: selectedSpecies.megaOf ?? selectedSpecies.id,
       species: selectedSpecies.nameJa,
       nickname: nickname || undefined,
       level,

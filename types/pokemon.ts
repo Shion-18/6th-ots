@@ -84,7 +84,6 @@ export interface Team {
   pokemon: Pokemon[];
   createdAt: string;
   updatedAt: string;
-  format?: 'singles' | 'doubles'; // シングル/ダブル
 }
 
 // URL共有用のエンコードされたパーティデータ
