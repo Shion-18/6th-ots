@@ -40,6 +40,7 @@ function BuilderPageContent() {
     const teamIdParam = searchParams.get('teamId');
     if (!teamIdParam) {
       // 新規作成: 初期スナップショット = 空
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setInitialSnapshot(JSON.stringify({ name: 'マイパーティ', pokemon: [] }));
       return;
     }
