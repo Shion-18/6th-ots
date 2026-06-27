@@ -12,14 +12,6 @@ interface PokemonData {
   nameJa: string;
   sprite: string;
   types: string[];
-  baseStats: {
-    hp: number;
-    attack: number;
-    defense: number;
-    spAttack: number;
-    spDefense: number;
-    speed: number;
-  };
   abilities: string[];
   megaOf?: number;
   formOf?: number;
@@ -56,6 +48,8 @@ export default function PokemonAutocomplete({
     }
 
     const filtered = (allPokemon as PokemonData[]).filter((p) => {
+      // メガフォームは種族として直接選ばせない（ベース種族＋メガストーンで表現する）
+      if (p.megaOf !== undefined) return false;
       const searchLower = debouncedSearchTerm.toLowerCase();
       return (
         p.nameJa.includes(debouncedSearchTerm) ||

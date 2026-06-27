@@ -9,7 +9,6 @@ export interface TeamRow {
   user_id: string;
   name: string;
   pokemon: Pokemon[];
-  format: 'singles' | 'doubles' | null;
   created_at: string;
   updated_at: string;
 }
@@ -24,7 +23,6 @@ export function toTeam(row: TeamRow): Team {
     pokemon: row.pokemon,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
-    ...(row.format ? { format: row.format } : {}),
   };
 }
 

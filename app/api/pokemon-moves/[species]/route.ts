@@ -31,7 +31,8 @@ export async function GET(
   const { species } = await params;
   const pokemonId = parseInt(species, 10);
 
-  if (isNaN(pokemonId) || pokemonId < 1 || pokemonId > 10000) {
+  // 通常種は 1〜721、フォーム違い(ニャオニクス♀やロトム各種など)は 10000番台。
+  if (isNaN(pokemonId) || pokemonId < 1 || pokemonId > 100000) {
     return NextResponse.json({ error: 'Invalid species ID' }, { status: 400 });
   }
 

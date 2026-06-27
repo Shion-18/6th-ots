@@ -122,7 +122,6 @@ export async function POST(request: NextRequest) {
         .update({
           name: team.name,
           pokemon: team.pokemon,
-          format: team.format ?? null,
           updated_at: now,
         })
         .eq('id', team.id)
@@ -200,7 +199,6 @@ export async function POST(request: NextRequest) {
         user_id: userId,
         name: team.name,
         pokemon: team.pokemon,
-        format: team.format ?? null,
         created_at: team.createdAt || now,
         updated_at: now,
       })

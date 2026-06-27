@@ -24,14 +24,6 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
     nameJa: string;
     sprite: string;
     types: string[];
-    baseStats: {
-      hp: number;
-      attack: number;
-      defense: number;
-      spAttack: number;
-      spDefense: number;
-      speed: number;
-    };
     abilities: string[];
     megaOf?: number;
     formOf?: number;
@@ -117,7 +109,9 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
 
     const newPokemon: Pokemon = {
       id: pokemon?.id || `${Date.now()}-${Math.random()}`,
-      speciesId: selectedSpecies.megaOf || selectedSpecies.formOf || selectedSpecies.id,
+      // メガフォームは基本種族IDで保存（メガストーンで表現）。フォーム違い(ロトム等)は
+      // 自身のIDを保持してフォームが潰れないようにする。
+      speciesId: selectedSpecies.megaOf ?? selectedSpecies.id,
       species: selectedSpecies.nameJa,
       nickname: nickname || undefined,
       level,

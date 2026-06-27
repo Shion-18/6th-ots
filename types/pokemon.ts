@@ -40,16 +40,6 @@ export interface Move {
   pp: number;
 }
 
-// 種族値
-export interface BaseStats {
-  hp: number;
-  attack: number;
-  defense: number;
-  specialAttack: number;
-  specialDefense: number;
-  speed: number;
-}
-
 // ポケモンの基本データ
 export interface PokemonSpecies {
   id: number;
@@ -57,7 +47,6 @@ export interface PokemonSpecies {
   name: string;
   nameEn: string;
   types: PokemonType[];
-  baseStats: BaseStats;
   abilities: string[];
   hiddenAbility?: string;
   spriteUrl?: string;
@@ -84,7 +73,6 @@ export interface Team {
   pokemon: Pokemon[];
   createdAt: string;
   updatedAt: string;
-  format?: 'singles' | 'doubles'; // シングル/ダブル
 }
 
 // URL共有用のエンコードされたパーティデータ
