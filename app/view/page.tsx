@@ -8,12 +8,15 @@ import { decodeTeam } from '@/lib/team-encoder';
 import TeamView from '@/components/ui/TeamView';
 import TeamImageView from '@/components/ui/TeamImageView';
 import { useImageGenerator } from '@/hooks/useImageGenerator';
+import { useToast, ToastContainer } from '@/components/ui/Toast';
+import { TeamViewSkeleton } from '@/components/ui/Skeleton';
 
 function ViewPageContent() {
   const searchParams = useSearchParams();
   const [team, setTeam] = useState<Team | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toasts, showToast, dismissToast } = useToast();
 
   // 画像生成フック
   const { imageRef, isGenerating, generateImage } = useImageGenerator(team);
@@ -42,16 +45,14 @@ function ViewPageContent() {
   const handleShare = async () => {
     const { copyToClipboard } = await import('@/lib/clipboard');
     const ok = await copyToClipboard(window.location.href);
-    alert(ok ? 'URLをコピーしました！' : 'URLのコピーに失敗しました');
+    showToast(ok ? 'success' : 'error', ok ? 'URLをコピーしました！' : 'URLのコピーに失敗しました');
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">読み込み中...</p>
-        </div>
+      <div aria-busy="true">
+        <span role="status" aria-live="polite" className="sr-only">パーティを読み込み中</span>
+        <TeamViewSkeleton />
       </div>
     );
   }
@@ -80,6 +81,7 @@ function ViewPageContent() {
 
   return (
     <>
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
       <TeamView team={team} onShare={handleShare} />
 
       {/* 非表示の画像生成用ビュー */}
@@ -107,14 +109,7 @@ function ViewPageContent() {
 
 export default function ViewPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">読み込み中...</p>
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<TeamViewSkeleton />}>
       <ViewPageContent />
     </Suspense>
   );
