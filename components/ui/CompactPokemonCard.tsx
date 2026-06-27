@@ -61,12 +61,10 @@ function CompactPokemonCardInner({ pokemon }: CompactPokemonCardProps) {
       {/* Row 3-4: Ability, Item */}
       <div className="space-y-0 text-[10px] mb-1">
         <div className="flex gap-1">
-          <span className="text-gray-500 font-medium flex-shrink-0">特:</span>
           <span className="text-gray-800 font-semibold">{pokemon.ability}</span>
         </div>
         {pokemon.item && (
           <div className="flex gap-1">
-            <span className="text-gray-500 font-medium flex-shrink-0">持:</span>
             <span className="text-purple-600 font-semibold">{pokemon.item}</span>
           </div>
         )}
