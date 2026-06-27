@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Team, Pokemon } from '@/types/pokemon';
 import { getTeamFromLocalStorage, getTeamsFromLocalStorage, generateShareUrl } from '@/lib/team-encoder';
@@ -30,30 +30,62 @@ function BuilderPageContent() {
   // 新規作成時の createdAt も一度だけ生成
   const [newTeamCreatedAt] = useState(() => new Date().toISOString());
   const { toasts, showToast, dismissToast } = useToast();
+  // 未保存変更追跡: 初回ロード時のスナップショット
+  const [initialSnapshot, setInitialSnapshot] = useState('');
+  const [isSaved, setIsSaved] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<null | (() => void)>(null);
 
   // 編集モードの初期化 — URLパラメータ + localStorage（外部入力）から状態を同期
   useEffect(() => {
     const teamIdParam = searchParams.get('teamId');
-    if (!teamIdParam) return;
+    if (!teamIdParam) {
+      // 新規作成: 初期スナップショット = 空
+      setInitialSnapshot(JSON.stringify({ name: 'マイパーティ', pokemon: [] }));
+      return;
+    }
 
     const localTeam = getTeamFromLocalStorage(teamIdParam);
     if (localTeam) {
       // 外部状態（URL/localStorage）→ React stateの同期は意図的なsetState
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEditingTeamId(teamIdParam);
-       
       setIsEditMode(true);
-       
       setTeamName(localTeam.name);
-       
       setPokemon(localTeam.pokemon);
-       
       setHasTeamNameBeenFocused(true);
+      setInitialSnapshot(JSON.stringify({ name: localTeam.name, pokemon: localTeam.pokemon }));
     } else {
       showToast('error', 'パーティが見つかりませんでした');
       router.push('/my-teams');
     }
   }, [searchParams, router, showToast]);
+
+  // 未保存変更の有無
+  const isDirty = useMemo(() => {
+    if (isSaved) return false;
+    if (!initialSnapshot) return false;
+    const current = JSON.stringify({ name: teamName, pokemon });
+    return current !== initialSnapshot;
+  }, [teamName, pokemon, isSaved, initialSnapshot]);
+
+  // ブラウザを閉じる/リロードする際の警告
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
+
+  // 内部遷移ガード（未保存なら確認モーダルを挟む）
+  const guardedNavigate = (navigate: () => void) => {
+    if (isDirty) {
+      setPendingNavigation(() => navigate);
+    } else {
+      navigate();
+    }
+  };
 
   // 画像生成用のチームデータ（renderごとに新しい updatedAt を渡したい場合は
   // useImageGenerator 側で必要になった時点で生成する。ここではビュー目的のみ）
@@ -71,7 +103,7 @@ function BuilderPageContent() {
 
   const handleAddPokemon = () => {
     if (pokemon.length >= 6) {
-      alert('パーティは最大6体までです');
+      showToast('warning', 'パーティは最大6体までです');
       return;
     }
     setEditingPokemon(null);
@@ -109,7 +141,7 @@ function BuilderPageContent() {
   // パーティを保存
   const saveTeam = async () => {
     if (pokemon.length === 0) {
-      alert('パーティにポケモンを追加してください');
+      showToast('warning', 'パーティにポケモンを追加してください');
       return;
     }
 
@@ -129,6 +161,7 @@ function BuilderPageContent() {
       // 編集モードの場合は確認不要
       if (isEditMode) {
         if (result.success) {
+          setIsSaved(true);
           showToast('success', 'パーティを更新しました');
           setTimeout(() => router.push('/my-teams'), 1000);
         } else {
@@ -147,6 +180,7 @@ function BuilderPageContent() {
           const overwriteResult = await saveTeamToAPI(team, true);
           if (overwriteResult.success) {
             setSavedTeams(getTeamsFromLocalStorage());
+            setIsSaved(true);
             showToast('success', 'パーティを保存しました');
             setTimeout(() => router.push('/my-teams'), 1000);
           } else {
@@ -155,6 +189,7 @@ function BuilderPageContent() {
         }
       } else if (result.success) {
         setSavedTeams(getTeamsFromLocalStorage());
+        setIsSaved(true);
         showToast('success', 'パーティを保存しました');
         setTimeout(() => router.push('/my-teams'), 1000);
       } else {
@@ -169,7 +204,7 @@ function BuilderPageContent() {
   // パーティを共有
   const shareTeam = async () => {
     if (pokemon.length === 0) {
-      alert('パーティにポケモンを追加してください');
+      showToast('warning', 'パーティにポケモンを追加してください');
       return;
     }
 
@@ -187,7 +222,7 @@ function BuilderPageContent() {
       setShowQRModal(true);
     } catch (error) {
       console.error('Share failed:', error);
-      alert('共有リンクの作成に失敗しました');
+      showToast('error', '共有リンクの作成に失敗しました');
     }
   };
 
@@ -217,6 +252,44 @@ function BuilderPageContent() {
         />
       )}
 
+      {/* 未保存変更警告モーダル */}
+      {pendingNavigation && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="unsaved-title"
+        >
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+            <h2 id="unsaved-title" className="text-xl font-bold text-gray-800 mb-2">
+              保存されていない変更があります
+            </h2>
+            <p className="text-gray-600 text-sm mb-6">
+              編集中の内容は破棄されます。本当にこのページを離れますか？
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setPendingNavigation(null)}
+                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-4 rounded-lg"
+              >
+                編集に戻る
+              </button>
+              <button
+                onClick={() => {
+                  const fn = pendingNavigation;
+                  setPendingNavigation(null);
+                  setIsSaved(true);
+                  fn();
+                }}
+                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg"
+              >
+                破棄して離れる
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ヘッダー */}
       <div className="bg-white shadow-md">
         <div className="max-w-4xl mx-auto px-4 py-4">
@@ -225,7 +298,7 @@ function BuilderPageContent() {
               {isEditMode ? 'パーティを編集' : 'パーティビルダー'}
             </h1>
             <button
-              onClick={() => router.push('/')}
+              onClick={() => guardedNavigate(() => router.push('/'))}
               className="text-gray-600 hover:text-gray-800"
             >
               ← ホーム
@@ -266,26 +339,34 @@ function BuilderPageContent() {
           <h2 className="text-lg font-bold text-gray-800 mb-4">
             パーティ ({pokemon.length}/6)
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {pokemon.map((p) => (
-              <div key={p.id}>
-                <PokemonCard pokemon={p} />
-                <div className="flex gap-2 mt-2">
-                  <button
-                    onClick={() => handleEditPokemon(p)}
-                    className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors"
-                  >
-                    ✎ 編集
-                  </button>
-                  <button
-                    onClick={() => handleDeletePokemon(p.id)}
-                    className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors"
-                  >
-                    × 削除
-                  </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {pokemon.map((p) => {
+              const isBeingEdited = isEditorOpen && editingPokemon?.id === p.id;
+              return (
+                <div
+                  key={p.id}
+                  className={isBeingEdited ? 'ring-2 ring-blue-500 rounded-2xl' : ''}
+                >
+                  <PokemonCard pokemon={p} />
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={() => handleEditPokemon(p)}
+                      aria-label={`${p.nickname || p.species}を編集`}
+                      className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors"
+                    >
+                      ✎ 編集
+                    </button>
+                    <button
+                      onClick={() => handleDeletePokemon(p.id)}
+                      aria-label={`${p.nickname || p.species}を削除`}
+                      className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors"
+                    >
+                      × 削除
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {pokemon.length === 0 && (

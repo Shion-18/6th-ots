@@ -8,12 +8,14 @@ import { decodeTeam } from '@/lib/team-encoder';
 import TeamView from '@/components/ui/TeamView';
 import TeamImageView from '@/components/ui/TeamImageView';
 import { useImageGenerator } from '@/hooks/useImageGenerator';
+import { useToast, ToastContainer } from '@/components/ui/Toast';
 
 function ViewPageContent() {
   const searchParams = useSearchParams();
   const [team, setTeam] = useState<Team | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toasts, showToast, dismissToast } = useToast();
 
   // 画像生成フック
   const { imageRef, isGenerating, generateImage } = useImageGenerator(team);
@@ -42,7 +44,7 @@ function ViewPageContent() {
   const handleShare = async () => {
     const { copyToClipboard } = await import('@/lib/clipboard');
     const ok = await copyToClipboard(window.location.href);
-    alert(ok ? 'URLをコピーしました！' : 'URLのコピーに失敗しました');
+    showToast(ok ? 'success' : 'error', ok ? 'URLをコピーしました！' : 'URLのコピーに失敗しました');
   };
 
   if (loading) {
@@ -80,6 +82,7 @@ function ViewPageContent() {
 
   return (
     <>
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
       <TeamView team={team} onShare={handleShare} />
 
       {/* 非表示の画像生成用ビュー */}
