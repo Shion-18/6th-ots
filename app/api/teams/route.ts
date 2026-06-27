@@ -95,15 +95,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { team, overwrite } = result.data;
+    const { team, overwrite, baseUpdatedAt } = result.data;
     const supabase = getSupabase();
-    const now = new Date().toISOString();
 
-    // 既存チーム（同IDかつ同ユーザー）の確認
+    // 既存行（1ユーザー=1行）の確認。確認ダイアログ用＋competitive判定用。
     const { data: existing, error: selectError } = await supabase
       .from('teams')
-      .select('id')
-      .eq('id', team.id)
+      .select('*')
       .eq('user_id', userId)
       .maybeSingle();
 
@@ -115,107 +113,61 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (existing) {
-      // 既存チームの更新（同IDが存在）
-      const { data: updated, error: updateError } = await supabase
-        .from('teams')
-        .update({
-          name: team.name,
-          pokemon: team.pokemon,
-          updated_at: now,
-        })
-        .eq('id', team.id)
-        .eq('user_id', userId)
-        .select()
-        .single();
-
-      if (updateError || !updated) {
-        console.error('Error updating team:', updateError);
-        return NextResponse.json(
-          { success: false, error: 'Failed to update team' },
-          { status: 500 }
-        );
-      }
-
-      return NextResponse.json({
-        success: true,
-        team: toTeam(updated as TeamRow),
-        needsConfirmation: false,
-      });
+    // 別パーティが既にある状態で新規保存しようとした場合は確認を促す（UXのみ）。
+    // 実際の書き込みは下の RPC がアトミックに行うため、この事前チェックは助言的。
+    if (existing && existing.id !== team.id && !overwrite) {
+      return NextResponse.json(
+        {
+          success: false,
+          needsConfirmation: true,
+          existingTeamName: (existing as TeamRow).name ?? '',
+          message: 'Team limit reached',
+        },
+        { status: 409 }
+      );
     }
 
-    // 新規保存: 1チーム制限チェック
-    const { count, error: countError } = await supabase
-      .from('teams')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId);
+    // アトミックな保存＋楽観ロック（INSERT ... ON CONFLICT(user_id) DO UPDATE ... WHERE updated_at=base）
+    // overwrite=true のときは base を無視して強制上書き。
+    const { data: saved, error: rpcError } = await supabase.rpc('save_team', {
+      p_user_id: userId,
+      p_id: team.id,
+      p_name: team.name,
+      p_pokemon: team.pokemon,
+      p_base_updated_at: overwrite ? null : baseUpdatedAt ?? null,
+    });
 
-    if (countError) {
-      console.error('Error counting teams:', countError);
+    if (rpcError) {
+      console.error('Error saving team (rpc):', rpcError);
       return NextResponse.json(
         { success: false, error: 'Failed to save team' },
         { status: 500 }
       );
     }
 
-    if ((count ?? 0) >= 1 && !overwrite) {
-      // 1チーム制限に達している → 既存チーム名を返して確認ダイアログを出させる
-      const { data: existingTeam } = await supabase
+    const savedRow = Array.isArray(saved) ? (saved[0] as TeamRow | undefined) : (saved as TeamRow | undefined);
+
+    if (!savedRow) {
+      // 0行 = 楽観ロック競合（他端末が先に更新）。現行行を返して競合UXを出させる。
+      const { data: current } = await supabase
         .from('teams')
-        .select('name')
+        .select('*')
         .eq('user_id', userId)
-        .limit(1)
-        .single();
+        .maybeSingle();
 
-      return NextResponse.json({
-        success: false,
-        needsConfirmation: true,
-        existingTeamName: existingTeam?.name ?? '',
-        message: 'Team limit reached',
-      }, { status: 409 });
-    }
-
-    // 上書きの場合は既存チームを全削除
-    if (overwrite) {
-      const { error: deleteError } = await supabase
-        .from('teams')
-        .delete()
-        .eq('user_id', userId);
-
-      if (deleteError) {
-        console.error('Error deleting existing teams:', deleteError);
-        return NextResponse.json(
-          { success: false, error: 'Failed to overwrite team' },
-          { status: 500 }
-        );
-      }
-    }
-
-    // 新規チーム挿入
-    const { data: inserted, error: insertError } = await supabase
-      .from('teams')
-      .insert({
-        id: team.id,
-        user_id: userId,
-        name: team.name,
-        pokemon: team.pokemon,
-        created_at: team.createdAt || now,
-        updated_at: now,
-      })
-      .select()
-      .single();
-
-    if (insertError || !inserted) {
-      console.error('Error inserting team:', insertError);
       return NextResponse.json(
-        { success: false, error: 'Failed to save team' },
-        { status: 500 }
+        {
+          success: false,
+          code: 'VERSION_CONFLICT',
+          currentTeam: current ? toTeam(current as TeamRow) : undefined,
+        },
+        { status: 409 }
       );
     }
 
     return NextResponse.json({
       success: true,
-      team: toTeam(inserted as TeamRow),
+      team: toTeam(savedRow),
       needsConfirmation: false,
     });
   } catch (error) {

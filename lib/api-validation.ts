@@ -22,13 +22,15 @@ const TeamSchema = z.object({
   pokemon: z.array(PokemonSchema).min(1).max(6),
   createdAt: z.string(),
   updatedAt: z.string(),
-  version: z.number().int().min(0).optional(),
 });
 
 // POST /api/teams リクエストボディ
 export const SaveTeamBodySchema = z.object({
   team: TeamSchema,
   overwrite: z.boolean().optional().default(false),
+  // 楽観ロック用トークン: クライアントが読み込んだ時点の updated_at。
+  // 一致しなければ他端末が先に更新済みとして 409 にする。新規/強制上書き時は省略。
+  baseUpdatedAt: z.string().optional(),
 });
 
 // teamIdパラメータ
