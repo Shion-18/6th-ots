@@ -7,6 +7,7 @@ import { getTeamsFromAPI, deleteTeamFromAPI } from '@/lib/team-storage';
 import { generateShareUrl } from '@/lib/team-encoder';
 import QRCodeDisplay from '@/components/ui/QRCodeDisplay';
 import { useToast, ToastContainer } from '@/components/ui/Toast';
+import { TeamCardSkeleton } from '@/components/ui/Skeleton';
 
 export default function MyTeamsPage() {
   const router = useRouter();
@@ -85,9 +86,9 @@ export default function MyTeamsPage() {
       {/* コンテンツ */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         {loading ? (
-          <div className="text-center py-12 bg-white rounded-2xl shadow-lg">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">読み込み中...</p>
+          <div aria-busy="true">
+            <span role="status" aria-live="polite" className="sr-only">パーティを読み込み中</span>
+            <TeamCardSkeleton />
           </div>
         ) : teams.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-2xl shadow-lg">

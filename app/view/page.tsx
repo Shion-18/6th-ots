@@ -9,6 +9,7 @@ import TeamView from '@/components/ui/TeamView';
 import TeamImageView from '@/components/ui/TeamImageView';
 import { useImageGenerator } from '@/hooks/useImageGenerator';
 import { useToast, ToastContainer } from '@/components/ui/Toast';
+import { TeamViewSkeleton } from '@/components/ui/Skeleton';
 
 function ViewPageContent() {
   const searchParams = useSearchParams();
@@ -49,11 +50,9 @@ function ViewPageContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">読み込み中...</p>
-        </div>
+      <div aria-busy="true">
+        <span role="status" aria-live="polite" className="sr-only">パーティを読み込み中</span>
+        <TeamViewSkeleton />
       </div>
     );
   }
@@ -110,14 +109,7 @@ function ViewPageContent() {
 
 export default function ViewPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">読み込み中...</p>
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<TeamViewSkeleton />}>
       <ViewPageContent />
     </Suspense>
   );
