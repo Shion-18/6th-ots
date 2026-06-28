@@ -4,5 +4,11 @@
   "outputDirectory": ".next",
   "env": {
     "TURBOPACK": "0"
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/keep-alive",
+      "schedule": "0 0 * * *"
+    }
+  ]
 }
