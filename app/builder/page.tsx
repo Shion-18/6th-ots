@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Team, Pokemon } from '@/types/pokemon';
 import { getTeamFromLocalStorage, getTeamsFromLocalStorage, generateShareUrl } from '@/lib/team-encoder';
-import { saveTeamToAPI } from '@/lib/team-storage';
+import { saveTeamToAPI, SaveResult } from '@/lib/team-storage';
 import PokemonCard from '@/components/ui/PokemonCard';
 import PokemonEditor from '@/components/ui/PokemonEditor';
 import TeamImageView from '@/components/ui/TeamImageView';
@@ -34,6 +34,10 @@ function BuilderPageContent() {
   const [initialSnapshot, setInitialSnapshot] = useState('');
   const [isSaved, setIsSaved] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<null | (() => void)>(null);
+  // 楽観ロック: 読み込んだ時点の updatedAt（保存時に baseUpdatedAt として送信）
+  const [baseUpdatedAt, setBaseUpdatedAt] = useState<string | undefined>(undefined);
+  // 競合検出モーダル用
+  const [versionConflict, setVersionConflict] = useState<null | { currentTeam: Team }>(null);
 
   // 編集モードの初期化 — URLパラメータ + localStorage（外部入力）から状態を同期
   useEffect(() => {
@@ -53,6 +57,7 @@ function BuilderPageContent() {
       setTeamName(localTeam.name);
       setPokemon(localTeam.pokemon);
       setHasTeamNameBeenFocused(true);
+      setBaseUpdatedAt(localTeam.updatedAt);
       setInitialSnapshot(JSON.stringify({ name: localTeam.name, pokemon: localTeam.pokemon }));
     } else {
       showToast('error', 'パーティが見つかりませんでした');
@@ -139,63 +144,65 @@ function BuilderPageContent() {
     }
   };
 
-  // パーティを保存
-  const saveTeam = async () => {
+  // 保存結果の共通ハンドリング
+  const handleSaveResult = (result: SaveResult) => {
+    if (result.success) {
+      if (result.savedTo === 'local') {
+        // クラウド未保存（オフライン）。成功偽装せず警告する。
+        setIsSaved(true);
+        showToast('warning', 'オフラインのため端末内にのみ保存しました。オンライン時に再保存してください');
+        return;
+      }
+      if (result.team?.updatedAt) setBaseUpdatedAt(result.team.updatedAt);
+      setSavedTeams(getTeamsFromLocalStorage());
+      setIsSaved(true);
+      showToast('success', isEditMode ? 'パーティを更新しました' : 'パーティを保存しました');
+      setTimeout(() => router.push('/my-teams'), 1000);
+      return;
+    }
+    if (result.versionConflict) {
+      if (result.currentTeam) {
+        setVersionConflict({ currentTeam: result.currentTeam });
+      } else {
+        showToast('error', '他の端末で更新されています。最新を読み込んでください');
+      }
+      return;
+    }
+    showToast('error', result.error || '保存に失敗しました');
+  };
+
+  // パーティを保存（overwrite=true で楽観ロック/確認をスキップして強制上書き）
+  const saveTeam = async (overwrite = false) => {
     if (pokemon.length === 0) {
       showToast('warning', 'パーティにポケモンを追加してください');
       return;
     }
 
     const team: Team = {
-      id: isEditMode ? editingTeamId! : `team-${Date.now()}`,
+      id: isEditMode ? editingTeamId! : newTeamId,
       name: teamName || 'マイパーティ',
       pokemon,
       createdAt: isEditMode
-        ? getTeamFromLocalStorage(editingTeamId!)?.createdAt || new Date().toISOString()
-        : new Date().toISOString(),
+        ? getTeamFromLocalStorage(editingTeamId!)?.createdAt || newTeamCreatedAt
+        : newTeamCreatedAt,
       updatedAt: new Date().toISOString(),
     };
 
     try {
-      const result = await saveTeamToAPI(team);
+      const result = await saveTeamToAPI(team, { baseUpdatedAt, overwrite });
 
-      // 編集モードの場合は確認不要
-      if (isEditMode) {
-        if (result.success) {
-          setIsSaved(true);
-          showToast('success', 'パーティを更新しました');
-          setTimeout(() => router.push('/my-teams'), 1000);
-        } else {
-          showToast('error', '更新に失敗しました');
+      // 別パーティが既にある状態での新規保存 → 上書き確認
+      if (result.needsConfirmation) {
+        const confirmed = confirm(
+          `既に「${result.existingTeamName}」が保存されています。\n新しいパーティを保存すると、既存のパーティは置き換えられます。\n\n上書きしてもよろしいですか？`
+        );
+        if (confirmed) {
+          handleSaveResult(await saveTeamToAPI(team, { overwrite: true }));
         }
         return;
       }
 
-      // 新規作成モードのロジック
-      if (result.needsConfirmation) {
-        const confirmed = confirm(
-          `既に「${result.existingTeamName}」が保存されています。\n新しいパーティを保存すると、既存のパーティは削除されます。\n\n上書きしてもよろしいですか？`
-        );
-
-        if (confirmed) {
-          const overwriteResult = await saveTeamToAPI(team, true);
-          if (overwriteResult.success) {
-            setSavedTeams(getTeamsFromLocalStorage());
-            setIsSaved(true);
-            showToast('success', 'パーティを保存しました');
-            setTimeout(() => router.push('/my-teams'), 1000);
-          } else {
-            showToast('error', '保存に失敗しました');
-          }
-        }
-      } else if (result.success) {
-        setSavedTeams(getTeamsFromLocalStorage());
-        setIsSaved(true);
-        showToast('success', 'パーティを保存しました');
-        setTimeout(() => router.push('/my-teams'), 1000);
-      } else {
-        showToast('error', result.error || '保存に失敗しました');
-      }
+      handleSaveResult(result);
     } catch (error) {
       console.error('Save failed:', error);
       showToast('error', '保存に失敗しました');
@@ -251,6 +258,57 @@ function BuilderPageContent() {
           teamName={teamName}
           onClose={() => setShowQRModal(false)}
         />
+      )}
+
+      {/* 競合検出モーダル（他端末で更新済み） */}
+      {versionConflict && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="conflict-title"
+        >
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+            <h2 id="conflict-title" className="text-xl font-bold text-gray-800 mb-2">
+              他の端末で更新されています
+            </h2>
+            <p className="text-gray-600 text-sm mb-6">
+              このパーティは別の端末/タブで保存されたようです。<br />
+              どちらの内容を残しますか？
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => {
+                  const fresh = versionConflict.currentTeam;
+                  setTeamName(fresh.name);
+                  setPokemon(fresh.pokemon);
+                  setBaseUpdatedAt(fresh.updatedAt);
+                  setInitialSnapshot(JSON.stringify({ name: fresh.name, pokemon: fresh.pokemon }));
+                  setVersionConflict(null);
+                  showToast('info', '最新の内容を読み込みました');
+                }}
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg"
+              >
+                最新を読み込む（自分の編集は破棄）
+              </button>
+              <button
+                onClick={() => {
+                  setVersionConflict(null);
+                  saveTeam(true);
+                }}
+                className="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg"
+              >
+                自分の編集で上書き保存
+              </button>
+              <button
+                onClick={() => setVersionConflict(null)}
+                className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-4 rounded-lg"
+              >
+                キャンセル
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* 未保存変更警告モーダル */}
@@ -382,7 +440,7 @@ function BuilderPageContent() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
           <button
             data-testid="save-team"
-            onClick={saveTeam}
+            onClick={() => saveTeam()}
             disabled={pokemon.length === 0}
             className={`font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base ${
               pokemon.length === 0
