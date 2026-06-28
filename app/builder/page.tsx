@@ -3,7 +3,8 @@
 import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Team, Pokemon } from '@/types/pokemon';
-import { getTeamFromLocalStorage, getTeamsFromLocalStorage, generateShareUrl } from '@/lib/team-encoder';
+import { getTeamFromLocalStorage, getTeamsFromLocalStorage } from '@/lib/team-encoder';
+import { createShareUrl } from '@/lib/share';
 import { saveTeamToAPI, SaveResult } from '@/lib/team-storage';
 import PokemonCard from '@/components/ui/PokemonCard';
 import PokemonEditor from '@/components/ui/PokemonEditor';
@@ -217,20 +218,22 @@ function BuilderPageContent() {
     }
 
     const team: Team = {
-      id: `team-${Date.now()}`,
-      name: teamName,
+      id: isEditMode && editingTeamId ? editingTeamId : newTeamId,
+      name: teamName || 'マイパーティ',
       pokemon,
-      createdAt: new Date().toISOString(),
+      createdAt: isEditMode && editingTeamId
+        ? getTeamFromLocalStorage(editingTeamId)?.createdAt || newTeamCreatedAt
+        : newTeamCreatedAt,
       updatedAt: new Date().toISOString(),
     };
 
     try {
-      const url = generateShareUrl(team);
+      const url = await createShareUrl(team);
       setShareUrl(url);
       setShowQRModal(true);
     } catch (error) {
       console.error('Share failed:', error);
-      showToast('error', '共有リンクの作成に失敗しました');
+      showToast('error', error instanceof Error ? error.message : '共有リンクの作成に失敗しました');
     }
   };
 
