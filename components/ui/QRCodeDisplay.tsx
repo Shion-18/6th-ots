@@ -53,16 +53,16 @@ export default function QRCodeDisplay({ url, teamName, size = 256, onClose }: QR
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl max-w-md w-full p-4 sm:p-6">
+      <div className="bg-card rounded-lg border border-line max-w-md w-full p-4 sm:p-6">
         {/* Header */}
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h2 className="text-lg sm:text-xl font-bold text-gray-800">QRコード</h2>
-            <p className="text-sm text-gray-600 mt-1">{teamName}</p>
+            <h2 className="text-lg sm:text-xl font-bold text-ink">QRコード</h2>
+            <p className="text-sm text-ink-muted mt-1">{teamName}</p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl font-bold leading-none"
+            className="text-ink-faint hover:text-ink text-2xl font-bold leading-none"
           >
             ×
           </button>
@@ -84,13 +84,13 @@ export default function QRCodeDisplay({ url, teamName, size = 256, onClose }: QR
 
         {/* URL Display — タップで全選択 */}
         <div className="mb-4">
-          <label className="block text-xs font-semibold text-gray-600 mb-1">共有URL</label>
+          <label className="block text-xs font-semibold text-ink-muted mb-1">共有URL</label>
           <input
             type="url"
             readOnly
             value={url}
             onFocus={(e) => e.target.select()}
-            className="w-full bg-gray-100 rounded-lg p-3 text-xs text-gray-700 border-none outline-none"
+            className="w-full bg-surface border border-line rounded-lg p-3 text-xs text-ink-muted outline-none"
           />
         </div>
 
@@ -98,20 +98,20 @@ export default function QRCodeDisplay({ url, teamName, size = 256, onClose }: QR
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={handleCopy}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition-colors text-sm sm:text-base"
+            className="bg-accent hover:bg-accent-strong text-white font-bold py-3 px-4 rounded-lg transition-colors text-sm sm:text-base"
           >
             {copied ? 'コピー完了!' : 'URLをコピー'}
           </button>
           <button
             onClick={handleDownload}
-            className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition-colors text-sm sm:text-base"
+            className="bg-card border border-line hover:bg-surface text-ink font-bold py-3 px-4 rounded-lg transition-colors text-sm sm:text-base"
           >
             QRダウンロード
           </button>
         </div>
 
         {/* Info */}
-        <p className="text-xs text-gray-500 text-center mt-4">
+        <p className="text-xs text-ink-faint text-center mt-4">
           対戦相手にスキャンしてもらってください
         </p>
       </div>

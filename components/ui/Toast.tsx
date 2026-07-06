@@ -11,10 +11,10 @@ export interface ToastMessage {
 }
 
 const TOAST_COLORS: Record<ToastType, string> = {
-  success: 'bg-green-600',
-  error: 'bg-red-600',
-  warning: 'bg-yellow-500 text-black',
-  info: 'bg-blue-600',
+  success: 'bg-green-700',
+  error: 'bg-red-700',
+  warning: 'bg-amber-500 text-black',
+  info: 'bg-accent',
 };
 
 const TOAST_ICONS: Record<ToastType, string> = {

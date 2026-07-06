@@ -5,7 +5,7 @@
  * prefers-reduced-motion 環境では globals.css により pulse が抑制される。
  */
 export function Skeleton({ className = '' }: { className?: string }) {
-  return <div className={`animate-pulse bg-gray-200 rounded ${className}`} aria-hidden="true" />;
+  return <div className={`animate-pulse bg-line rounded ${className}`} aria-hidden="true" />;
 }
 
 /**
@@ -13,7 +13,7 @@ export function Skeleton({ className = '' }: { className?: string }) {
  */
 export function TeamCardSkeleton() {
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6">
+    <div className="bg-card rounded-lg border border-line p-6">
       <div className="flex justify-between items-start mb-4">
         <div className="space-y-2">
           <Skeleton className="h-6 w-40" />
@@ -39,8 +39,8 @@ export function TeamCardSkeleton() {
  */
 export function TeamViewSkeleton() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-      <div className="bg-white shadow-md sticky top-0 z-10">
+    <div className="min-h-screen bg-surface">
+      <div className="bg-card border-b border-line sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-2 sm:px-4 py-3 sm:py-4">
           <Skeleton className="h-7 w-48 mb-2" />
           <Skeleton className="h-4 w-20" />

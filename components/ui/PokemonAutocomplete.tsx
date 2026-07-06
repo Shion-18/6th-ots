@@ -131,7 +131,7 @@ export default function PokemonAutocomplete({
           }}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors text-base"
+          className="w-full px-4 py-3 border border-line rounded-lg focus:border-accent focus:outline-none transition-colors text-base"
         />
         {selectedPokemon && !searchTerm && (
           <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
@@ -142,7 +142,7 @@ export default function PokemonAutocomplete({
               height={32}
               className="pixelated"
             />
-            <span className="font-medium text-gray-700">
+            <span className="font-medium text-ink-muted">
               {selectedPokemon.nameJa}
             </span>
           </div>
@@ -152,14 +152,14 @@ export default function PokemonAutocomplete({
       {isOpen && filteredPokemon.length > 0 && (
         <div
           ref={dropdownRef}
-          className="absolute z-50 w-full mt-2 bg-white border-2 border-gray-300 rounded-lg shadow-xl max-h-[400px] overflow-y-auto"
+          className="absolute z-50 w-full mt-2 bg-card border border-line rounded-lg shadow-md max-h-[400px] overflow-y-auto"
         >
           {filteredPokemon.map((pokemon, index) => (
             <button
               key={pokemon.id}
               onClick={() => handleSelect(pokemon)}
-              className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0 ${
-                index === highlightedIndex ? 'bg-blue-100' : ''
+              className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-surface transition-colors border-b border-line last:border-b-0 ${
+                index === highlightedIndex ? 'bg-surface' : ''
               }`}
               onMouseEnter={() => setHighlightedIndex(index)}
             >
@@ -174,10 +174,10 @@ export default function PokemonAutocomplete({
               </div>
               <div className="flex-1 text-left">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-gray-800">
+                  <span className="font-bold text-ink">
                     {pokemon.nameJa}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-ink-faint">
                     No.{(pokemon.megaOf || pokemon.formOf || pokemon.id).toString().padStart(3, '0')}
                   </span>
                 </div>
@@ -185,7 +185,7 @@ export default function PokemonAutocomplete({
                   {pokemon.types.map((type) => (
                     <span
                       key={type}
-                      className="text-xs px-2 py-0.5 rounded bg-gray-200 text-gray-700"
+                      className="text-xs px-2 py-0.5 rounded bg-surface border border-line text-ink-muted"
                     >
                       {type}
                     </span>

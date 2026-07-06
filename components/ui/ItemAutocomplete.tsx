@@ -174,13 +174,13 @@ export default function ItemAutocomplete({
             }}
             onKeyDown={handleKeyDown}
             placeholder={currentItem || placeholder}
-            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors text-sm"
+            className="w-full px-4 py-2 border border-line rounded-lg focus:border-accent focus:outline-none transition-colors text-sm"
           />
         </div>
         {currentItem && (
           <button
             onClick={handleClear}
-            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors text-sm font-medium"
+            className="px-4 py-2 bg-card border border-line hover:bg-surface rounded-lg transition-colors text-sm font-medium text-ink-muted"
           >
             解除
           </button>
@@ -190,20 +190,20 @@ export default function ItemAutocomplete({
       {isOpen && filteredItems.length > 0 && (
         <div
           ref={dropdownRef}
-          className="absolute z-50 w-full mt-2 bg-white border-2 border-gray-300 rounded-lg shadow-xl max-h-[400px] overflow-y-auto"
+          className="absolute z-50 w-full mt-2 bg-card border border-line rounded-lg shadow-md max-h-[400px] overflow-y-auto"
         >
           {filteredItems.map((item, index) => (
             <button
               key={`${item.name}-${index}`}
               onClick={() => handleSelect(item.name)}
-              className={`w-full px-3 py-2 flex items-center gap-2 hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0 text-left ${
-                index === highlightedIndex ? 'bg-blue-100' : ''
+              className={`w-full px-3 py-2 flex items-center gap-2 hover:bg-surface transition-colors border-b border-line last:border-b-0 text-left ${
+                index === highlightedIndex ? 'bg-surface' : ''
               }`}
               onMouseEnter={() => setHighlightedIndex(index)}
             >
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-gray-800 text-sm">
+                  <span className="font-bold text-ink text-sm">
                     {item.name}
                   </span>
                   <span className={`text-xs px-2 py-0.5 rounded text-white ${getCategoryColor(item.category)}`}>

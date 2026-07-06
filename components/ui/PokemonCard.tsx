@@ -32,8 +32,8 @@ function PokemonCardInner({ pokemon, onClick }: PokemonCardProps) {
 
   if (!pokemonData) {
     return (
-      <div className="bg-white rounded-2xl shadow-lg p-4 flex items-center justify-center">
-        <p className="text-gray-500 text-sm">ポケモンデータが見つかりません</p>
+      <div className="bg-card rounded-lg border border-line p-4 flex items-center justify-center">
+        <p className="text-ink-faint text-sm">ポケモンデータが見つかりません</p>
       </div>
     );
   }
@@ -42,14 +42,14 @@ function PokemonCardInner({ pokemon, onClick }: PokemonCardProps) {
     <div
       onClick={onClick}
       className={`
-        bg-white rounded-2xl shadow-lg overflow-hidden
-        border-4 border-gray-200
-        ${onClick ? 'cursor-pointer hover:shadow-xl transition-shadow' : ''}
+        bg-card rounded-lg overflow-hidden
+        border border-line
+        ${onClick ? 'cursor-pointer hover:border-ink-faint transition-colors' : ''}
       `}
     >
       <div className="flex">
         {/* 左: ポケモン画像 */}
-        <div className="flex-shrink-0 w-24 sm:w-28 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+        <div className="flex-shrink-0 w-24 sm:w-28 bg-surface flex items-center justify-center">
           <Image
             src={pokemonData.sprite}
             alt={pokemon.species}
@@ -61,8 +61,8 @@ function PokemonCardInner({ pokemon, onClick }: PokemonCardProps) {
 
         {/* 右: 情報セクション */}
         <div className="flex-1 flex flex-col">
-          {/* ヘッダー: グラデーション背景 */}
-          <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-3">
+          {/* ヘッダー */}
+          <div className="bg-accent p-3">
             <div className="flex justify-between items-start mb-2">
               <div className="flex-1 min-w-0">
                 <h3 className="text-white font-bold text-lg truncate">
@@ -99,13 +99,13 @@ function PokemonCardInner({ pokemon, onClick }: PokemonCardProps) {
               )}
 
               {/* 特性（ラベルなし） */}
-              <div className="text-gray-800 font-semibold">
+              <div className="text-ink font-semibold">
                 {pokemon.ability}
               </div>
 
               {/* 持ち物（ラベルなし） */}
               {pokemon.item && (
-                <div className="text-purple-600 font-semibold">
+                <div className="text-accent font-semibold">
                   {pokemon.item}
                 </div>
               )}
@@ -117,7 +117,7 @@ function PokemonCardInner({ pokemon, onClick }: PokemonCardProps) {
                 const moveType = getMoveType(move);
                 return (
                   <div key={index} className="flex items-center gap-1 min-w-0">
-                    <span className="text-xs text-gray-800 truncate flex-1 font-medium">
+                    <span className="text-xs text-ink truncate flex-1 font-medium">
                       {move}
                     </span>
                     {moveType && (

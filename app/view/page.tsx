@@ -59,14 +59,13 @@ function ViewPageContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-        <div className="text-center p-8 bg-white rounded-2xl shadow-lg max-w-md">
-          <div className="text-red-500 text-5xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">エラー</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+      <div className="min-h-screen flex items-center justify-center bg-surface">
+        <div className="text-center p-8 bg-card rounded-lg border border-line max-w-md">
+          <h2 className="text-2xl font-bold text-ink mb-2">エラー</h2>
+          <p className="text-ink-muted mb-6">{error}</p>
           <Link
             href="/"
-            className="inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+            className="inline-block bg-accent hover:bg-accent-strong text-white font-bold py-3 px-6 rounded-lg transition-colors"
           >
             ホームに戻る
           </Link>
@@ -94,13 +93,13 @@ function ViewPageContent() {
         <button
           onClick={generateImage}
           disabled={isGenerating}
-          className={`font-bold py-4 px-6 rounded-full shadow-lg transition-all ${
+          className={`font-bold py-4 px-6 rounded-full shadow-sm transition-colors ${
             isGenerating
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-green-500 hover:bg-green-600 text-white hover:scale-105'
+              ? 'bg-line text-ink-faint cursor-not-allowed'
+              : 'bg-accent hover:bg-accent-strong text-white'
           }`}
         >
-          {isGenerating ? '生成中...' : '📸 画像保存'}
+          {isGenerating ? '生成中...' : '画像を保存'}
         </button>
       </div>
     </>
