@@ -32,8 +32,8 @@ function PokemonCardInner({ pokemon, onClick }: PokemonCardProps) {
 
   if (!pokemonData) {
     return (
-      <div className="bg-card rounded-lg border border-line p-4 flex items-center justify-center">
-        <p className="text-ink-faint text-sm">ポケモンデータが見つかりません</p>
+      <div className="md-card p-4 flex items-center justify-center">
+        <p className="text-on-surface-variant text-sm">ポケモンデータが見つかりません</p>
       </div>
     );
   }
@@ -42,14 +42,13 @@ function PokemonCardInner({ pokemon, onClick }: PokemonCardProps) {
     <div
       onClick={onClick}
       className={`
-        bg-card rounded-lg overflow-hidden
-        border border-line
-        ${onClick ? 'cursor-pointer hover:border-ink-faint transition-colors' : ''}
+        md-card overflow-hidden
+        ${onClick ? 'cursor-pointer state-layer' : ''}
       `}
     >
       <div className="flex">
         {/* 左: ポケモン画像 */}
-        <div className="flex-shrink-0 w-24 sm:w-28 bg-surface flex items-center justify-center">
+        <div className="flex-shrink-0 w-24 sm:w-28 bg-surface-container flex items-center justify-center">
           <Image
             src={pokemonData.sprite}
             alt={pokemon.species}
@@ -62,17 +61,17 @@ function PokemonCardInner({ pokemon, onClick }: PokemonCardProps) {
         {/* 右: 情報セクション */}
         <div className="flex-1 flex flex-col">
           {/* ヘッダー */}
-          <div className="bg-accent p-3">
+          <div className="bg-primary p-3">
             <div className="flex justify-between items-start mb-2">
               <div className="flex-1 min-w-0">
-                <h3 className="text-white font-bold text-lg truncate">
+                <h3 className="text-on-primary md-title-medium truncate">
                   {pokemon.nickname || pokemon.species}
                 </h3>
                 {pokemon.nickname && (
-                  <p className="text-white/80 text-xs truncate">{pokemon.species}</p>
+                  <p className="text-on-primary/80 text-xs truncate">{pokemon.species}</p>
                 )}
               </div>
-              <div className="text-white/90 text-sm font-semibold ml-2 whitespace-nowrap">
+              <div className="text-on-primary/90 text-sm font-medium ml-2 whitespace-nowrap">
                 Lv.{pokemon.level}
               </div>
             </div>
@@ -99,13 +98,13 @@ function PokemonCardInner({ pokemon, onClick }: PokemonCardProps) {
               )}
 
               {/* 特性（ラベルなし） */}
-              <div className="text-ink font-semibold">
+              <div className="text-on-surface font-medium">
                 {pokemon.ability}
               </div>
 
               {/* 持ち物（ラベルなし） */}
               {pokemon.item && (
-                <div className="text-accent font-semibold">
+                <div className="text-primary font-medium">
                   {pokemon.item}
                 </div>
               )}
@@ -117,7 +116,7 @@ function PokemonCardInner({ pokemon, onClick }: PokemonCardProps) {
                 const moveType = getMoveType(move);
                 return (
                   <div key={index} className="flex items-center gap-1 min-w-0">
-                    <span className="text-xs text-ink truncate flex-1 font-medium">
+                    <span className="text-xs text-on-surface truncate flex-1 font-medium">
                       {move}
                     </span>
                     {moveType && (

@@ -10,11 +10,12 @@ export interface ToastMessage {
   message: string;
 }
 
-const TOAST_COLORS: Record<ToastType, string> = {
-  success: 'bg-green-700',
-  error: 'bg-red-700',
-  warning: 'bg-amber-500 text-black',
-  info: 'bg-accent',
+// MD3 Snackbar は inverse-surface の単色バー。種別はリーディングアイコンの色で区別する。
+const TOAST_ICON_COLORS: Record<ToastType, string> = {
+  success: 'bg-green-400 text-black',
+  error: 'bg-red-400 text-black',
+  warning: 'bg-amber-400 text-black',
+  info: 'bg-primary-container text-on-primary-container',
 };
 
 const TOAST_ICONS: Record<ToastType, string> = {
@@ -84,17 +85,17 @@ function ToastItem({
 
   return (
     <div
-      className={`${TOAST_COLORS[toast.type]} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 transition-all duration-300 ${
+      className={`snackbar px-4 py-3 flex items-center gap-3 transition-all duration-300 ${
         isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
       }`}
     >
-      <span className="text-lg font-bold w-6 h-6 flex items-center justify-center rounded-full bg-white/20">
+      <span className={`${TOAST_ICON_COLORS[toast.type]} text-sm font-bold w-6 h-6 flex items-center justify-center rounded-full`}>
         {TOAST_ICONS[toast.type]}
       </span>
       <span className="flex-1 text-sm font-medium">{toast.message}</span>
       <button
         onClick={() => onDismiss(toast.id)}
-        className="text-white/70 hover:text-white text-lg leading-none"
+        className="opacity-70 hover:opacity-100 text-lg leading-none"
       >
         ×
       </button>

@@ -87,15 +87,15 @@ export default function QRScanner({ onScan, onClose, onError }: QRScannerProps) 
   }, [onScan, onError]);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-2 sm:p-4">
-      <div className="bg-card rounded-lg border border-line max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col">
+    <div className="fixed inset-0 bg-scrim/50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="md-dialog max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* ヘッダー */}
-        <div className="bg-accent text-white p-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold">QRコードをスキャン</h2>
+        <div className="bg-primary text-on-primary p-4 flex items-center justify-between">
+          <h2 className="md-title-large">QRコードをスキャン</h2>
           <button
             type="button"
             onClick={onClose}
-            className="text-white text-2xl leading-none hover:opacity-80"
+            className="text-on-primary text-2xl leading-none hover:opacity-80"
             aria-label="閉じる"
           >
             ×
@@ -116,22 +116,22 @@ export default function QRScanner({ onScan, onClose, onError }: QRScannerProps) 
         <div className="p-4 text-center">
           {status === 'error' ? (
             <>
-              <p className="text-red-600 text-sm font-semibold mb-2">
+              <p className="text-error text-sm font-medium mb-2">
                 カメラを起動できませんでした
               </p>
               {errorMessage && (
-                <p className="text-ink-muted text-xs mb-3">{errorMessage}</p>
+                <p className="text-on-surface-variant text-xs mb-3">{errorMessage}</p>
               )}
               <button
                 type="button"
                 onClick={onClose}
-                className="bg-card border border-line hover:bg-surface text-ink font-semibold px-4 py-2 rounded-lg text-sm"
+                className="btn btn-outlined state-layer"
               >
                 閉じる
               </button>
             </>
           ) : (
-            <p className="text-ink-muted text-xs">
+            <p className="text-on-surface-variant text-xs">
               対戦相手のQRコードをカメラに向けてください
             </p>
           )}

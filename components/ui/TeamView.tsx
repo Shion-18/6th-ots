@@ -10,21 +10,21 @@ interface TeamViewProps {
 
 export default function TeamView({ team, onShare }: TeamViewProps) {
   return (
-    <div className="min-h-screen bg-surface">
-      {/* ヘッダー */}
-      <div className="bg-card border-b border-line sticky top-0 z-10">
+    <div className="min-h-screen bg-background">
+      {/* Top app bar */}
+      <div className="bg-surface elevation-2 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-2 sm:px-4 py-3 sm:py-4">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-lg sm:text-2xl font-bold text-ink">{team.name}</h1>
-              <p className="text-xs sm:text-sm text-ink-faint mt-1">
+              <h1 className="md-title-large text-on-surface">{team.name}</h1>
+              <p className="md-body-medium text-on-surface-variant mt-1">
                 {team.pokemon.length}体
               </p>
             </div>
             {onShare && (
               <button
                 onClick={onShare}
-                className="bg-accent hover:bg-accent-strong text-white font-bold py-2 px-3 sm:px-4 rounded-lg transition-colors text-sm sm:text-base"
+                className="btn btn-filled state-layer"
               >
                 共有
               </button>
@@ -43,7 +43,7 @@ export default function TeamView({ team, onShare }: TeamViewProps) {
 
         {team.pokemon.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-ink-muted text-lg">ポケモンが登録されていません</p>
+            <p className="md-body-large text-on-surface-variant">ポケモンが登録されていません</p>
           </div>
         )}
       </div>

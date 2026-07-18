@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import allPokemon from '@/data/all-pokemon.json';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import TypeIcon from './TypeIcon';
 
 interface PokemonData {
   id: number;
@@ -131,7 +132,7 @@ export default function PokemonAutocomplete({
           }}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="w-full px-4 py-3 border border-line rounded-lg focus:border-accent focus:outline-none transition-colors text-base"
+          className="text-field text-base"
         />
         {selectedPokemon && !searchTerm && (
           <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
@@ -142,7 +143,7 @@ export default function PokemonAutocomplete({
               height={32}
               className="pixelated"
             />
-            <span className="font-medium text-ink-muted">
+            <span className="font-medium text-on-surface-variant">
               {selectedPokemon.nameJa}
             </span>
           </div>
@@ -152,14 +153,14 @@ export default function PokemonAutocomplete({
       {isOpen && filteredPokemon.length > 0 && (
         <div
           ref={dropdownRef}
-          className="absolute z-50 w-full mt-2 bg-card border border-line rounded-lg shadow-md max-h-[400px] overflow-y-auto"
+          className="absolute z-50 w-full mt-2 bg-surface-container-high rounded-xl elevation-2 max-h-[400px] overflow-y-auto"
         >
           {filteredPokemon.map((pokemon, index) => (
             <button
               key={pokemon.id}
               onClick={() => handleSelect(pokemon)}
-              className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-surface transition-colors border-b border-line last:border-b-0 ${
-                index === highlightedIndex ? 'bg-surface' : ''
+              className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-surface-container-highest transition-colors border-b border-outline-variant last:border-b-0 ${
+                index === highlightedIndex ? 'bg-surface-container-highest' : ''
               }`}
               onMouseEnter={() => setHighlightedIndex(index)}
             >
@@ -174,21 +175,16 @@ export default function PokemonAutocomplete({
               </div>
               <div className="flex-1 text-left">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-ink">
+                  <span className="font-medium text-on-surface">
                     {pokemon.nameJa}
                   </span>
-                  <span className="text-xs text-ink-faint">
+                  <span className="text-xs text-on-surface-variant">
                     No.{(pokemon.megaOf || pokemon.formOf || pokemon.id).toString().padStart(3, '0')}
                   </span>
                 </div>
                 <div className="flex gap-1 mt-1">
                   {pokemon.types.map((type) => (
-                    <span
-                      key={type}
-                      className="text-xs px-2 py-0.5 rounded bg-surface border border-line text-ink-muted"
-                    >
-                      {type}
-                    </span>
+                    <TypeIcon key={type} type={type} size="xs" />
                   ))}
                 </div>
               </div>

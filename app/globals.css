@@ -1,39 +1,89 @@
 @import "tailwindcss";
 
 :root {
-  --background: #faf9f6;
-  --foreground: #1c1b19;
+  /* Material Design 3 カラーロール（seed #2F4858 / light scheme） */
+  --primary: #2f4858;
+  --on-primary: #ffffff;
+  --primary-container: #c7e7ff;
+  --on-primary-container: #001e2d;
+  --secondary: #4f616e;
+  --on-secondary: #ffffff;
+  --secondary-container: #d2e5f5;
+  --on-secondary-container: #0a1e28;
+  --tertiary: #63587b;
+  --on-tertiary: #ffffff;
+  --tertiary-container: #e9ddff;
+  --on-tertiary-container: #1f1635;
+  --error: #ba1a1a;
+  --on-error: #ffffff;
+  --error-container: #ffdad6;
+  --on-error-container: #410002;
+  --background: #f6fafd;
+  --on-background: #171c1f;
+  --surface: #f6fafd;
+  --on-surface: #171c1f;
+  --surface-variant: #dce3e9;
+  --on-surface-variant: #40484d;
+  --outline: #70787d;
+  --outline-variant: #c0c8cd;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f0f4f7;
+  --surface-container: #eaeef1;
+  --surface-container-high: #e4e9ec;
+  --surface-container-highest: #dee3e6;
+  --inverse-surface: #2c3134;
+  --inverse-on-surface: #edf1f4;
+  --scrim: #000000;
 
-  /* 案1: ニュートラルなデザイントークン */
-  --surface: #faf9f6;
-  --card: #ffffff;
-  --line: #e7e5e0;
-  --ink: #1c1b19;
-  --ink-muted: #57544d;
-  --ink-faint: #8a8780;
-  --accent: #2f4858;
-  --accent-strong: #24323d;
+  /* エレベーション（MD3） */
+  --md-elevation-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15);
+  --md-elevation-2: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 6px 2px rgba(0, 0, 0, 0.15);
+  --md-elevation-3: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 8px 3px rgba(0, 0, 0, 0.15);
+  --md-elevation-4: 0 2px 3px rgba(0, 0, 0, 0.3), 0 6px 10px 4px rgba(0, 0, 0, 0.15);
+  --md-elevation-5: 0 4px 4px rgba(0, 0, 0, 0.3), 0 8px 12px 6px rgba(0, 0, 0, 0.15);
 }
 
 @theme inline {
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary-container: var(--on-primary-container);
+  --color-secondary: var(--secondary);
+  --color-on-secondary: var(--on-secondary);
+  --color-secondary-container: var(--secondary-container);
+  --color-on-secondary-container: var(--on-secondary-container);
+  --color-tertiary: var(--tertiary);
+  --color-on-tertiary: var(--on-tertiary);
+  --color-tertiary-container: var(--tertiary-container);
+  --color-on-tertiary-container: var(--on-tertiary-container);
+  --color-error: var(--error);
+  --color-on-error: var(--on-error);
+  --color-error-container: var(--error-container);
+  --color-on-error-container: var(--on-error-container);
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-on-background: var(--on-background);
   --color-surface: var(--surface);
-  --color-card: var(--card);
-  --color-line: var(--line);
-  --color-ink: var(--ink);
-  --color-ink-muted: var(--ink-muted);
-  --color-ink-faint: var(--ink-faint);
-  --color-accent: var(--accent);
-  --color-accent-strong: var(--accent-strong);
-  --font-sans: var(--font-noto-jp), var(--font-geist-sans), system-ui, sans-serif;
+  --color-on-surface: var(--on-surface);
+  --color-surface-variant: var(--surface-variant);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-inverse-surface: var(--inverse-surface);
+  --color-inverse-on-surface: var(--inverse-on-surface);
+  --color-scrim: var(--scrim);
+  --font-sans: var(--font-roboto), var(--font-noto-jp), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-noto-jp), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  color: var(--on-surface);
+  font-family: var(--font-roboto), var(--font-noto-jp), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* iOS Safari: 16px未満のinputでズームされるのを防止 */
@@ -50,6 +100,138 @@ input, select, textarea {
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
   image-rendering: crisp-edges;
+}
+
+/* ===== MD3 エレベーション ユーティリティ ===== */
+.elevation-1 { box-shadow: var(--md-elevation-1); }
+.elevation-2 { box-shadow: var(--md-elevation-2); }
+.elevation-3 { box-shadow: var(--md-elevation-3); }
+.elevation-4 { box-shadow: var(--md-elevation-4); }
+.elevation-5 { box-shadow: var(--md-elevation-5); }
+
+/* ===== MD3 タイポグラフィ ===== */
+.md-headline-small { font-size: 24px; line-height: 32px; font-weight: 400; }
+.md-title-large { font-size: 22px; line-height: 28px; font-weight: 400; }
+.md-title-medium { font-size: 16px; line-height: 24px; font-weight: 500; letter-spacing: 0.15px; }
+.md-body-large { font-size: 16px; line-height: 24px; }
+.md-body-medium { font-size: 14px; line-height: 20px; }
+.md-label-large { font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.1px; }
+
+/* ===== MD3 State layer（ホバー/押下の重ね） ===== */
+.state-layer { position: relative; isolation: isolate; }
+.state-layer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+.state-layer:hover::after { opacity: 0.08; }
+.state-layer:active::after { opacity: 0.12; }
+
+/* ===== MD3 コンポーネント ===== */
+/* ボタン共通（ピル形） */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 24px;
+  border-radius: 9999px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+  transition: box-shadow 0.15s ease, background-color 0.15s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn:disabled, .btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  background: color-mix(in srgb, var(--on-surface) 12%, transparent);
+  color: color-mix(in srgb, var(--on-surface) 38%, transparent);
+  box-shadow: none;
+}
+.btn-filled { background: var(--primary); color: var(--on-primary); }
+.btn-tonal { background: var(--secondary-container); color: var(--on-secondary-container); }
+.btn-outlined { background: transparent; color: var(--primary); border: 1px solid var(--outline); }
+.btn-text { background: transparent; color: var(--primary); padding: 0 12px; }
+.btn-error { background: transparent; color: var(--error); border: 1px solid var(--outline); }
+
+/* Extended FAB */
+.fab-extended {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 56px;
+  padding: 0 20px;
+  border-radius: 16px;
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+  box-shadow: var(--md-elevation-3);
+}
+.fab-extended:disabled {
+  background: color-mix(in srgb, var(--on-surface) 12%, transparent);
+  color: color-mix(in srgb, var(--on-surface) 38%, transparent);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* Elevated card */
+.md-card {
+  background: var(--surface-container-low);
+  border-radius: 12px;
+  box-shadow: var(--md-elevation-1);
+}
+
+/* Dialog */
+.md-dialog {
+  background: var(--surface-container-high);
+  border-radius: 28px;
+  box-shadow: var(--md-elevation-3);
+}
+
+/* Outlined text field */
+.text-field {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--on-surface);
+  border: 1px solid var(--outline);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.text-field::placeholder { color: var(--on-surface-variant); }
+.text-field:focus {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+/* Snackbar */
+.snackbar {
+  background: var(--inverse-surface);
+  color: var(--inverse-on-surface);
+  border-radius: 4px;
+  box-shadow: var(--md-elevation-3);
+}
+
+/* Chip */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 8px;
+  border: 1px solid var(--outline-variant);
+  color: var(--on-surface-variant);
+  background: transparent;
 }
 
 /* アクセシビリティ: モーション低減設定を尊重し、アニメーション/トランジションを抑制 */

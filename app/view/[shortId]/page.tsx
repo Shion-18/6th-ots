@@ -66,13 +66,13 @@ export default function SharedTeamPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-surface">
-        <div className="text-center p-8 bg-card rounded-lg border border-line max-w-md">
-          <h2 className="text-2xl font-bold text-ink mb-2">エラー</h2>
-          <p className="text-ink-muted mb-6">{error}</p>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center p-8 md-card max-w-md">
+          <h2 className="md-headline-small text-on-surface mb-2">エラー</h2>
+          <p className="md-body-medium text-on-surface-variant mb-6">{error}</p>
           <Link
             href="/"
-            className="inline-block bg-accent hover:bg-accent-strong text-white font-bold py-3 px-6 rounded-lg transition-colors"
+            className="btn btn-filled state-layer"
           >
             ホームに戻る
           </Link>
@@ -100,11 +100,7 @@ export default function SharedTeamPage() {
         <button
           onClick={generateImage}
           disabled={isGenerating}
-          className={`font-bold py-4 px-6 rounded-full shadow-sm transition-colors ${
-            isGenerating
-              ? 'bg-line text-ink-faint cursor-not-allowed'
-              : 'bg-accent hover:bg-accent-strong text-white'
-          }`}
+          className="fab-extended state-layer"
         >
           {isGenerating ? '生成中...' : '画像を保存'}
         </button>

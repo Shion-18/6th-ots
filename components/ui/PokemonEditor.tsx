@@ -173,15 +173,15 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
   return (
     <div
       ref={dialogRef}
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto"
+      className="fixed inset-0 bg-scrim/32 flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto"
       role="dialog"
       aria-modal="true"
       aria-labelledby="pokemon-editor-title"
     >
-      <div className="bg-card rounded-lg border border-line max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="md-dialog max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         {/* ヘッダー */}
-        <div className="sticky top-0 bg-accent text-white p-4 rounded-t-lg">
-          <h2 id="pokemon-editor-title" className="text-xl sm:text-2xl font-bold">
+        <div className="sticky top-0 bg-primary text-on-primary p-4 rounded-t-[28px]">
+          <h2 id="pokemon-editor-title" className="md-headline-small">
             {pokemon ? 'ポケモンを編集' : 'ポケモンを追加'}
           </h2>
         </div>
@@ -190,7 +190,7 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
           {/* ポケモン選択 */}
           {!selectedSpecies && (
             <div>
-              <label className="block text-sm font-bold text-ink-muted mb-2">ポケモンを選択</label>
+              <label className="block text-sm font-medium text-on-surface-variant mb-2">ポケモンを選択</label>
               <PokemonAutocomplete
                 onSelect={handleSpeciesSelect}
                 placeholder="ポケモン名で検索（日本語・英語対応）"
@@ -202,7 +202,7 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
           {selectedSpecies && (
             <>
               {/* 選択中のポケモン */}
-              <div className="bg-surface border border-line p-4 rounded-lg">
+              <div className="bg-surface-container p-4 rounded-xl">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-3">
                     <Image
@@ -213,7 +213,7 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
                       className="pixelated"
                     />
                     <div>
-                      <h3 className="text-xl font-bold text-ink">{selectedSpecies.nameJa}</h3>
+                      <h3 className="md-title-large text-on-surface">{selectedSpecies.nameJa}</h3>
                       <div className="flex gap-1 mt-1">
                         {selectedSpecies.types.map((type) => (
                           <TypeIcon key={type} type={type} size="xs" />
@@ -223,7 +223,7 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
                   </div>
                   <button
                     onClick={() => setSelectedSpecies(null)}
-                    className="text-sm text-accent hover:text-accent-strong font-medium"
+                    className="text-sm text-primary font-medium"
                   >
                     変更
                   </button>
@@ -233,7 +233,7 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
               {/* ニックネーム・レベル */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-ink-muted mb-2">ニックネーム（任意）</label>
+                  <label className="block text-sm font-medium text-on-surface-variant mb-2">ニックネーム（任意）</label>
                   <input
                     type="text"
                     value={nickname}
@@ -247,16 +247,16 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
                       }
                       setNickname(value);
                     }}
-                    className="w-full px-4 py-2 border border-line rounded-lg focus:border-accent focus:outline-none"
+                    className="text-field"
                     placeholder={selectedSpecies.nameJa}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-ink-muted mb-2">レベル</label>
+                  <label className="block text-sm font-medium text-on-surface-variant mb-2">レベル</label>
                   <select
                     value={level}
                     onChange={(e) => setLevel(Number(e.target.value))}
-                    className="w-full px-4 py-2 border border-line rounded-lg focus:border-accent focus:outline-none"
+                    className="text-field"
                   >
                     {Array.from({ length: 50 }, (_, i) => i + 1).map((lv) => (
                       <option key={lv} value={lv}>{lv}</option>
@@ -268,11 +268,11 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
               {/* 特性・持ち物 */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-ink-muted mb-2">特性</label>
+                  <label className="block text-sm font-medium text-on-surface-variant mb-2">特性</label>
                   <select
                     value={ability}
                     onChange={(e) => setAbility(e.target.value)}
-                    className="w-full px-4 py-2 border border-line rounded-lg focus:border-accent focus:outline-none"
+                    className="text-field"
                   >
                     {selectedSpecies.abilities.map((a) => (
                       <option key={a} value={a}>{a}</option>
@@ -280,7 +280,7 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">持ち物</label>
+                  <label className="block text-sm font-medium text-on-surface-variant mb-2">持ち物</label>
                   <ItemAutocomplete
                     competitiveItems={getCompetitiveItems()}
                     megaStones={selectedSpecies ? getMegaStonesForPokemon(selectedSpecies.id) : []}
@@ -294,7 +294,7 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
               {/* 技選択 */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <label className="text-sm font-bold text-ink-muted">技 ({selectedMoves.length}/4)</label>
+                  <label className="text-sm font-medium text-on-surface-variant">技 ({selectedMoves.length}/4)</label>
                 </div>
 
                 {/* 選択済みの技 */}
@@ -305,15 +305,15 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
                       return (
                         <div
                           key={moveName}
-                          className="border border-line rounded-lg px-3 py-2 bg-surface hover:border-ink-faint transition-colors flex items-center gap-2"
+                          className="chip px-3 py-2 flex items-center"
                         >
-                          <span className="font-medium text-sm text-ink flex-1">{moveName}</span>
+                          <span className="font-medium text-sm text-on-surface flex-1">{moveName}</span>
                           {moveDetail && (
                             <TypeIcon type={moveDetail.type} size="xs" className="flex-shrink-0" />
                           )}
                           <button
                             onClick={() => handleMoveRemove(moveName)}
-                            className="ml-1 text-ink-faint hover:text-red-600 transition-colors flex-shrink-0"
+                            className="ml-1 text-on-surface-variant hover:text-error transition-colors flex-shrink-0"
                           >
                             ×
                           </button>
@@ -340,7 +340,7 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
                 />
 
                 {availableMoves.length > 0 && (
-                  <p className="text-xs text-ink-faint mt-2">
+                  <p className="text-xs text-on-surface-variant mt-2">
                     このポケモンが覚える技: {availableMoves.length}種類
                   </p>
                 )}
@@ -352,17 +352,17 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
           {validationError && (
             <div
               role="alert"
-              className="mt-2 px-4 py-2 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm font-medium"
+              className="mt-2 px-4 py-2 bg-error-container text-on-error-container rounded-lg text-sm font-medium"
             >
               {validationError}
             </div>
           )}
 
           {/* アクションボタン */}
-          <div className="flex gap-4 pt-4 border-t border-line">
+          <div className="flex gap-2 justify-end pt-4 border-t border-outline-variant">
             <button
               onClick={onCancel}
-              className="flex-1 bg-card border border-line hover:bg-surface text-ink-muted font-bold py-3 px-6 rounded-lg transition-colors"
+              className="btn btn-text state-layer"
             >
               キャンセル
             </button>
@@ -370,11 +370,7 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
               data-testid="save-pokemon"
               onClick={handleSave}
               disabled={!selectedSpecies || selectedMoves.length === 0}
-              className={`flex-1 font-bold py-3 px-6 rounded-lg transition-colors ${
-                selectedSpecies && selectedMoves.length > 0
-                  ? 'bg-accent hover:bg-accent-strong text-white'
-                  : 'bg-line text-ink-faint cursor-not-allowed'
-              }`}
+              className="btn btn-filled state-layer"
             >
               保存
             </button>
