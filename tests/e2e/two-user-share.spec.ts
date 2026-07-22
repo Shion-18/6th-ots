@@ -44,19 +44,18 @@ test.describe('2ユーザー間QR共有', () => {
     // QRモーダルが表示されるまで待機
     await pageA.waitForSelector('input[type="url"]', { timeout: 10000 });
 
-    // 共有URLを取得
+    // 共有URLを取得（現行は短縮URL /view/<shortId>）
     const shareUrl = await pageA.locator('input[type="url"]').inputValue();
-    expect(shareUrl).toMatch(/\/view\?shareId=/);
+    expect(shareUrl).toMatch(/\/view\/[A-Za-z0-9_-]{8}/);
 
     // QRコード（SVG）が表示されていることを確認
     const qrSvg = pageA.locator('#qr-code-svg');
     await expect(qrSvg).toBeVisible();
 
-    // --- ユーザーB: 共有URLを開いてパーティ確認 ---
+    // --- ユーザーB: 共有URLを直接開いてパーティ確認（標準カメラ経由を想定） ---
     const contextB = await browser.newContext();
     const pageB = await contextB.newPage();
 
-    // ユーザーBは共有URLを直接開く（QRスキャンのシミュレーション）
     const urlPath = new URL(shareUrl).pathname + new URL(shareUrl).search;
     await pageB.goto(urlPath);
 
@@ -66,7 +65,25 @@ test.describe('2ユーザー間QR共有', () => {
     // ポケモンが表示されること
     await expect(pageB.locator('text=ピカチュウ')).toBeVisible();
 
+    // --- ユーザーC: アプリ内「相手のパーティ」→ URL貼り付けで受信できること ---
+    // （短縮URLがアプリ内受信フローで受理され /view/<shortId> に遷移することを担保）
+    const contextC = await browser.newContext();
+    const pageC = await contextC.newPage();
+    await pageC.goto('/');
+    await pageC.evaluate(() => localStorage.clear());
+
+    await pageC.locator('button:has-text("相手のパーティ")').click();
+    await pageC.locator('button:has-text("URLを入力")').click();
+    await pageC.locator('input[type="url"]').fill(shareUrl);
+    await pageC.locator('button:has-text("表示")').click();
+
+    // 短縮URLの view ページに遷移し、パーティが表示されること
+    await pageC.waitForURL(/\/view\/[A-Za-z0-9_-]{8}/, { timeout: 10000 });
+    await expect(pageC.locator('text=共有テストA')).toBeVisible({ timeout: 10000 });
+    await expect(pageC.locator('text=ピカチュウ')).toBeVisible();
+
     await contextA.close();
     await contextB.close();
+    await contextC.close();
   });
 });

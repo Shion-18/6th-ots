@@ -23,12 +23,19 @@ export default function Home() {
   const routeFromUrl = (rawUrl: string): boolean => {
     try {
       const urlObj = new URL(rawUrl.trim());
+      // 旧: 自己完結エンコード /view?data=（後方互換で残す）
       if (urlObj.pathname === '/view') {
         const data = urlObj.searchParams.get('data');
         if (data) {
           router.push(`/view?data=${encodeURIComponent(data)}`);
           return true;
         }
+      }
+      // 新: 短縮URL /view/<shortId>（nanoid: A-Za-z0-9_-）
+      const shortIdMatch = urlObj.pathname.match(/^\/view\/([A-Za-z0-9_-]+)$/);
+      if (shortIdMatch) {
+        router.push(`/view/${shortIdMatch[1]}`);
+        return true;
       }
       return false;
     } catch {
