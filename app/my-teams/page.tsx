@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Team } from '@/types/pokemon';
 import { getTeamsFromAPI, deleteTeamFromAPI } from '@/lib/team-storage';
-import { generateShareUrl } from '@/lib/team-encoder';
+import { createShareUrl } from '@/lib/share';
 import QRCodeDisplay from '@/components/ui/QRCodeDisplay';
 import { useToast, ToastContainer } from '@/components/ui/Toast';
 import { TeamCardSkeleton } from '@/components/ui/Skeleton';
@@ -48,34 +48,34 @@ export default function MyTeamsPage() {
     router.push(`/builder?teamId=${teamId}`);
   };
 
-  const handleShare = (team: Team) => {
+  const handleShare = async (team: Team) => {
     try {
-      const url = generateShareUrl(team);
+      const url = await createShareUrl(team);
       setShareUrl(url);
       setShareTeamName(team.name);
       setShowQRModal(true);
     } catch (error) {
       console.error('Share failed:', error);
-      showToast('error', '共有リンクの作成に失敗しました');
+      showToast('error', error instanceof Error ? error.message : '共有リンクの作成に失敗しました');
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <div className="min-h-screen bg-background">
       {/* トースト通知 */}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
-      {/* ヘッダー */}
-      <div className="bg-white shadow-md">
+      {/* Top app bar */}
+      <div className="bg-surface elevation-2">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">マイパーティ</h1>
-              <p className="text-gray-600 mt-1 text-sm">保存済み: {teams.length}/1</p>
+              <h1 className="md-title-large text-on-surface">マイパーティ</h1>
+              <p className="md-body-medium text-on-surface-variant mt-1">保存済み: {teams.length}/1</p>
             </div>
             <button
               onClick={() => router.push('/')}
-              className="text-gray-600 hover:text-gray-800"
+              className="btn btn-text state-layer"
             >
               ← ホーム
             </button>
@@ -91,11 +91,11 @@ export default function MyTeamsPage() {
             <TeamCardSkeleton />
           </div>
         ) : teams.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-2xl shadow-lg">
-            <p className="text-gray-500 text-lg mb-4">保存されたパーティがありません</p>
+          <div className="text-center py-12 md-card">
+            <p className="md-body-large text-on-surface-variant mb-4">保存されたパーティがありません</p>
             <button
               onClick={() => router.push('/builder')}
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+              className="btn btn-filled state-layer"
             >
               新しいパーティを作成
             </button>
@@ -106,37 +106,37 @@ export default function MyTeamsPage() {
             <div className="text-center">
               <button
                 onClick={() => router.push('/builder')}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                className="btn btn-filled state-layer"
               >
                 {teams.length >= 1 ? '新しいパーティを作成（上書き）' : '新しいパーティを作成'}
               </button>
             </div>
 
             {teams.map((team) => (
-              <div key={team.id} className="bg-white rounded-2xl shadow-lg p-6">
+              <div key={team.id} className="md-card p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h2 className="text-xl font-bold text-gray-800">{team.name}</h2>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <h2 className="md-title-large text-on-surface">{team.name}</h2>
+                    <p className="md-body-medium text-on-surface-variant mt-1">
                       {team.pokemon.length}体 • {new Date(team.createdAt).toLocaleDateString('ja-JP')}
                     </p>
                   </div>
                   <div className="flex gap-2 flex-wrap">
                     <button
                       onClick={() => handleEdit(team.id)}
-                      className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm"
+                      className="btn btn-tonal state-layer"
                     >
                       編集
                     </button>
                     <button
                       onClick={() => handleShare(team)}
-                      className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm"
+                      className="btn btn-outlined state-layer"
                     >
                       共有
                     </button>
                     <button
                       onClick={() => handleDelete(team.id, team.name)}
-                      className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm"
+                      className="btn btn-error state-layer"
                     >
                       削除
                     </button>
@@ -146,11 +146,11 @@ export default function MyTeamsPage() {
                 {/* ポケモンリスト */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
                   {team.pokemon.map((pokemon) => (
-                    <div key={pokemon.id} className="bg-gray-100 rounded-lg p-2 text-center">
-                      <div className="font-bold text-sm text-gray-800">
+                    <div key={pokemon.id} className="bg-surface-container rounded-lg p-2 text-center">
+                      <div className="md-body-medium font-medium text-on-surface">
                         {pokemon.nickname || pokemon.species}
                       </div>
-                      <div className="text-xs text-gray-600 mt-1">
+                      <div className="text-xs text-on-surface-variant mt-1">
                         Lv.{pokemon.level}
                       </div>
                     </div>

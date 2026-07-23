@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { SaveTeamBodySchema } from '@/lib/api-validation';
+import { SaveTeamBodySchema, ShareTeamBodySchema, ShortIdSchema } from '@/lib/api-validation';
 
 const validTeam = {
   id: 'team-1',
@@ -57,5 +57,24 @@ describe('SaveTeamBodySchema', () => {
       team: { ...validTeam, pokemon: [{ ...validTeam.pokemon[0], moves: [] }] },
     });
     expect(result.success).toBe(false);
+  });
+});
+
+describe('ShareTeamBodySchema', () => {
+  it('team を含む共有ボディを受理する', () => {
+    expect(ShareTeamBodySchema.safeParse({ team: validTeam }).success).toBe(true);
+  });
+  it('team 欠落は拒否する', () => {
+    expect(ShareTeamBodySchema.safeParse({}).success).toBe(false);
+  });
+});
+
+describe('ShortIdSchema', () => {
+  it('nanoid風の8文字を受理する', () => {
+    expect(ShortIdSchema.safeParse('aB3_dE-9').success).toBe(true);
+  });
+  it('短すぎ/不正文字は拒否する', () => {
+    expect(ShortIdSchema.safeParse('abc').success).toBe(false);
+    expect(ShortIdSchema.safeParse('abc/def!').success).toBe(false);
   });
 });

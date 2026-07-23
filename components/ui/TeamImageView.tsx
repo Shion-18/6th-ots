@@ -12,7 +12,8 @@ export default function TeamImageView({ team, elementRef }: TeamImageViewProps) 
   return (
     <div
       ref={elementRef}
-      className="w-[1200px] bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 p-8"
+      className="w-[1200px] p-8"
+      style={{ backgroundColor: '#2f4858' }}
     >
       {/* ヘッダー */}
       <div className="mb-6">

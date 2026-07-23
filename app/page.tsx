@@ -23,12 +23,19 @@ export default function Home() {
   const routeFromUrl = (rawUrl: string): boolean => {
     try {
       const urlObj = new URL(rawUrl.trim());
+      // 旧: 自己完結エンコード /view?data=（後方互換で残す）
       if (urlObj.pathname === '/view') {
         const data = urlObj.searchParams.get('data');
         if (data) {
           router.push(`/view?data=${encodeURIComponent(data)}`);
           return true;
         }
+      }
+      // 新: 短縮URL /view/<shortId>（nanoid: A-Za-z0-9_-）
+      const shortIdMatch = urlObj.pathname.match(/^\/view\/([A-Za-z0-9_-]+)$/);
+      if (shortIdMatch) {
+        router.push(`/view/${shortIdMatch[1]}`);
+        return true;
       }
       return false;
     } catch {
@@ -61,48 +68,46 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-      {/* ヘッダー */}
-      <div className="bg-white shadow-md">
+    <div className="min-h-screen bg-background">
+      {/* Top app bar */}
+      <div className="bg-surface">
         <div className="max-w-4xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+          <h1 className="md-headline-small text-on-surface">
             オープンチームシート
           </h1>
-          <p className="text-gray-600 mt-2">第6世代ポケモン対戦用</p>
+          <p className="md-body-medium text-on-surface-variant mt-1">第6世代ポケモン対戦用</p>
         </div>
       </div>
 
       {/* メインコンテンツ */}
       <div className="max-w-4xl mx-auto px-4 py-6 sm:py-12">
         {/* ヒーローセクション */}
-        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8 mb-8">
+        <div className="md-card p-4 sm:p-8 mb-8">
           <div className="text-center mb-6 sm:mb-8">
-            <h2 className="text-2xl sm:text-4xl font-bold text-gray-800 mb-4">
+            <h2 className="text-2xl sm:text-4xl font-normal text-on-surface mb-4">
               パーティを共有して<br />対戦を始めよう
             </h2>
-            <p className="text-base sm:text-lg text-gray-600">
+            <p className="md-body-large text-on-surface-variant">
               オープンチームシートルールで、スムーズに対戦開始
             </p>
           </div>
 
-          {/* アクションボタン */}
+          {/* アクションタイル */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
             <button
               onClick={() => router.push('/builder')}
-              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-6 px-6 rounded-xl shadow-lg transition-all transform hover:scale-105"
+              className="state-layer bg-primary text-on-primary rounded-2xl py-6 px-6 text-left"
             >
-              <div className="text-3xl mb-2">✏️</div>
-              <div className="text-lg">パーティを作成</div>
-              <div className="text-xs opacity-90 mt-1">作成・編集</div>
+              <div className="md-title-medium">パーティを作成</div>
+              <div className="md-body-medium opacity-90 mt-1">作成・編集</div>
             </button>
 
             <button
               onClick={() => router.push('/my-teams')}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-6 px-6 rounded-xl shadow-lg transition-all transform hover:scale-105"
+              className="state-layer bg-surface-container-high text-on-surface rounded-2xl py-6 px-6 text-left"
             >
-              <div className="text-3xl mb-2">💾</div>
-              <div className="text-lg">マイパーティ</div>
-              <div className="text-xs opacity-90 mt-1">保存済み</div>
+              <div className="md-title-medium">マイパーティ</div>
+              <div className="md-body-medium text-on-surface-variant mt-1">保存済み</div>
             </button>
 
             <button
@@ -112,85 +117,82 @@ export default function Home() {
                 setScanError('');
                 setInputUrl('');
               }}
-              className="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-bold py-6 px-6 rounded-xl shadow-lg transition-all transform hover:scale-105"
+              className="state-layer bg-surface-container-high text-on-surface rounded-2xl py-6 px-6 text-left"
             >
-              <div className="text-3xl mb-2">👁️</div>
-              <div className="text-lg">相手のパーティ</div>
-              <div className="text-xs opacity-90 mt-1">QR / URL</div>
+              <div className="md-title-medium">相手のパーティ</div>
+              <div className="md-body-medium text-on-surface-variant mt-1">QR / URL</div>
             </button>
           </div>
 
           {/* 相手のパーティ受信エリア */}
           {otherTeamMode === 'choose' && (
-            <div className="mt-6 bg-gray-50 rounded-xl p-4">
+            <div className="mt-6 bg-surface-container rounded-xl p-4">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-semibold text-gray-700">
+                <p className="md-title-medium text-on-surface">
                   受け取り方法を選んでください
                 </p>
                 <button
                   onClick={closeOtherTeam}
-                  className="text-gray-400 hover:text-gray-600 text-lg leading-none"
+                  className="text-on-surface-variant hover:text-on-surface text-lg leading-none"
                   aria-label="閉じる"
                 >
                   ×
                 </button>
               </div>
               {scanError && (
-                <p className="text-red-500 text-xs mb-3">{scanError}</p>
+                <p className="text-error md-body-medium mb-3">{scanError}</p>
               )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button
                   onClick={() => setOtherTeamMode('qr')}
-                  className="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-bold py-4 px-4 rounded-lg shadow transition-all"
+                  className="btn btn-filled state-layer"
                 >
-                  <div className="text-2xl mb-1">📷</div>
-                  <div className="text-sm">QRコードをスキャン</div>
+                  QRコードをスキャン
                 </button>
                 <button
                   onClick={() => {
                     setOtherTeamMode('url');
                     setUrlError('');
                   }}
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-4 px-4 rounded-lg shadow transition-all"
+                  className="btn btn-outlined state-layer"
                 >
-                  <div className="text-2xl mb-1">🔗</div>
-                  <div className="text-sm">URLを入力</div>
+                  URLを入力
                 </button>
               </div>
             </div>
           )}
 
           {otherTeamMode === 'url' && (
-            <div className="mt-6 bg-gray-50 rounded-xl p-4">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <div className="mt-6 bg-surface-container rounded-xl p-4">
+              <label className="block md-title-medium text-on-surface mb-2">
                 相手から受け取ったURLを貼り付け
               </label>
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 <input
                   type="url"
                   value={inputUrl}
                   onChange={(e) => { setInputUrl(e.target.value); setUrlError(''); }}
                   placeholder="https://..."
-                  className="flex-1 min-w-0 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="text-field flex-1 min-w-0 text-sm"
                   autoFocus
                   onKeyDown={(e) => e.key === 'Enter' && handleUrlSubmit()}
                 />
                 <button
                   onClick={handleUrlSubmit}
-                  className="bg-green-500 hover:bg-green-600 text-white font-bold px-4 py-2 rounded-lg text-sm whitespace-nowrap transition-colors"
+                  className="btn btn-filled state-layer"
                 >
                   表示
                 </button>
                 <button
                   onClick={closeOtherTeam}
-                  className="text-gray-400 hover:text-gray-600 px-2 text-lg"
+                  className="text-on-surface-variant hover:text-on-surface px-2 text-lg"
                   aria-label="閉じる"
                 >
                   ×
                 </button>
               </div>
               {urlError && (
-                <p className="text-red-500 text-xs mt-2">{urlError}</p>
+                <p className="text-error md-body-medium mt-2">{urlError}</p>
               )}
             </div>
           )}
@@ -204,13 +206,13 @@ export default function Home() {
         </div>
 
         {/* サンプルパーティ */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
+        <div className="md-card overflow-hidden mb-8">
           {/* ヘッダー */}
-          <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-4">
-            <h3 className="text-xl sm:text-2xl font-bold text-white text-center">
+          <div className="bg-primary px-6 py-4">
+            <h3 className="md-title-large text-on-primary text-center">
               サンプルパーティ
             </h3>
-            <p className="text-center text-white text-sm mt-1 opacity-90">
+            <p className="text-center text-on-primary md-body-medium mt-1 opacity-90">
               このような形でパーティが表示されます
             </p>
           </div>
@@ -227,7 +229,7 @@ export default function Home() {
             <div className="text-center">
               <button
                 onClick={() => router.push('/builder')}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                className="btn btn-filled state-layer"
               >
                 自分のパーティを作成する
               </button>
@@ -236,45 +238,45 @@ export default function Home() {
         </div>
 
         {/* 使い方 */}
-        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8 mb-8">
-          <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6 text-center">使い方</h3>
+        <div className="md-card p-4 sm:p-8 mb-8">
+          <h3 className="md-title-large text-on-surface mb-6 text-center">使い方</h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="text-center">
-              <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-blue-600">1</span>
+              <div className="bg-primary-container rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-medium text-on-primary-container">1</span>
               </div>
-              <h4 className="font-bold text-gray-800 mb-2">パーティ作成</h4>
-              <p className="text-sm text-gray-600">
+              <h4 className="md-title-medium text-on-surface mb-2">パーティ作成</h4>
+              <p className="md-body-medium text-on-surface-variant">
                 ビルダーで自分のパーティを作成
               </p>
             </div>
 
             <div className="text-center">
-              <div className="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-purple-600">2</span>
+              <div className="bg-primary-container rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-medium text-on-primary-container">2</span>
               </div>
-              <h4 className="font-bold text-gray-800 mb-2">QR/URL共有</h4>
-              <p className="text-sm text-gray-600">
+              <h4 className="md-title-medium text-on-surface mb-2">QR/URL共有</h4>
+              <p className="md-body-medium text-on-surface-variant">
                 生成されたQRコードまたはURLを対戦相手に共有
               </p>
             </div>
 
             <div className="text-center">
-              <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-green-600">3</span>
+              <div className="bg-primary-container rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-medium text-on-primary-container">3</span>
               </div>
-              <h4 className="font-bold text-gray-800 mb-2">相手のパーティ確認</h4>
-              <p className="text-sm text-gray-600">
+              <h4 className="md-title-medium text-on-surface mb-2">相手のパーティ確認</h4>
+              <p className="md-body-medium text-on-surface-variant">
                 QRをスキャンするかURLを開く
               </p>
             </div>
 
             <div className="text-center">
-              <div className="bg-pink-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-pink-600">4</span>
+              <div className="bg-primary-container rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-medium text-on-primary-container">4</span>
               </div>
-              <h4 className="font-bold text-gray-800 mb-2">対戦開始</h4>
-              <p className="text-sm text-gray-600">
+              <h4 className="md-title-medium text-on-surface mb-2">対戦開始</h4>
+              <p className="md-body-medium text-on-surface-variant">
                 お互いのパーティを把握して対戦
               </p>
             </div>
@@ -282,7 +284,7 @@ export default function Home() {
         </div>
 
         {/* フッター */}
-        <div className="text-center mt-8 text-gray-500 text-sm">
+        <div className="text-center mt-8 text-on-surface-variant md-body-medium">
           <p>第6世代（XY/ORAS）オープンチームシート対戦ツール</p>
         </div>
       </div>

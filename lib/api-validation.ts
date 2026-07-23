@@ -36,6 +36,14 @@ export const SaveTeamBodySchema = z.object({
 // teamIdパラメータ
 export const TeamIdSchema = z.string().min(1).max(100);
 
+// POST /api/share リクエストボディ（共有スナップショット作成）
+export const ShareTeamBodySchema = z.object({
+  team: TeamSchema,
+});
+
+// 共有ショートID（nanoid: URLセーフ文字, 6〜12文字）
+export const ShortIdSchema = z.string().regex(/^[A-Za-z0-9_-]{6,12}$/);
+
 // リクエストサイズ上限（50KB）
 export const MAX_REQUEST_SIZE = 50_000;
 

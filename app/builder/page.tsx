@@ -3,7 +3,8 @@
 import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Team, Pokemon } from '@/types/pokemon';
-import { getTeamFromLocalStorage, getTeamsFromLocalStorage, generateShareUrl } from '@/lib/team-encoder';
+import { getTeamFromLocalStorage, getTeamsFromLocalStorage } from '@/lib/team-encoder';
+import { createShareUrl } from '@/lib/share';
 import { saveTeamToAPI, SaveResult } from '@/lib/team-storage';
 import PokemonCard from '@/components/ui/PokemonCard';
 import PokemonEditor from '@/components/ui/PokemonEditor';
@@ -217,25 +218,27 @@ function BuilderPageContent() {
     }
 
     const team: Team = {
-      id: `team-${Date.now()}`,
-      name: teamName,
+      id: isEditMode && editingTeamId ? editingTeamId : newTeamId,
+      name: teamName || 'マイパーティ',
       pokemon,
-      createdAt: new Date().toISOString(),
+      createdAt: isEditMode && editingTeamId
+        ? getTeamFromLocalStorage(editingTeamId)?.createdAt || newTeamCreatedAt
+        : newTeamCreatedAt,
       updatedAt: new Date().toISOString(),
     };
 
     try {
-      const url = generateShareUrl(team);
+      const url = await createShareUrl(team);
       setShareUrl(url);
       setShowQRModal(true);
     } catch (error) {
       console.error('Share failed:', error);
-      showToast('error', '共有リンクの作成に失敗しました');
+      showToast('error', error instanceof Error ? error.message : '共有リンクの作成に失敗しました');
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <div className="min-h-screen bg-background">
       {/* トースト通知 */}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
@@ -263,20 +266,20 @@ function BuilderPageContent() {
       {/* 競合検出モーダル（他端末で更新済み） */}
       {versionConflict && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-scrim/32 flex items-center justify-center z-50 p-4"
           role="dialog"
           aria-modal="true"
           aria-labelledby="conflict-title"
         >
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
-            <h2 id="conflict-title" className="text-xl font-bold text-gray-800 mb-2">
+          <div className="md-dialog max-w-md w-full p-6">
+            <h2 id="conflict-title" className="md-headline-small text-on-surface mb-2">
               他の端末で更新されています
             </h2>
-            <p className="text-gray-600 text-sm mb-6">
+            <p className="md-body-medium text-on-surface-variant mb-6">
               このパーティは別の端末/タブで保存されたようです。<br />
               どちらの内容を残しますか？
             </p>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
               <button
                 onClick={() => {
                   const fresh = versionConflict.currentTeam;
@@ -287,7 +290,7 @@ function BuilderPageContent() {
                   setVersionConflict(null);
                   showToast('info', '最新の内容を読み込みました');
                 }}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg"
+                className="btn btn-filled state-layer w-full"
               >
                 最新を読み込む（自分の編集は破棄）
               </button>
@@ -296,13 +299,13 @@ function BuilderPageContent() {
                   setVersionConflict(null);
                   saveTeam(true);
                 }}
-                className="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg"
+                className="btn btn-error state-layer w-full"
               >
                 自分の編集で上書き保存
               </button>
               <button
                 onClick={() => setVersionConflict(null)}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-4 rounded-lg"
+                className="btn btn-text state-layer w-full"
               >
                 キャンセル
               </button>
@@ -314,22 +317,22 @@ function BuilderPageContent() {
       {/* 未保存変更警告モーダル */}
       {pendingNavigation && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-scrim/32 flex items-center justify-center z-50 p-4"
           role="dialog"
           aria-modal="true"
           aria-labelledby="unsaved-title"
         >
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
-            <h2 id="unsaved-title" className="text-xl font-bold text-gray-800 mb-2">
+          <div className="md-dialog max-w-md w-full p-6">
+            <h2 id="unsaved-title" className="md-headline-small text-on-surface mb-2">
               保存されていない変更があります
             </h2>
-            <p className="text-gray-600 text-sm mb-6">
+            <p className="md-body-medium text-on-surface-variant mb-6">
               編集中の内容は破棄されます。本当にこのページを離れますか？
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setPendingNavigation(null)}
-                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-4 rounded-lg"
+                className="btn btn-text state-layer"
               >
                 編集に戻る
               </button>
@@ -340,7 +343,7 @@ function BuilderPageContent() {
                   setIsSaved(true);
                   fn();
                 }}
-                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg"
+                className="btn btn-error state-layer"
               >
                 破棄して離れる
               </button>
@@ -349,16 +352,16 @@ function BuilderPageContent() {
         </div>
       )}
 
-      {/* ヘッダー */}
-      <div className="bg-white shadow-md">
+      {/* Top app bar */}
+      <div className="bg-surface elevation-2">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex justify-between items-center mb-2">
-            <h1 className="text-2xl font-bold text-gray-800">
+            <h1 className="md-title-large text-on-surface">
               {isEditMode ? 'パーティを編集' : 'パーティビルダー'}
             </h1>
             <button
               onClick={() => guardedNavigate(() => router.push('/'))}
-              className="text-gray-600 hover:text-gray-800"
+              className="btn btn-text state-layer"
             >
               ← ホーム
             </button>
@@ -368,7 +371,7 @@ function BuilderPageContent() {
             value={teamName}
             onChange={(e) => setTeamName(e.target.value.slice(0, 30))}
             onFocus={handleTeamNameFocus}
-            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+            className="text-field"
             placeholder="パーティ名を入力"
             maxLength={30}
           />
@@ -378,16 +381,12 @@ function BuilderPageContent() {
       {/* コンテンツ */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* ポケモン追加ボタン */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <h2 className="text-lg font-bold text-gray-800 mb-4">ポケモンを追加</h2>
+        <div className="md-card p-6 mb-6">
+          <h2 className="md-title-large text-on-surface mb-4">ポケモンを追加</h2>
           <button
             onClick={handleAddPokemon}
             disabled={pokemon.length >= 6}
-            className={`w-full font-bold py-4 px-6 rounded-lg transition-colors ${
-              pokemon.length >= 6
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white'
-            }`}
+            className="btn btn-filled state-layer w-full"
           >
             ＋ ポケモンを追加 ({pokemon.length}/6)
           </button>
@@ -395,7 +394,7 @@ function BuilderPageContent() {
 
         {/* パーティリスト */}
         <div className="mb-6">
-          <h2 className="text-lg font-bold text-gray-800 mb-4">
+          <h2 className="md-title-large text-on-surface mb-4">
             パーティ ({pokemon.length}/6)
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -404,23 +403,23 @@ function BuilderPageContent() {
               return (
                 <div
                   key={p.id}
-                  className={isBeingEdited ? 'ring-2 ring-blue-500 rounded-2xl' : ''}
+                  className={isBeingEdited ? 'ring-2 ring-primary rounded-xl' : ''}
                 >
                   <PokemonCard pokemon={p} />
                   <div className="flex gap-2 mt-2">
                     <button
                       onClick={() => handleEditPokemon(p)}
                       aria-label={`${p.nickname || p.species}を編集`}
-                      className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors"
+                      className="btn btn-tonal state-layer flex-1"
                     >
-                      ✎ 編集
+                      編集
                     </button>
                     <button
                       onClick={() => handleDeletePokemon(p.id)}
                       aria-label={`${p.nickname || p.species}を削除`}
-                      className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors"
+                      className="btn btn-error state-layer flex-1"
                     >
-                      × 削除
+                      削除
                     </button>
                   </div>
                 </div>
@@ -429,9 +428,9 @@ function BuilderPageContent() {
           </div>
 
           {pokemon.length === 0 && (
-            <div className="text-center py-12 bg-white rounded-2xl shadow-lg">
-              <p className="text-gray-500 text-lg">ポケモンが登録されていません</p>
-              <p className="text-gray-400 text-sm mt-2">「ポケモンを追加」ボタンから追加してください</p>
+            <div className="text-center py-12 md-card">
+              <p className="md-body-large text-on-surface-variant">ポケモンが登録されていません</p>
+              <p className="md-body-medium text-on-surface-variant mt-2">「ポケモンを追加」ボタンから追加してください</p>
             </div>
           )}
         </div>
@@ -442,33 +441,21 @@ function BuilderPageContent() {
             data-testid="save-team"
             onClick={() => saveTeam()}
             disabled={pokemon.length === 0}
-            className={`font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base ${
-              pokemon.length === 0
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-purple-500 hover:bg-purple-600 text-white'
-            }`}
+            className="btn btn-filled state-layer"
           >
             保存
           </button>
           <button
             onClick={shareTeam}
             disabled={pokemon.length === 0}
-            className={`font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base ${
-              pokemon.length === 0
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-500 hover:bg-blue-600 text-white'
-            }`}
+            className="btn btn-outlined state-layer"
           >
             QRコード表示
           </button>
           <button
             onClick={generateImage}
             disabled={pokemon.length === 0 || isGenerating}
-            className={`font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base ${
-              pokemon.length === 0 || isGenerating
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-green-500 hover:bg-green-600 text-white'
-            }`}
+            className="btn btn-outlined state-layer"
           >
             {isGenerating ? '生成中...' : '画像として保存'}
           </button>
@@ -480,16 +467,16 @@ function BuilderPageContent() {
                 setHasTeamNameBeenFocused(false);
               }
             }}
-            className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base"
+            className="btn btn-text state-layer"
           >
             リセット
           </button>
         </div>
 
         {/* 説明 */}
-        <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
-          <h3 className="font-bold text-blue-800 mb-2">使い方</h3>
-          <ol className="text-sm text-blue-700 space-y-1 list-decimal list-inside">
+        <div className="bg-surface-container rounded-xl p-4">
+          <h3 className="md-title-medium text-on-surface mb-2">使い方</h3>
+          <ol className="md-body-medium text-on-surface-variant space-y-1 list-decimal list-inside">
             <li>「ポケモンを追加」からポケモンを選択・詳細設定（最大6体）</li>
             <li>「保存」ボタンでローカルに保存（自分だけが見られる）</li>
             <li>「共有URL生成」で対戦相手に送るURLを生成</li>
@@ -512,10 +499,10 @@ function BuilderPageContent() {
 export default function BuilderPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">読み込み中...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="md-body-medium text-on-surface-variant">読み込み中...</p>
         </div>
       </div>
     }>

@@ -141,38 +141,38 @@ export default function MoveAutocomplete({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={selectedMoves.length >= 4}
-          className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors text-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="text-field text-sm disabled:opacity-60 disabled:cursor-not-allowed"
         />
       </div>
 
       {isOpen && filteredMoves.length > 0 && (
         <div
           ref={dropdownRef}
-          className="absolute z-50 w-full mt-2 bg-white border-2 border-gray-300 rounded-lg shadow-xl max-h-[300px] overflow-y-auto"
+          className="absolute z-50 w-full mt-2 bg-surface-container-high rounded-xl elevation-2 max-h-[300px] overflow-y-auto"
         >
           {filteredMoves.map((move, index) => (
             <button
               key={move.id}
               onClick={() => handleSelect(move)}
-              className={`w-full px-3 py-2 flex items-center gap-2 hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0 text-left ${
-                index === highlightedIndex ? 'bg-blue-100' : ''
+              className={`w-full px-3 py-2 flex items-center gap-2 hover:bg-surface-container-highest transition-colors border-b border-outline-variant last:border-b-0 text-left ${
+                index === highlightedIndex ? 'bg-surface-container-highest' : ''
               }`}
               onMouseEnter={() => setHighlightedIndex(index)}
             >
               <span className="text-lg">{getCategoryIcon(move.category)}</span>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-gray-800 text-sm">
+                  <span className="font-medium text-on-surface text-sm">
                     {move.nameJa}
                   </span>
                   <span className={`text-xs px-2 py-0.5 rounded text-white ${getTypeBgColor(move.type as PokemonType)}`}>
                     {move.type}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-on-surface-variant">
                     {move.category}
                   </span>
                 </div>
-                <div className="flex gap-2 text-xs text-gray-600 mt-0.5">
+                <div className="flex gap-2 text-xs text-on-surface-variant mt-0.5">
                   {move.power && <span>威力:{move.power}</span>}
                   {move.accuracy && <span>命中:{move.accuracy}</span>}
                   <span>PP:{move.pp}</span>

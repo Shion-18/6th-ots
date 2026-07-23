@@ -19,17 +19,17 @@ function CompactPokemonCardInner({ pokemon }: CompactPokemonCardProps) {
 
   if (!pokemonData) {
     return (
-      <div className="bg-white rounded-xl shadow-md p-3 flex items-center justify-center">
-        <p className="text-gray-500 text-sm">ポケモンデータが見つかりません</p>
+      <div className="md-card p-3 flex items-center justify-center">
+        <p className="text-on-surface-variant text-sm">ポケモンデータが見つかりません</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden p-2">
+    <div className="md-card overflow-hidden p-2">
       {/* Row 1: Sprite + Name + Level */}
       <div className="flex items-center gap-1.5 mb-1">
-        <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded flex items-center justify-center">
+        <div className="flex-shrink-0 w-10 h-10 bg-surface-container rounded flex items-center justify-center">
           <Image
             src={pokemonData.sprite}
             alt={pokemon.species}
@@ -39,14 +39,14 @@ function CompactPokemonCardInner({ pokemon }: CompactPokemonCardProps) {
           />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="text-xs font-bold text-gray-800 leading-tight">
+          <h3 className="text-xs font-medium text-on-surface leading-tight">
             {pokemon.nickname || pokemon.species}
           </h3>
           {pokemon.nickname && (
-            <p className="text-[9px] text-gray-500 leading-tight">{pokemon.species}</p>
+            <p className="text-[9px] text-on-surface-variant leading-tight">{pokemon.species}</p>
           )}
         </div>
-        <span className="text-[10px] font-semibold text-gray-600 whitespace-nowrap">
+        <span className="text-[10px] font-medium text-on-surface-variant whitespace-nowrap">
           Lv.{pokemon.level}
         </span>
       </div>
@@ -61,11 +61,11 @@ function CompactPokemonCardInner({ pokemon }: CompactPokemonCardProps) {
       {/* Row 3-4: Ability, Item */}
       <div className="space-y-0 text-[10px] mb-1">
         <div className="flex gap-1">
-          <span className="text-gray-800 font-semibold">{pokemon.ability}</span>
+          <span className="text-on-surface font-medium">{pokemon.ability}</span>
         </div>
         {pokemon.item && (
           <div className="flex gap-1">
-            <span className="text-purple-600 font-semibold">{pokemon.item}</span>
+            <span className="text-primary font-medium">{pokemon.item}</span>
           </div>
         )}
       </div>
@@ -79,7 +79,7 @@ function CompactPokemonCardInner({ pokemon }: CompactPokemonCardProps) {
               {moveType && (
                 <TypeIcon type={moveType} size="xs" className="flex-shrink-0" />
               )}
-              <span className="text-[10px] text-gray-800 leading-tight whitespace-nowrap">
+              <span className="text-[10px] text-on-surface leading-tight whitespace-nowrap">
                 {move}
               </span>
             </div>

@@ -1,46 +1,53 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Team } from '@/types/pokemon';
-import { decodeTeam } from '@/lib/team-encoder';
 import TeamView from '@/components/ui/TeamView';
 import TeamImageView from '@/components/ui/TeamImageView';
+import { TeamViewSkeleton } from '@/components/ui/Skeleton';
 import { useImageGenerator } from '@/hooks/useImageGenerator';
 import { useToast, ToastContainer } from '@/components/ui/Toast';
-import { TeamViewSkeleton } from '@/components/ui/Skeleton';
 
-function ViewPageContent() {
-  const searchParams = useSearchParams();
+export default function SharedTeamPage() {
+  const params = useParams<{ shortId: string }>();
+  const shortId = params?.shortId;
   const [team, setTeam] = useState<Team | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const { toasts, showToast, dismissToast } = useToast();
-
-  // 画像生成フック
   const { imageRef, isGenerating, generateImage } = useImageGenerator(team);
 
   useEffect(() => {
-    const data = searchParams.get('data');
+    if (!shortId) return;
+    let cancelled = false;
 
-    if (data) {
+    (async () => {
       try {
-        const decodedTeam = decodeTeam(decodeURIComponent(data));
-        setTeam(decodedTeam);
-        setError(null);
+        const res = await fetch(`/api/share/${shortId}`);
+        if (res.status === 404) {
+          if (!cancelled) setError('共有リンクが見つかりません。期限切れまたは無効なリンクの可能性があります。');
+          return;
+        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (!cancelled) {
+          setTeam(data.team);
+          setError(null);
+        }
       } catch (err) {
-        console.error('デコードエラー:', err);
-        setError('パーティデータの読み込みに失敗しました');
+        console.error('共有パーティの取得に失敗:', err);
+        if (!cancelled) setError('パーティデータの読み込みに失敗しました');
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
-      return;
-    }
+    })();
 
-    setError('パーティデータが見つかりません');
-    setLoading(false);
-  }, [searchParams]);
+    return () => {
+      cancelled = true;
+    };
+  }, [shortId]);
 
   const handleShare = async () => {
     const { copyToClipboard } = await import('@/lib/clipboard');
@@ -99,13 +106,5 @@ function ViewPageContent() {
         </button>
       </div>
     </>
-  );
-}
-
-export default function ViewPage() {
-  return (
-    <Suspense fallback={<TeamViewSkeleton />}>
-      <ViewPageContent />
-    </Suspense>
   );
 }
