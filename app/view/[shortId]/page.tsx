@@ -5,9 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Team } from '@/types/pokemon';
 import TeamView from '@/components/ui/TeamView';
-import TeamImageView from '@/components/ui/TeamImageView';
 import { TeamViewSkeleton } from '@/components/ui/Skeleton';
-import { useImageGenerator } from '@/hooks/useImageGenerator';
 import { useToast, ToastContainer } from '@/components/ui/Toast';
 
 export default function SharedTeamPage() {
@@ -17,7 +15,6 @@ export default function SharedTeamPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const { toasts, showToast, dismissToast } = useToast();
-  const { imageRef, isGenerating, generateImage } = useImageGenerator(team);
 
   useEffect(() => {
     if (!shortId) return;
@@ -89,22 +86,6 @@ export default function SharedTeamPage() {
     <>
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
       <TeamView team={team} onShare={handleShare} />
-
-      {/* 非表示の画像生成用ビュー */}
-      <div className="hidden">
-        <TeamImageView team={team} elementRef={imageRef} />
-      </div>
-
-      {/* 画像生成ボタン（固定位置） */}
-      <div className="fixed right-6 z-50" style={{ bottom: 'max(1.5rem, env(safe-area-inset-bottom, 1.5rem))' }}>
-        <button
-          onClick={generateImage}
-          disabled={isGenerating}
-          className="fab-extended state-layer"
-        >
-          {isGenerating ? '生成中...' : '画像を保存'}
-        </button>
-      </div>
     </>
   );
 }

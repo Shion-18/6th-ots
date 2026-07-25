@@ -8,8 +8,6 @@ import { createShareUrl } from '@/lib/share';
 import { saveTeamToAPI, SaveResult } from '@/lib/team-storage';
 import PokemonCard from '@/components/ui/PokemonCard';
 import PokemonEditor from '@/components/ui/PokemonEditor';
-import TeamImageView from '@/components/ui/TeamImageView';
-import { useImageGenerator } from '@/hooks/useImageGenerator';
 import QRCodeDisplay from '@/components/ui/QRCodeDisplay';
 import { useToast, ToastContainer } from '@/components/ui/Toast';
 
@@ -93,20 +91,6 @@ function BuilderPageContent() {
       navigate();
     }
   };
-
-  // 画像生成用のチームデータ（renderごとに新しい updatedAt を渡したい場合は
-  // useImageGenerator 側で必要になった時点で生成する。ここではビュー目的のみ）
-  const currentTeam: Team = {
-    id: isEditMode && editingTeamId ? editingTeamId : newTeamId,
-    name: teamName,
-    pokemon,
-    createdAt: isEditMode && editingTeamId
-      ? getTeamFromLocalStorage(editingTeamId)?.createdAt || newTeamCreatedAt
-      : newTeamCreatedAt,
-    updatedAt: newTeamCreatedAt,
-  };
-
-  const { imageRef, isGenerating, generateImage } = useImageGenerator(currentTeam);
 
   const handleAddPokemon = () => {
     if (pokemon.length >= 6) {
@@ -453,13 +437,6 @@ function BuilderPageContent() {
             QRコード表示
           </button>
           <button
-            onClick={generateImage}
-            disabled={pokemon.length === 0 || isGenerating}
-            className="btn btn-outlined state-layer"
-          >
-            {isGenerating ? '生成中...' : '画像として保存'}
-          </button>
-          <button
             onClick={() => {
               if (confirm('パーティをリセットしますか？')) {
                 setPokemon([]);
@@ -480,18 +457,10 @@ function BuilderPageContent() {
             <li>「ポケモンを追加」からポケモンを選択・詳細設定（最大6体）</li>
             <li>「保存」ボタンでローカルに保存（自分だけが見られる）</li>
             <li>「共有URL生成」で対戦相手に送るURLを生成</li>
-            <li>「画像として保存」でパーティを画像化してダウンロード</li>
             <li>相手からもらったURLを開いて、相手のパーティを確認</li>
           </ol>
         </div>
       </div>
-
-      {/* 非表示の画像生成用ビュー */}
-      {pokemon.length > 0 && (
-        <div className="hidden">
-          <TeamImageView team={currentTeam} elementRef={imageRef} />
-        </div>
-      )}
     </div>
   );
 }
