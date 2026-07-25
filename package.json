@@ -17,10 +17,8 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.106.1",
-    "html5-qrcode": "^2.3.8",
     "nanoid": "^5.1.6",
     "next": "16.1.1",
-    "qrcode.react": "^4.2.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "uuid": "^13.0.0",

@@ -36,16 +36,12 @@ test.describe('パーティ共有', () => {
     const shareButton = page.locator('button:has-text("共有")').first();
     await shareButton.click();
 
-    // QRモーダルが表示されるまで待機
+    // 共有URLダイアログが表示されるまで待機
     await page.waitForSelector('input[type="url"]', { timeout: 10000 });
 
     // 共有URLを取得（readOnly input[type="url"]）
     const shareUrl = await page.locator('input[type="url"]').inputValue();
     expect(shareUrl).toMatch(/\/view\/[A-Za-z0-9_-]{8}/);
-
-    // QRコード（SVG）が表示されていることを確認
-    const qrSvg = page.locator('#qr-code-svg');
-    await expect(qrSvg).toBeVisible();
 
     // 共有URLを開いてパーティが表示されることを確認
     const urlPath = new URL(shareUrl).pathname + new URL(shareUrl).search;

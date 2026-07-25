@@ -8,7 +8,7 @@ import { createShareUrl } from '@/lib/share';
 import { saveTeamToAPI, SaveResult } from '@/lib/team-storage';
 import PokemonCard from '@/components/ui/PokemonCard';
 import PokemonEditor from '@/components/ui/PokemonEditor';
-import QRCodeDisplay from '@/components/ui/QRCodeDisplay';
+import ShareUrlDialog from '@/components/ui/ShareUrlDialog';
 import { useToast, ToastContainer } from '@/components/ui/Toast';
 
 function BuilderPageContent() {
@@ -20,7 +20,7 @@ function BuilderPageContent() {
   const [editingPokemon, setEditingPokemon] = useState<Pokemon | null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [, setSavedTeams] = useState<Team[]>([]);
-  const [showQRModal, setShowQRModal] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [editingTeamId, setEditingTeamId] = useState<string | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -214,7 +214,7 @@ function BuilderPageContent() {
     try {
       const url = await createShareUrl(team);
       setShareUrl(url);
-      setShowQRModal(true);
+      setShowShareDialog(true);
     } catch (error) {
       console.error('Share failed:', error);
       showToast('error', error instanceof Error ? error.message : '共有リンクの作成に失敗しました');
@@ -238,12 +238,12 @@ function BuilderPageContent() {
         />
       )}
 
-      {/* QRコードモーダル */}
-      {showQRModal && (
-        <QRCodeDisplay
+      {/* 共有URLダイアログ */}
+      {showShareDialog && (
+        <ShareUrlDialog
           url={shareUrl}
           teamName={teamName}
-          onClose={() => setShowQRModal(false)}
+          onClose={() => setShowShareDialog(false)}
         />
       )}
 
@@ -434,7 +434,7 @@ function BuilderPageContent() {
             disabled={pokemon.length === 0}
             className="btn btn-outlined state-layer"
           >
-            QRコード表示
+            共有URLを生成
           </button>
           <button
             onClick={() => {
@@ -456,7 +456,7 @@ function BuilderPageContent() {
           <ol className="md-body-medium text-on-surface-variant space-y-1 list-decimal list-inside">
             <li>「ポケモンを追加」からポケモンを選択・詳細設定（最大6体）</li>
             <li>「保存」ボタンでローカルに保存（自分だけが見られる）</li>
-            <li>「共有URL生成」で対戦相手に送るURLを生成</li>
+            <li>「共有URLを生成」で対戦相手に送るURLを生成</li>
             <li>相手からもらったURLを開いて、相手のパーティを確認</li>
           </ol>
         </div>
