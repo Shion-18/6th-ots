@@ -2,7 +2,7 @@ import { Team } from '@/types/pokemon';
 
 /**
  * チームの共有スナップショットをサーバに作成し、ショートURLを返す。
- * QRに載るよう短いURL（/view/<shortId>）になる。
+ * 共有しやすい短いURL（/view/<shortId>）になる。
  */
 export async function createShareUrl(team: Team): Promise<string> {
   const response = await fetch('/api/share', {
