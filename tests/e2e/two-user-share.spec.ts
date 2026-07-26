@@ -70,7 +70,7 @@ test.describe('2ユーザー間URL共有', () => {
 
     await pageC.locator('button:has-text("相手のパーティ")').click();
     await pageC.locator('input[type="url"]').fill(shareUrl);
-    await pageC.locator('button:has-text("表示")').click();
+    await pageC.getByRole('button', { name: '表示', exact: true }).click();
 
     // 短縮URLの view ページに遷移し、パーティが表示されること
     await pageC.waitForURL(/\/view\/[A-Za-z0-9_-]{8}/, { timeout: 10000 });
