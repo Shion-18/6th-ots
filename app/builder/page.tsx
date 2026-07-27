@@ -449,17 +449,6 @@ function BuilderPageContent() {
             リセット
           </button>
         </div>
-
-        {/* 説明 */}
-        <div className="bg-surface-container rounded-xl p-4">
-          <h3 className="md-title-medium text-on-surface mb-2">使い方</h3>
-          <ol className="md-body-medium text-on-surface-variant space-y-1 list-decimal list-inside">
-            <li>「ポケモンを追加」からポケモンを選択・詳細設定（最大6体）</li>
-            <li>「保存」ボタンでローカルに保存（自分だけが見られる）</li>
-            <li>「共有URLを生成」で対戦相手に送るURLを生成</li>
-            <li>相手からもらったURLを開いて、相手のパーティを確認</li>
-          </ol>
-        </div>
       </div>
     </div>
   );
