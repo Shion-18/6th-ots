@@ -2,23 +2,16 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import CompactPokemonCard from '@/components/ui/CompactPokemonCard';
 import { sampleTeam } from '@/lib/sample-team';
 
-// カメラ API はクライアント専用なので SSR を無効化して lazy-load
-const QRScanner = dynamic(() => import('@/components/ui/QRScanner'), {
-  ssr: false,
-});
-
-type OtherTeamMode = 'closed' | 'choose' | 'url' | 'qr';
+type OtherTeamMode = 'closed' | 'url';
 
 export default function Home() {
   const router = useRouter();
   const [otherTeamMode, setOtherTeamMode] = useState<OtherTeamMode>('closed');
   const [inputUrl, setInputUrl] = useState('');
   const [urlError, setUrlError] = useState('');
-  const [scanError, setScanError] = useState('');
 
   const routeFromUrl = (rawUrl: string): boolean => {
     try {
@@ -50,21 +43,10 @@ export default function Home() {
     }
   };
 
-  const handleQRScan = (decodedText: string) => {
-    if (routeFromUrl(decodedText)) {
-      setOtherTeamMode('closed');
-      setScanError('');
-    } else {
-      setScanError('このQRコードは対応していません。共有URLを読み取ってください。');
-      setOtherTeamMode('choose');
-    }
-  };
-
   const closeOtherTeam = () => {
     setOtherTeamMode('closed');
     setInputUrl('');
     setUrlError('');
-    setScanError('');
   };
 
   return (
@@ -72,10 +54,9 @@ export default function Home() {
       {/* Top app bar */}
       <div className="bg-surface">
         <div className="max-w-4xl mx-auto px-4 py-6">
-          <h1 className="md-headline-small text-on-surface">
-            オープンチームシート
+          <h1 className="md-title-large text-on-surface">
+            第6世代（XY/ORAS）オープンチームシート対戦ツール
           </h1>
-          <p className="md-body-medium text-on-surface-variant mt-1">第6世代ポケモン対戦用</p>
         </div>
       </div>
 
@@ -83,85 +64,44 @@ export default function Home() {
       <div className="max-w-4xl mx-auto px-4 py-6 sm:py-12">
         {/* ヒーローセクション */}
         <div className="md-card p-4 sm:p-8 mb-8">
-          <div className="text-center mb-6 sm:mb-8">
-            <h2 className="text-2xl sm:text-4xl font-normal text-on-surface mb-4">
-              パーティを共有して<br />対戦を始めよう
-            </h2>
+          <div className="text-center mb-6">
             <p className="md-body-large text-on-surface-variant">
-              オープンチームシートルールで、スムーズに対戦開始
+              URLを送るだけで、お互いの手持ちを見せ合えます
             </p>
           </div>
 
-          {/* アクションタイル */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+          {/* メインCTA */}
+          <div className="max-w-sm mx-auto">
             <button
               onClick={() => router.push('/builder')}
-              className="state-layer bg-primary text-on-primary rounded-2xl py-6 px-6 text-left"
+              className="state-layer bg-primary text-on-primary rounded-2xl py-6 px-6 w-full text-center"
             >
               <div className="md-title-medium">パーティを作成</div>
               <div className="md-body-medium opacity-90 mt-1">作成・編集</div>
             </button>
+          </div>
 
+          {/* サブ導線 */}
+          <div className="flex justify-center items-center gap-6 mt-4">
             <button
               onClick={() => router.push('/my-teams')}
-              className="state-layer bg-surface-container-high text-on-surface rounded-2xl py-6 px-6 text-left"
+              className="md-body-medium text-primary hover:underline"
             >
-              <div className="md-title-medium">マイパーティ</div>
-              <div className="md-body-medium text-on-surface-variant mt-1">保存済み</div>
+              マイパーティ
             </button>
-
             <button
               onClick={() => {
-                setOtherTeamMode('choose');
+                setOtherTeamMode('url');
                 setUrlError('');
-                setScanError('');
                 setInputUrl('');
               }}
-              className="state-layer bg-surface-container-high text-on-surface rounded-2xl py-6 px-6 text-left"
+              className="md-body-medium text-primary hover:underline"
             >
-              <div className="md-title-medium">相手のパーティ</div>
-              <div className="md-body-medium text-on-surface-variant mt-1">QR / URL</div>
+              相手のパーティ
             </button>
           </div>
 
           {/* 相手のパーティ受信エリア */}
-          {otherTeamMode === 'choose' && (
-            <div className="mt-6 bg-surface-container rounded-xl p-4">
-              <div className="flex items-center justify-between mb-3">
-                <p className="md-title-medium text-on-surface">
-                  受け取り方法を選んでください
-                </p>
-                <button
-                  onClick={closeOtherTeam}
-                  className="text-on-surface-variant hover:text-on-surface text-lg leading-none"
-                  aria-label="閉じる"
-                >
-                  ×
-                </button>
-              </div>
-              {scanError && (
-                <p className="text-error md-body-medium mb-3">{scanError}</p>
-              )}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button
-                  onClick={() => setOtherTeamMode('qr')}
-                  className="btn btn-filled state-layer"
-                >
-                  QRコードをスキャン
-                </button>
-                <button
-                  onClick={() => {
-                    setOtherTeamMode('url');
-                    setUrlError('');
-                  }}
-                  className="btn btn-outlined state-layer"
-                >
-                  URLを入力
-                </button>
-              </div>
-            </div>
-          )}
-
           {otherTeamMode === 'url' && (
             <div className="mt-6 bg-surface-container rounded-xl p-4">
               <label className="block md-title-medium text-on-surface mb-2">
@@ -196,13 +136,6 @@ export default function Home() {
               )}
             </div>
           )}
-
-          {otherTeamMode === 'qr' && (
-            <QRScanner
-              onScan={handleQRScan}
-              onClose={() => setOtherTeamMode('choose')}
-            />
-          )}
         </div>
 
         {/* サンプルパーティ */}
@@ -213,7 +146,7 @@ export default function Home() {
               サンプルパーティ
             </h3>
             <p className="text-center text-on-primary md-body-medium mt-1 opacity-90">
-              このような形でパーティが表示されます
+              共有すると相手にはこのように表示されます
             </p>
           </div>
 
@@ -240,14 +173,14 @@ export default function Home() {
         {/* 使い方 */}
         <div className="md-card p-4 sm:p-8 mb-8">
           <h3 className="md-title-large text-on-surface mb-6 text-center">使い方</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
               <div className="bg-primary-container rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-medium text-on-primary-container">1</span>
               </div>
-              <h4 className="md-title-medium text-on-surface mb-2">パーティ作成</h4>
+              <h4 className="md-title-medium text-on-surface mb-2">パーティを作成</h4>
               <p className="md-body-medium text-on-surface-variant">
-                ビルダーで自分のパーティを作成
+                ビルダーで自分のパーティを組む
               </p>
             </div>
 
@@ -255,9 +188,9 @@ export default function Home() {
               <div className="bg-primary-container rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-medium text-on-primary-container">2</span>
               </div>
-              <h4 className="md-title-medium text-on-surface mb-2">QR/URL共有</h4>
+              <h4 className="md-title-medium text-on-surface mb-2">URLを交換</h4>
               <p className="md-body-medium text-on-surface-variant">
-                生成されたQRコードまたはURLを対戦相手に共有
+                「共有URLを生成」で作ったURLを送り、相手のURLを受け取る
               </p>
             </div>
 
@@ -265,19 +198,9 @@ export default function Home() {
               <div className="bg-primary-container rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-medium text-on-primary-container">3</span>
               </div>
-              <h4 className="md-title-medium text-on-surface mb-2">相手のパーティ確認</h4>
-              <p className="md-body-medium text-on-surface-variant">
-                QRをスキャンするかURLを開く
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="bg-primary-container rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-medium text-on-primary-container">4</span>
-              </div>
               <h4 className="md-title-medium text-on-surface mb-2">対戦開始</h4>
               <p className="md-body-medium text-on-surface-variant">
-                お互いのパーティを把握して対戦
+                お互いの手持ちを確認して対戦
               </p>
             </div>
           </div>

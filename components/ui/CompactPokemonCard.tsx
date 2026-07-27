@@ -39,7 +39,7 @@ function CompactPokemonCardInner({ pokemon }: CompactPokemonCardProps) {
           />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="text-xs font-medium text-on-surface leading-tight">
+          <h3 className="text-sm font-semibold text-on-surface leading-tight">
             {pokemon.nickname || pokemon.species}
           </h3>
           {pokemon.nickname && (

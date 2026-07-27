@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * 2ユーザー間のQR共有フローをテスト
+ * 2ユーザー間のURL共有フローをテスト
  * browser.newContext() で別Cookie/別localStorageの独立ユーザーを作成
  */
-test.describe('2ユーザー間QR共有', () => {
+test.describe('2ユーザー間URL共有', () => {
   test('ユーザーAが共有したパーティをユーザーBが閲覧できる', async ({ browser }) => {
     // --- ユーザーA: パーティ作成 → 保存 → 共有URL取得 ---
     const contextA = await browser.newContext();
@@ -38,21 +38,17 @@ test.describe('2ユーザー間QR共有', () => {
     await pageA.locator('[data-testid="save-team"]').click();
     await pageA.waitForURL(/\/my-teams/);
 
-    // 共有ボタンクリック → QRモーダル表示
+    // 共有ボタンクリック → 共有URLダイアログ表示
     await pageA.locator('button:has-text("共有")').first().click();
 
-    // QRモーダルが表示されるまで待機
+    // 共有URLダイアログが表示されるまで待機
     await pageA.waitForSelector('input[type="url"]', { timeout: 10000 });
 
     // 共有URLを取得（現行は短縮URL /view/<shortId>）
     const shareUrl = await pageA.locator('input[type="url"]').inputValue();
     expect(shareUrl).toMatch(/\/view\/[A-Za-z0-9_-]{8}/);
 
-    // QRコード（SVG）が表示されていることを確認
-    const qrSvg = pageA.locator('#qr-code-svg');
-    await expect(qrSvg).toBeVisible();
-
-    // --- ユーザーB: 共有URLを直接開いてパーティ確認（標準カメラ経由を想定） ---
+    // --- ユーザーB: 共有URLを直接開いてパーティ確認（メッセージアプリ経由を想定） ---
     const contextB = await browser.newContext();
     const pageB = await contextB.newPage();
 
@@ -73,9 +69,8 @@ test.describe('2ユーザー間QR共有', () => {
     await pageC.evaluate(() => localStorage.clear());
 
     await pageC.locator('button:has-text("相手のパーティ")').click();
-    await pageC.locator('button:has-text("URLを入力")').click();
     await pageC.locator('input[type="url"]').fill(shareUrl);
-    await pageC.locator('button:has-text("表示")').click();
+    await pageC.getByRole('button', { name: '表示', exact: true }).click();
 
     // 短縮URLの view ページに遷移し、パーティが表示されること
     await pageC.waitForURL(/\/view\/[A-Za-z0-9_-]{8}/, { timeout: 10000 });

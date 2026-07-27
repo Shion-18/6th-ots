@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Team } from '@/types/pokemon';
 import { getTeamsFromAPI, deleteTeamFromAPI } from '@/lib/team-storage';
 import { createShareUrl } from '@/lib/share';
-import QRCodeDisplay from '@/components/ui/QRCodeDisplay';
+import ShareUrlDialog from '@/components/ui/ShareUrlDialog';
 import { useToast, ToastContainer } from '@/components/ui/Toast';
 import { TeamCardSkeleton } from '@/components/ui/Skeleton';
 
@@ -13,7 +13,7 @@ export default function MyTeamsPage() {
   const router = useRouter();
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showQRModal, setShowQRModal] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [shareTeamName, setShareTeamName] = useState('');
   const { toasts, showToast, dismissToast } = useToast();
@@ -53,7 +53,7 @@ export default function MyTeamsPage() {
       const url = await createShareUrl(team);
       setShareUrl(url);
       setShareTeamName(team.name);
-      setShowQRModal(true);
+      setShowShareDialog(true);
     } catch (error) {
       console.error('Share failed:', error);
       showToast('error', error instanceof Error ? error.message : '共有リンクの作成に失敗しました');
@@ -162,12 +162,12 @@ export default function MyTeamsPage() {
         )}
       </div>
 
-      {/* QRコードモーダル */}
-      {showQRModal && shareUrl && (
-        <QRCodeDisplay
+      {/* 共有URLダイアログ */}
+      {showShareDialog && shareUrl && (
+        <ShareUrlDialog
           url={shareUrl}
           teamName={shareTeamName}
-          onClose={() => setShowQRModal(false)}
+          onClose={() => setShowShareDialog(false)}
         />
       )}
     </div>
