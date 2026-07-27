@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { selectGenderIfRequired } from './helpers';
 
 /**
  * 2ユーザー間のURL共有フローをテスト
@@ -32,6 +33,7 @@ test.describe('2ユーザー間URL共有', () => {
     await pageA.locator('text=１０まんボルト').first().click();
 
     // ポケモン保存
+    await selectGenderIfRequired(pageA);
     await pageA.locator('[data-testid="save-pokemon"]').click();
 
     // パーティ保存

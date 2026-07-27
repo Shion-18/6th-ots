@@ -89,7 +89,7 @@ function PokemonCardInner({ pokemon, onClick }: PokemonCardProps) {
             {/* 性別・特性・持ち物（ラベルなし） */}
             <div className="space-y-1.5 text-sm">
               {/* 性別 */}
-              {pokemon.gender && (
+              {(pokemon.gender === 'オス' || pokemon.gender === 'メス') && (
                 <div className="flex items-center">
                   <span className={`font-bold ${pokemon.gender === 'オス' ? 'text-blue-600' : 'text-pink-600'}`}>
                     {pokemon.gender === 'オス' ? '♂' : '♀'}

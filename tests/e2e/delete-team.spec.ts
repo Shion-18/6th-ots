@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { selectGenderIfRequired } from './helpers';
 
 test.describe('パーティ削除', () => {
   test.beforeEach(async ({ page }) => {
@@ -17,6 +18,7 @@ test.describe('パーティ削除', () => {
     await page.locator('input[placeholder*="検索"]').first().fill('ピカチュウ');
     await page.locator('text=ピカチュウ').first().click();
 
+    await selectGenderIfRequired(page);
     const saveButton = page.locator('button:has-text("保存")').first();
     if (await saveButton.count() > 0) {
       await saveButton.click();

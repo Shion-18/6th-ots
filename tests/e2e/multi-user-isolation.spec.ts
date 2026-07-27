@@ -1,4 +1,5 @@
 import { test, expect, BrowserContext, Page } from '@playwright/test';
+import { selectGenderIfRequired } from './helpers';
 
 /**
  * 複数ユーザーのパーティ保存が互いに干渉しないことをテスト
@@ -28,6 +29,7 @@ async function createAndSaveTeam(page: Page, teamName: string, pokemonName: stri
   await page.locator('text=まもる').first().click();
 
   // ポケモン保存
+  await selectGenderIfRequired(page);
   await page.locator('[data-testid="save-pokemon"]').click();
 
   // パーティ保存

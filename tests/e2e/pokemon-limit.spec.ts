@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { selectGenderIfRequired } from './helpers';
 
 test.describe('ポケモン数制限', () => {
   test.beforeEach(async ({ page }) => {
@@ -29,6 +30,7 @@ test.describe('ポケモン数制限', () => {
       await page.locator(`text=${mon}`).first().click();
 
       // 保存ボタンがあればクリック
+      await selectGenderIfRequired(page);
       const saveButton = page.locator('button:has-text("保存")').first();
       if (await saveButton.count() > 0) {
         await saveButton.click();
