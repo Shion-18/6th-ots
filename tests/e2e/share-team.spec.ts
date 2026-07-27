@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { selectGenderIfRequired } from './helpers';
 
 test.describe('パーティ共有', () => {
   test.beforeEach(async ({ page }) => {
@@ -27,6 +28,7 @@ test.describe('パーティ共有', () => {
     await page.locator('text=１０まんボルト').first().click();
 
     // ポケモン保存
+    await selectGenderIfRequired(page);
     await page.locator('[data-testid="save-pokemon"]').click();
 
     await page.locator('[data-testid="save-team"]').click();

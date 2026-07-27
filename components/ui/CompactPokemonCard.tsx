@@ -41,6 +41,14 @@ function CompactPokemonCardInner({ pokemon }: CompactPokemonCardProps) {
         <div className="min-w-0 flex-1">
           <h3 className="text-sm font-semibold text-on-surface leading-tight">
             {pokemon.nickname || pokemon.species}
+            {(pokemon.gender === 'オス' || pokemon.gender === 'メス') && (
+              <span
+                className={`ml-1 ${pokemon.gender === 'オス' ? 'text-blue-600' : 'text-pink-600'}`}
+                aria-label={pokemon.gender}
+              >
+                {pokemon.gender === 'オス' ? '♂' : '♀'}
+              </span>
+            )}
           </h3>
           {pokemon.nickname && (
             <p className="text-[9px] text-on-surface-variant leading-tight">{pokemon.species}</p>

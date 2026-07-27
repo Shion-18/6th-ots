@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { selectGenderIfRequired } from './helpers';
 
 test.describe('1パーティ制限', () => {
   test.beforeEach(async ({ page }) => {
@@ -19,6 +20,7 @@ test.describe('1パーティ制限', () => {
     await page.locator('text=ピカチュウ').first().click();
 
     // 保存
+    await selectGenderIfRequired(page);
     const saveButton = page.locator('button:has-text("保存")').first();
     if (await saveButton.count() > 0) {
       await saveButton.click();
@@ -36,6 +38,7 @@ test.describe('1パーティ制限', () => {
     await page.locator('input[placeholder*="検索"]').first().fill('リザードン');
     await page.locator('text=リザードン').first().click();
 
+    await selectGenderIfRequired(page);
     const saveBtn = page.locator('button:has-text("保存")').first();
     if (await saveBtn.count() > 0) {
       await saveBtn.click();

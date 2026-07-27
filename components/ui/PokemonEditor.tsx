@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Pokemon } from '@/types/pokemon';
+import { Pokemon, Gender } from '@/types/pokemon';
 import PokemonAutocomplete from './PokemonAutocomplete';
 import MoveAutocomplete from './MoveAutocomplete';
 import ItemAutocomplete from './ItemAutocomplete';
@@ -9,6 +9,7 @@ import TypeIcon from './TypeIcon';
 import allPokemon from '@/data/all-pokemon.json';
 import Image from 'next/image';
 import { getCompetitiveItems, getMegaStonesForPokemon } from '@/lib/item-helpers';
+import { getGenderOptions, getAutoGender, resolveGender } from '@/lib/gender';
 
 interface PokemonEditorProps {
   pokemon: Pokemon | null;
@@ -47,6 +48,7 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
   const [level, setLevel] = useState(50);
   const [ability, setAbility] = useState('');
   const [item, setItem] = useState('');
+  const [gender, setGender] = useState<Gender | undefined>(undefined);
   const [selectedMoves, setSelectedMoves] = useState<string[]>([]);
   const [validationError, setValidationError] = useState<string | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -116,6 +118,8 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
         setLevel(pokemon.level);
         setAbility(pokemon.ability);
         setItem(pokemon.item || '');
+        // 単性・性別不明の種族は保存済みの値によらず常に正しい性別に揃える
+        setGender(resolveGender(pokemon.speciesId, pokemon.gender));
         setSelectedMoves(pokemon.moves);
         loadMovesForPokemon(species.id);
       }
@@ -125,6 +129,8 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
   const handleSpeciesSelect = (species: PokemonData) => {
     setSelectedSpecies(species);
     setAbility(species.abilities[0]);
+    // 単性なら自動で決まる。性別不明・両性は未設定（両性はユーザーが選ぶ）
+    setGender(getAutoGender(species.megaOf ?? species.id));
     setSelectedMoves([]);
     setValidationError(null);
     loadMovesForPokemon(species.id);
@@ -152,16 +158,27 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
       return;
     }
 
+    // メガフォームは基本種族IDで保存（メガストーンで表現）。フォーム違い(ロトム等)は
+    // 自身のIDを保持してフォームが潰れないようにする。
+    const speciesId = selectedSpecies.megaOf ?? selectedSpecies.id;
+
+    // オス・メス両方いる種族は性別の選択が必須
+    if (getGenderOptions(speciesId).length === 2 && !gender) {
+      setValidationError('性別を選択してください');
+      return;
+    }
+
     setValidationError(null);
 
     const newPokemon: Pokemon = {
+      // 編集時はここで扱っていない項目（色違いなど）を落とさないように引き継ぐ
+      ...pokemon,
       id: pokemon?.id || `${Date.now()}-${Math.random()}`,
-      // メガフォームは基本種族IDで保存（メガストーンで表現）。フォーム違い(ロトム等)は
-      // 自身のIDを保持してフォームが潰れないようにする。
-      speciesId: selectedSpecies.megaOf ?? selectedSpecies.id,
+      speciesId,
       species: selectedSpecies.nameJa,
       nickname: nickname || undefined,
       level,
+      gender,
       ability,
       item: item || undefined,
       moves: selectedMoves,
@@ -264,6 +281,33 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
                   </select>
                 </div>
               </div>
+
+              {/* 性別（オス・メス両方いる種族のみ選択させる） */}
+              {getGenderOptions(selectedSpecies.megaOf ?? selectedSpecies.id).length === 2 && (
+                <div>
+                  <label className="block text-sm font-medium text-on-surface-variant mb-2">性別</label>
+                  <div className="flex gap-2">
+                    {(['オス', 'メス'] as const).map((g) => (
+                      <button
+                        key={g}
+                        type="button"
+                        onClick={() => {
+                          setGender(g);
+                          setValidationError(null);
+                        }}
+                        aria-pressed={gender === g}
+                        className={`state-layer flex-1 rounded-xl py-2 px-4 border ${
+                          gender === g
+                            ? 'bg-primary text-on-primary border-primary'
+                            : 'bg-surface-container text-on-surface border-outline'
+                        }`}
+                      >
+                        {g === 'オス' ? '♂ オス' : '♀ メス'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* 特性・持ち物 */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

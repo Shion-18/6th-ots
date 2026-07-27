@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { selectGenderIfRequired } from './helpers';
 
 test.describe('既存ポケモンの編集', () => {
   test.beforeEach(async ({ page }) => {
@@ -36,6 +37,7 @@ test.describe('既存ポケモンの編集', () => {
     }
 
     // ポケモン保存
+    await selectGenderIfRequired(page);
     const saveButton = page.locator('button:has-text("保存")').first();
     if (await saveButton.count() > 0) {
       await saveButton.click();
@@ -73,6 +75,7 @@ test.describe('既存ポケモンの編集', () => {
     }
 
     // 保存
+    await selectGenderIfRequired(page);
     const updateButton = page.locator('button:has-text("保存")').first();
     if (await updateButton.count() > 0) {
       await updateButton.click();

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { selectGenderIfRequired } from './helpers';
 
 test.describe('新規パーティ作成と保存', () => {
   test.beforeEach(async ({ page }) => {
@@ -46,6 +47,7 @@ test.describe('新規パーティ作成と保存', () => {
     }
 
     // ポケモンを保存（編集モードから戻る）
+    await selectGenderIfRequired(page);
     const saveButton = page.locator('button:has-text("保存")').first();
     if (await saveButton.count() > 0) {
       await saveButton.click();
