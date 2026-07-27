@@ -55,7 +55,7 @@ export default function Home() {
       <div className="bg-surface">
         <div className="max-w-4xl mx-auto px-4 py-6">
           <h1 className="md-title-large text-on-surface">
-            第6世代（XY/ORAS）オープンチームシート対戦ツール
+            第6世代（ORAS）オープンチームシート対戦ツール
           </h1>
         </div>
       </div>
@@ -145,9 +145,6 @@ export default function Home() {
             <h3 className="md-title-large text-on-primary text-center">
               サンプルパーティ
             </h3>
-            <p className="text-center text-on-primary md-body-medium mt-1 opacity-90">
-              共有すると相手にはこのように表示されます
-            </p>
           </div>
 
           {/* パーティリスト */}
@@ -178,37 +175,28 @@ export default function Home() {
               <div className="bg-primary-container rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-medium text-on-primary-container">1</span>
               </div>
-              <h4 className="md-title-medium text-on-surface mb-2">パーティを作成</h4>
-              <p className="md-body-medium text-on-surface-variant">
-                ビルダーで自分のパーティを組む
-              </p>
+              <h4 className="md-title-medium text-on-surface">パーティを作成</h4>
             </div>
 
             <div className="text-center">
               <div className="bg-primary-container rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-medium text-on-primary-container">2</span>
               </div>
-              <h4 className="md-title-medium text-on-surface mb-2">URLを交換</h4>
-              <p className="md-body-medium text-on-surface-variant">
-                「共有URLを生成」で作ったURLを送り、相手のURLを受け取る
-              </p>
+              <h4 className="md-title-medium text-on-surface">URLを交換</h4>
             </div>
 
             <div className="text-center">
               <div className="bg-primary-container rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-medium text-on-primary-container">3</span>
               </div>
-              <h4 className="md-title-medium text-on-surface mb-2">対戦開始</h4>
-              <p className="md-body-medium text-on-surface-variant">
-                お互いの手持ちを確認して対戦
-              </p>
+              <h4 className="md-title-medium text-on-surface">対戦開始</h4>
             </div>
           </div>
         </div>
 
         {/* フッター */}
         <div className="text-center mt-8 text-on-surface-variant md-body-medium">
-          <p>第6世代（XY/ORAS）オープンチームシート対戦ツール</p>
+          <p>第6世代（ORAS）オープンチームシート対戦ツール</p>
         </div>
       </div>
     </div>
