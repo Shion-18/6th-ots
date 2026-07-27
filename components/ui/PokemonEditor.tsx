@@ -302,7 +302,20 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
                             : 'bg-surface-container text-on-surface border-outline'
                         }`}
                       >
-                        {g === 'オス' ? '♂ オス' : '♀ メス'}
+                        <span
+                          className={
+                            g === 'オス'
+                              ? gender === g
+                                ? 'text-blue-300'
+                                : 'text-blue-600'
+                              : gender === g
+                                ? 'text-pink-300'
+                                : 'text-pink-600'
+                          }
+                        >
+                          {g === 'オス' ? '♂' : '♀'}
+                        </span>{' '}
+                        {g}
                       </button>
                     ))}
                   </div>
