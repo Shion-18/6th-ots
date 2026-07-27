@@ -87,7 +87,7 @@ export default function Home() {
               onClick={() => router.push('/my-teams')}
               className="md-body-medium text-primary hover:underline"
             >
-              マイパーティ
+              自分のパーティを確認
             </button>
             <button
               onClick={() => {
@@ -97,7 +97,7 @@ export default function Home() {
               }}
               className="md-body-medium text-primary hover:underline"
             >
-              相手のパーティ
+              相手のパーティを確認
             </button>
           </div>
 
