@@ -1,16 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import pokemonMovesData from '@/data/pokemon-moves.json';
-
-interface MoveDetail {
-  id: number;
-  name: string;
-  nameJa: string;
-  type: string;
-  category: string;
-  power: number | null;
-  accuracy: number | null;
-  pp: number;
-}
+import { expandHiddenPower, type MoveDetail } from '@/lib/hidden-power';
 
 interface PokemonMovesEntry {
   pokemonId: number;
@@ -21,7 +11,8 @@ interface PokemonMovesEntry {
 // Build lookup map once at module level (server-side only)
 const movesMap = new Map<number, MoveDetail[]>();
 for (const entry of pokemonMovesData as PokemonMovesEntry[]) {
-  movesMap.set(entry.pokemonId, entry.moves);
+  // めざめるパワーはタイプ別16種に展開して返す
+  movesMap.set(entry.pokemonId, expandHiddenPower(entry.moves));
 }
 
 export async function GET(

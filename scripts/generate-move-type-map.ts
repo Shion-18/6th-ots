@@ -1,16 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-
-interface MoveDetail {
-  id: number;
-  name: string;
-  nameJa: string;
-  type: string;
-  category: string;
-  power: number | null;
-  accuracy: number | null;
-  pp: number;
-}
+import { expandHiddenPower, type MoveDetail } from '../lib/hidden-power';
 
 interface PokemonMovesEntry {
   pokemonId: number;
@@ -26,7 +16,7 @@ const pokemonMoves: PokemonMovesEntry[] = JSON.parse(fs.readFileSync(dataPath, '
 const moveTypeMap: Record<string, { type: string; category: string; power: number | null; accuracy: number | null; pp: number }> = {};
 
 for (const pokemon of pokemonMoves) {
-  for (const move of pokemon.moves) {
+  for (const move of expandHiddenPower(pokemon.moves)) {
     if (!moveTypeMap[move.nameJa]) {
       moveTypeMap[move.nameJa] = {
         type: move.type,

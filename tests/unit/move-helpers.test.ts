@@ -16,6 +16,14 @@ describe('move-helpers', () => {
       expect(getMoveType('存在しない技')).toBeNull();
       expect(getMoveType('')).toBeNull();
     });
+
+    test('めざめるパワーはタイプ別の技として登録されている', () => {
+      expect(getMoveType('めざめるパワー（闘）')).toBe('かくとう');
+      expect(getMoveType('めざめるパワー（炎）')).toBe('ほのお');
+      expect(getMoveType('めざめるパワー（悪）')).toBe('あく');
+      // タイプ無しの旧技は削除済み
+      expect(getMoveType('めざめるパワー')).toBeNull();
+    });
   });
 
   describe('getMoveData', () => {
@@ -36,6 +44,16 @@ describe('move-helpers', () => {
       expect(move?.type).toBe('でんき');
       expect(move?.category).toBe('特殊');
       expect(move?.power).toBe(90);
+    });
+
+    test('めざめるパワーの詳細データが取得できる', () => {
+      const move = getMoveData('めざめるパワー（水）');
+
+      expect(move).toBeTruthy();
+      expect(move?.type).toBe('みず');
+      expect(move?.category).toBe('特殊');
+      expect(move?.power).toBe(60);
+      expect(move?.pp).toBe(15);
     });
 
     test('存在しない技はnullを返す', () => {
