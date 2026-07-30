@@ -61,7 +61,8 @@ export default function MoveAutocomplete({
     });
 
      
-    setFilteredMoves(filtered.slice(0, 10));
+    // めざめるパワーはタイプ別16種あるため、まとめて表示できる件数にする
+    setFilteredMoves(filtered.slice(0, 20));
      
     setIsOpen(filtered.length > 0);
      
