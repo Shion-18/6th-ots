@@ -1,13 +1,21 @@
 # 第6世代（ORAS）オープンチームシート対戦ツール
 
 <p align="center">
-  <img src="public/screenshots/home.png" alt="トップページ" width="700">
+  <img src="public/screenshots/home.png" alt="トップページ" width="720"><br>
+  <sub><b>トップページ</b> — サンプルパーティと3ステップの使い方<br>
+  <i>Home — sample team and the three-step flow</i></sub>
 </p>
 
 <p align="center">
-  <img src="public/screenshots/editor.png" alt="ポケモン編集画面" width="430">
-  &nbsp;
-  <img src="public/screenshots/home-mobile.png" alt="モバイル表示" width="200">
+  <img src="public/screenshots/editor.png" alt="ポケモン編集画面" width="720"><br>
+  <sub><b>ポケモン編集画面</b> — 特性・持ち物・技をその種族の候補から選択<br>
+  <i>Editor — ability, held item and moves, filtered to the species</i></sub>
+</p>
+
+<p align="center">
+  <img src="public/screenshots/home-mobile.png" alt="モバイル表示" width="260"><br>
+  <sub><b>モバイル表示</b> — スマートフォンでも同じ操作ができます<br>
+  <i>Mobile — the same flow on a phone</i></sub>
 </p>
 
 <p align="center">
