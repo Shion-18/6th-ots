@@ -197,6 +197,13 @@ export default function Home() {
         {/* フッター */}
         <div className="text-center mt-8 text-on-surface-variant md-body-medium">
           <p>第6世代（ORAS）オープンチームシート対戦ツール</p>
+          <div className="mt-6 text-[10px] leading-relaxed opacity-80">
+            <p>本アプリケーションは、非公式かつ個人による制作物です。</p>
+            <p>
+              ポケットモンスター・ポケモン・Pokémonは任天堂・クリーチャーズ・ゲームフリークの商標です。著作権は任天堂・クリーチャーズ・ゲームフリークに帰属します。
+            </p>
+            <p>©Pokémon/Nintendo/Creatures/GAME FREAK</p>
+          </div>
         </div>
       </div>
     </div>
