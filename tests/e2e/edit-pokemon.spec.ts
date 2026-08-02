@@ -21,7 +21,8 @@ test.describe('既存ポケモンの編集', () => {
     await page.locator('text=ピカチュウ').first().click();
 
     // 初期技を追加
-    const moves = ['１０まんボルト', 'でんじは', 'アイアンテール', 'ボルテッカー'];
+    // ボルテッカーはORASのピカチュウでは習得不可のため、習得可能な技のみ使う
+    const moves = ['１０まんボルト', 'でんじは', 'アイアンテール', 'ボルトチェンジ'];
     for (const move of moves) {
       const moveInput = page.locator('input[placeholder*="技"]').first();
       await moveInput.fill(move);

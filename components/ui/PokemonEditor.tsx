@@ -10,6 +10,7 @@ import allPokemon from '@/data/all-pokemon.json';
 import Image from 'next/image';
 import { getCompetitiveItems, getMegaStonesForPokemon } from '@/lib/item-helpers';
 import { getGenderOptions, getAutoGender, resolveGender } from '@/lib/gender';
+import { NATURES, getNatureLabel } from '@/lib/natures';
 
 interface PokemonEditorProps {
   pokemon: Pokemon | null;
@@ -48,6 +49,7 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
   const [level, setLevel] = useState(50);
   const [ability, setAbility] = useState('');
   const [item, setItem] = useState('');
+  const [nature, setNature] = useState('');
   const [gender, setGender] = useState<Gender | undefined>(undefined);
   const [selectedMoves, setSelectedMoves] = useState<string[]>([]);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -118,6 +120,7 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
         setLevel(pokemon.level);
         setAbility(pokemon.ability);
         setItem(pokemon.item || '');
+        setNature(pokemon.nature || '');
         // 単性・性別不明の種族は保存済みの値によらず常に正しい性別に揃える
         setGender(resolveGender(pokemon.speciesId, pokemon.gender));
         setSelectedMoves(pokemon.moves);
@@ -181,6 +184,7 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
       gender,
       ability,
       item: item || undefined,
+      nature: nature || undefined,
       moves: selectedMoves,
     };
 
@@ -322,8 +326,8 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
                 </div>
               )}
 
-              {/* 特性・持ち物 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* 特性・性格・持ち物 */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-on-surface-variant mb-2">特性</label>
                   <select
@@ -333,6 +337,20 @@ export default function PokemonEditor({ pokemon, onSave, onCancel }: PokemonEdit
                   >
                     {selectedSpecies.abilities.map((a) => (
                       <option key={a} value={a}>{a}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-on-surface-variant mb-2">性格（任意）</label>
+                  <select
+                    value={nature}
+                    onChange={(e) => setNature(e.target.value)}
+                    className="text-field"
+                    data-testid="nature-select"
+                  >
+                    <option value="">未設定</option>
+                    {NATURES.map((n) => (
+                      <option key={n.name} value={n.name}>{getNatureLabel(n)}</option>
                     ))}
                   </select>
                 </div>
