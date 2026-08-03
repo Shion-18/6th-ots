@@ -35,6 +35,7 @@ export const sampleTeam: Team = {
       gender: 'オス',
       ability: 'マイペース',
       item: 'こだわりスカーフ',
+      nature: 'ようき',
       moves: ['ダークホール', 'ねこだまし', 'ファストガード', 'へんしん'],
     },
     {
