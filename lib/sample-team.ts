@@ -14,6 +14,7 @@ export const sampleTeam: Team = {
       gender: 'メス',
       ability: 'いたずらごころ',
       item: 'きあいのタスキ',
+      nature: 'おくびょう',
       moves: ['ふくろだたき', 'おいかぜ', 'ちょうはつ', 'くさぶえ'],
     },
     {
@@ -23,6 +24,7 @@ export const sampleTeam: Team = {
       level: 50,
       ability: 'せいぎのこころ',
       item: 'ヨプのみ',
+      nature: 'ようき',
       moves: ['インファイト', 'いわなだれ', 'ファストガード', 'まもる'],
     },
     {
@@ -33,6 +35,7 @@ export const sampleTeam: Team = {
       gender: 'オス',
       ability: 'マイペース',
       item: 'こだわりスカーフ',
+      nature: 'ようき',
       moves: ['ダークホール', 'ねこだまし', 'ファストガード', 'へんしん'],
     },
     {
@@ -43,6 +46,7 @@ export const sampleTeam: Team = {
       gender: 'オス',
       ability: 'もうか',
       item: 'リザードナイトY',
+      nature: 'ひかえめ',
       moves: ['かえんほうしゃ', 'ねっぷう', 'ソーラービーム', 'まもる'],
     },
     {
@@ -53,6 +57,7 @@ export const sampleTeam: Team = {
       gender: 'オス',
       ability: 'いかく',
       item: 'とつげきチョッキ',
+      nature: 'いじっぱり',
       moves: ['じしん', 'ストーンエッジ', 'ばかぢから', 'はたきおとす'],
     },
     {
@@ -63,6 +68,7 @@ export const sampleTeam: Team = {
       gender: 'メス',
       ability: 'バトルスイッチ',
       item: 'いのちのたま',
+      nature: 'れいせい',
       moves: ['シャドーボール', 'アイアンヘッド', 'ワイドガード', 'キングシールド'],
     },
   ],

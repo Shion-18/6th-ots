@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { NATURE_NAMES } from './natures';
 
 // ポケモン個体のバリデーション
 const PokemonSchema = z.object({
@@ -11,6 +12,7 @@ const PokemonSchema = z.object({
   gender: z.enum(['オス', 'メス', '不明']).optional(),
   ability: z.string().min(1).max(30),
   item: z.string().max(30).optional(),
+  nature: z.enum(NATURE_NAMES).optional(),
   moves: z.array(z.string().min(1).max(30)).min(1).max(4),
   shiny: z.boolean().optional(),
 });

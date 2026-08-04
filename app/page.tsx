@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import CompactPokemonCard from '@/components/ui/CompactPokemonCard';
+import PokemonCard from '@/components/ui/PokemonCard';
 import { sampleTeam } from '@/lib/sample-team';
 
 type OtherTeamMode = 'closed' | 'url';
@@ -149,9 +149,9 @@ export default function Home() {
 
           {/* パーティリスト */}
           <div className="p-4 sm:p-6">
-            <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
               {sampleTeam.pokemon.map((pokemon) => (
-                <CompactPokemonCard key={pokemon.id} pokemon={pokemon} />
+                <PokemonCard key={pokemon.id} pokemon={pokemon} />
               ))}
             </div>
 

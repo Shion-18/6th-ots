@@ -1,7 +1,7 @@
 'use client';
 
 import { Team } from '@/types/pokemon';
-import CompactPokemonCard from './CompactPokemonCard';
+import PokemonCard from './PokemonCard';
 
 interface TeamViewProps {
   team: Team;
@@ -35,9 +35,9 @@ export default function TeamView({ team, onShare }: TeamViewProps) {
 
       {/* パーティリスト */}
       <div className="max-w-6xl mx-auto px-2 sm:px-4 py-3 sm:py-4">
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {team.pokemon.map((pokemon) => (
-            <CompactPokemonCard key={pokemon.id} pokemon={pokemon} />
+            <PokemonCard key={pokemon.id} pokemon={pokemon} />
           ))}
         </div>
 

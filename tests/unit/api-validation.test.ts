@@ -58,6 +58,31 @@ describe('SaveTeamBodySchema', () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it('性格付きポケモンを受理し、値が保持される（strip回帰ガード）', () => {
+    const result = SaveTeamBodySchema.safeParse({
+      team: { ...validTeam, pokemon: [{ ...validTeam.pokemon[0], nature: 'いじっぱり' }] },
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.team.pokemon[0].nature).toBe('いじっぱり');
+    }
+  });
+
+  it('リスト外の性格は拒否する', () => {
+    const result = SaveTeamBodySchema.safeParse({
+      team: { ...validTeam, pokemon: [{ ...validTeam.pokemon[0], nature: 'つよい' }] },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('性格省略（既存データ互換）も受理する', () => {
+    const result = SaveTeamBodySchema.safeParse({ team: validTeam });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.team.pokemon[0].nature).toBeUndefined();
+    }
+  });
 });
 
 describe('ShareTeamBodySchema', () => {

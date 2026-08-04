@@ -62,6 +62,7 @@ export interface Pokemon {
   gender?: Gender;
   ability: string; // 特性
   item?: string; // 持ち物
+  nature?: string; // 性格（任意。未設定時は表示側で「—」）
   moves: string[]; // 技（最大4つ）
   shiny?: boolean; // 色違い
 }
