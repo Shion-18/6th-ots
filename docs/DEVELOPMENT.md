@@ -97,8 +97,9 @@ flowchart TD
 | レベル | 1〜50 のセレクト（既定 50） |
 | 性別 | `オス`/`メス`/`不明`。種族から自動判定し、両性いる種族のみ選択UIを出す（`lib/gender.ts`） |
 | 特性 | 通常特性 + 隠れ特性 |
+| 性格 | 任意・21種（補正なし5性格は対戦上同等なので「まじめ」1つに集約）。よく使う10性格を先頭にした使用頻度順で、`ようき（すばやさ↑ とくこう↓）` 形式の補正付きラベルで表示（`lib/natures.ts`） |
 | 持ち物 | 対戦用アイテムに絞り込み + そのポケモン専用メガストーン（`lib/item-helpers.ts`, `ItemAutocomplete.tsx`） |
-| 技 | 種族別の習得可能技のみを候補に出す。タイプ・分類・威力・命中・PP を表示（`MoveAutocomplete.tsx`）。1〜4つ |
+| 技 | 種族別の習得可能技のみを候補に出す。タイプ・分類・威力・命中・PP を表示（`MoveAutocomplete.tsx`）。1〜4つ。めざめるパワーはタイプ別16種（`めざめるパワー（闘）` など）に展開して提示する — 展開は `lib/hidden-power.ts` を使って API とprebuildスクリプト側で行い、`pokemon-moves.json` は変更しない |
 | タイプ表示 | 18タイプのカラーバッジ（`lib/type-colors.ts`, `TypeIcon.tsx`） |
 
 `lib/gender.ts` の固定性別リストは PokeAPI の `gender_rate`（メス確率の8分率、`-1` は性別なし）から抽出したもの。第6世代は種族が確定しているため更新不要。
@@ -136,6 +137,8 @@ flowchart TD
 #### UI
 
 Material Design 3 のカラーロール（seed `#2F4858`）とエレベーションを CSS 変数で定義し、Tailwind CSS 4 の `@theme inline` にマッピングしている（`app/globals.css`）。Toast 通知（`Toast.tsx`）と読み込み中スケルトン（`Skeleton.tsx`）あり。レスポンシブ対応。
+
+パーティのカード表示はチャンピオンズ風の `PokemonCard.tsx` に統一（ホーム・ビルダー・共有ビューで共用）。カラーヘッダー（名前＋性別アイコン｜タイプ＋レベル）、技4枠のフル幅・省略なし表示、特性・性格・持ち物のラベル付きグリッドで構成し、モバイル375px幅でも全項目が読めることを `tests/e2e/mobile-card.spec.ts` で検証している。
 
 ### 技術スタック
 
@@ -283,7 +286,7 @@ npm run test:all       # 単体 → E2E
 ### テスト
 
 - **単体（Vitest, happy-dom）** — `tests/unit/`: `api-validation` / `gender` / `item-helpers` / `move-helpers` / `team-encoder` / `user-id`
-- **E2E（Playwright）** — `tests/e2e/`。`localhost:3003` で起動する（`next dev` の既定 3000 と衝突させないため `playwright.config.ts` で明示指定）。パーティ作成・ポケモン編集・削除・持ち物選択・共有・2ユーザー間共有・ユーザー分離・各種上限（パーティ数／ポケモン数／技数）をカバー
+- **E2E（Playwright）** — `tests/e2e/`。`localhost:3003` で起動する（`next dev` の既定 3000 と衝突させないため `playwright.config.ts` で明示指定）。パーティ作成・ポケモン編集・削除・持ち物選択・共有・2ユーザー間共有・ユーザー分離・各種上限（パーティ数／ポケモン数／技数）・モバイル幅でのカード全項目表示をカバー
 - **CI** — `.github/workflows/ci.yml`。`main` への PR と push で **lint → 単体テスト → build**（Node 20）。E2E は CI に含めていない
 
 ### ディレクトリ構成
@@ -312,8 +315,7 @@ npm run test:all       # 単体 → E2E
 │       ├── PokemonAutocomplete.tsx  # 種族検索（日英）
 │       ├── MoveAutocomplete.tsx     # 技検索
 │       ├── ItemAutocomplete.tsx     # 持ち物・メガストーン検索
-│       ├── PokemonCard.tsx          # 詳細表示
-│       ├── CompactPokemonCard.tsx   # 一覧・サンプル用
+│       ├── PokemonCard.tsx          # チャンピオンズ風カード（全画面で共用）
 │       ├── TeamView.tsx             # パーティ表示
 │       ├── ShareUrlDialog.tsx       # 共有URLダイアログ
 │       ├── TypeIcon.tsx             # タイプバッジ
@@ -328,6 +330,8 @@ npm run test:all       # 単体 → E2E
 │   ├── api-validation.ts        # Zod スキーマ・サイズ上限
 │   ├── rate-limit.ts            # インメモリ・スライディングウィンドウ
 │   ├── gender.ts                # 種族別の性別判定
+│   ├── natures.ts               # 性格21種・使用頻度順・補正ラベル
+│   ├── hidden-power.ts          # めざめるパワーのタイプ別16種展開
 │   ├── item-helpers.ts / move-helpers.ts / pokemon-data.ts
 │   ├── type-colors.ts / clipboard.ts / sample-team.ts
 ├── hooks/useDebouncedValue.ts   # 検索入力のデバウンス
@@ -387,8 +391,9 @@ Design premises:
 | Level | Select, 1–50 (defaults to 50) |
 | Gender | `オス`/`メス`/`不明` (male/female/unknown). Derived from the species; the selector is only rendered for species that have both (`lib/gender.ts`) |
 | Ability | Normal abilities plus the hidden ability |
+| Nature | Optional, one of 21 (the five neutral natures are competitively identical, so only まじめ represents them). Listed most-used first — the top 10 competitive natures, then the rest — each labelled with its stat changes, e.g. `ようき（すばやさ↑ とくこう↓）` (`lib/natures.ts`) |
 | Held item | Filtered to competitive items, plus the Mega Stone specific to that species (`lib/item-helpers.ts`, `ItemAutocomplete.tsx`) |
-| Moves | 1–4, suggested only from that species' learnable moves, shown with type, damage class, power, accuracy and PP (`MoveAutocomplete.tsx`) |
+| Moves | 1–4, suggested only from that species' learnable moves, shown with type, damage class, power, accuracy and PP (`MoveAutocomplete.tsx`). Hidden Power is expanded into 16 typed variants (`めざめるパワー（闘）` and so on) — the expansion lives in `lib/hidden-power.ts` and is applied by the API and the prebuild script; `pokemon-moves.json` itself is untouched |
 | Type display | 18 colour-coded type badges (`lib/type-colors.ts`, `TypeIcon.tsx`) |
 
 The fixed-gender lists in `lib/gender.ts` were extracted from PokeAPI's `gender_rate` (chance of being female in eighths; `-1` means genderless). Gen 6 species are final, so this never needs updating.
@@ -426,6 +431,8 @@ The fixed-gender lists in `lib/gender.ts` were extracted from PokeAPI's `gender_
 #### UI
 
 Material Design 3 colour roles (seed `#2F4858`) and elevations are defined as CSS variables and mapped into Tailwind CSS 4 via `@theme inline` (`app/globals.css`). Includes toast notifications (`Toast.tsx`) and loading skeletons (`Skeleton.tsx`). Responsive.
+
+Team cards use the Champions-style `PokemonCard.tsx` everywhere (home, builder, share view): a coloured header (name + gender icon | types + level), all four move slots rendered full-width with no truncation, and a labelled ability / nature / item grid. `tests/e2e/mobile-card.spec.ts` verifies every field stays readable at a 375px mobile viewport.
 
 ### Tech stack
 
@@ -573,7 +580,7 @@ Static JSON under `data/`. Move data originates from PokeAPI.
 ### Tests
 
 - **Unit (Vitest, happy-dom)** — `tests/unit/`: `api-validation` / `gender` / `item-helpers` / `move-helpers` / `team-encoder` / `user-id`
-- **E2E (Playwright)** — `tests/e2e/`, served on `localhost:3003` (set explicitly in `playwright.config.ts` to avoid colliding with `next dev`'s default 3000). Covers creating a team, editing Pokémon, deleting, item selection, sharing, two-user sharing, user isolation, and each limit (team count / Pokémon count / move count)
+- **E2E (Playwright)** — `tests/e2e/`, served on `localhost:3003` (set explicitly in `playwright.config.ts` to avoid colliding with `next dev`'s default 3000). Covers creating a team, editing Pokémon, deleting, item selection, sharing, two-user sharing, user isolation, each limit (team count / Pokémon count / move count), and full card visibility at mobile width
 - **CI** — `.github/workflows/ci.yml`: on PRs and pushes to `main`, **lint → unit tests → build** (Node 20). E2E is not part of CI
 
 ### Directory layout
@@ -583,7 +590,7 @@ See the Japanese section above for the annotated tree; the structure is:
 ```
 app/        pages (page, builder, my-teams, view, view/[shortId]) + api/ route handlers
 components/ SessionInitializer + ui/ (all 'use client')
-lib/        session, supabase, team-storage, share, api-validation, rate-limit, gender, helpers
+lib/        session, supabase, team-storage, share, api-validation, rate-limit, gender, natures, hidden-power, helpers
 hooks/      useDebouncedValue
 data/       static JSON (see "Data files")
 scripts/    generate-move-type-map.ts (runs on prebuild)

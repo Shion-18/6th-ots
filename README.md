@@ -8,8 +8,8 @@
 
 <p align="center">
   <img src="public/screenshots/editor.png" alt="ポケモン編集画面" width="720"><br>
-  <sub><b>ポケモン編集画面</b> — 特性・持ち物・技をその種族の候補から選択<br>
-  <i>Editor — ability, held item and moves, filtered to the species</i></sub>
+  <sub><b>ポケモン編集画面</b> — 特性・性格・持ち物・技をその種族の候補から選択<br>
+  <i>Editor — ability, nature, held item and moves, filtered to the species</i></sub>
 </p>
 
 <p align="center">
@@ -50,8 +50,9 @@
    - **レベル** — 1〜50（初期値50）
    - **性別** — オス／メス。性別が固定の種族では自動で決まり、選択欄は出ません
    - **特性** — 通常特性・隠れ特性から選択
+   - **性格**（任意）— よく使う性格から順に並んだ21種から選択。補正内容付きで表示されます（例: ようき＝すばやさ↑ とくこう↓）
    - **持ち物** — 対戦で使うアイテムに絞って表示。そのポケモン用のメガストーンも候補に出ます
-   - **技** — そのポケモンが覚える技のみから、1〜4つ
+   - **技** — そのポケモンが覚える技のみから、1〜4つ。めざめるパワーはタイプ別（16種）から選べます
 4. 「保存」で確定
 5. パーティ名を入力して保存（30文字まで）
 
@@ -77,7 +78,9 @@
 - **メガシンカ** はベースのポケモン＋メガストーンで表現
 - **日本語・英語の両方でポケモン検索**（「リザードン」でも「Charizard」でも引けます）
 - **覚える技だけを候補に表示** — タイプ・分類・威力・命中・PP つき
+- **めざめるパワーはタイプ別に選択** — 「めざめるパワー（闘）」のように16タイプから指定できます
 - **タイプは18色のバッジ表示** で一目で判別
+- **チャンピオンズ風のカード表示** — 技4つを省略せず全表示し、特性・性格・持ち物もラベル付きで一覧。スマートフォンでも全項目が読めます
 - **保存したパーティはあとから編集・削除** できます（「マイパーティ」から）
 - **複数の端末から同じパーティを開ける**。他の端末で先に更新されていた場合は警告が出るので、上書き事故が起きません
 - **オフラインでも編集できます**。通信が戻ってから保存し直してください（その旨のメッセージが出ます）
@@ -90,6 +93,7 @@
 | パーティのポケモン | 6体 |
 | レベル | 1〜50 |
 | 技 | 1体あたり1〜4つ |
+| 性格 | 21種から選択（任意） |
 | パーティ名 | 30文字 |
 | ニックネーム | 12文字 |
 
@@ -135,8 +139,9 @@ The UI is Japanese-only.
    - **Level** — 1–50 (defaults to 50)
    - **Gender** — オス (male) / メス (female). For species with a fixed gender this is decided automatically and the selector is hidden
    - **Ability** — normal abilities plus the hidden ability
+   - **Nature** (optional) — one of 21 natures, listed most-common first, each shown with its stat changes (e.g. ようき (Jolly) = Speed↑ Sp.Atk↓)
    - **Held item** — filtered to competitively relevant items, plus the Mega Stone for that species
-   - **Moves** — 1–4, restricted to moves that species can actually learn
+   - **Moves** — 1–4, restricted to moves that species can actually learn. Hidden Power is picked per type (16 variants)
 4. Confirm with **保存** (Save)
 5. Name the team and save it (30 characters max)
 
@@ -162,7 +167,9 @@ Then start the battle. Your opponent's team is read-only — you can only edit y
 - **Mega Evolution** is expressed as the base species plus a Mega Stone
 - **Search species in Japanese or English** — both "リザードン" and "Charizard" work
 - **Only learnable moves are suggested**, shown with type, damage class, power, accuracy and PP
+- **Hidden Power is selectable by type** — 16 variants such as めざめるパワー（闘） (Hidden Power Fighting)
 - **Types render as 18 colour-coded badges** for at-a-glance reading
+- **Champions-style team cards** — all four moves shown in full with no truncation, plus labelled ability / nature / item rows. Every field stays readable on a phone
 - **Saved teams can be edited or deleted later**, from マイパーティ (My team)
 - **Open the same team from multiple devices.** If another device saved first, you get a warning instead of silently clobbering it
 - **Editing works offline.** Save again once you are back online — the app tells you when this happens
@@ -175,6 +182,7 @@ Then start the battle. Your opponent's team is read-only — you can only edit y
 | Pokémon per team | 6 |
 | Level | 1–50 |
 | Moves | 1–4 per Pokémon |
+| Nature | one of 21, optional |
 | Team name | 30 characters |
 | Nickname | 12 characters |
 
