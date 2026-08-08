@@ -2,19 +2,19 @@
 
 <p align="center">
   <img src="public/screenshots/home.png" alt="トップページ" width="720"><br>
-  <sub><b>トップページ</b> — サンプルパーティと3ステップの使い方<br>
+  <sub><b>トップページ</b> -- サンプルパーティと使い方の説明 --<br>
   <i>Home — sample team and the three-step flow</i></sub>
 </p>
 
 <p align="center">
   <img src="public/screenshots/editor.png" alt="ポケモン編集画面" width="720"><br>
-  <sub><b>ポケモン編集画面</b> — 特性・性格・持ち物・技をその種族の候補から選択<br>
+  <sub><b>ステータス編集画面</b> -- 特性・性格・持ち物・技を候補から選択--<br>
   <i>Editor — ability, nature, held item and moves, filtered to the species</i></sub>
 </p>
 
 <p align="center">
   <img src="public/screenshots/home-mobile.png" alt="モバイル表示" width="260"><br>
-  <sub><b>モバイル表示</b> — スマートフォンでも同じ操作ができます<br>
+  <sub><b>モバイル表示</b> -- スマートフォンからも同じ操作が可能--<br>
   <i>Mobile — the same flow on a phone</i></sub>
 </p>
 
@@ -34,9 +34,10 @@
 
 ### これは何？
 
-オープンチームシートルールで対戦するとき、お互いの手持ちを見せ合う作業を **URLの交換だけ** で済ませるためのWebアプリです。
+ポケモン第６世代の対戦で、お互いの手持ちを見せ合うためのWebアプリです。
+見せ合いは、パーティごとに発行するURLの交換で行うことを想定しています。
 
-スクリーンショットを撮って送る、手打ちでリストを書き起こす、といった手間がなくなります。ログインは不要で、パーティは端末ごとに自動で紐づきます。
+ログインは不要で、パーティは端末ごとに自動で紐づきます。
 
 ### 使い方
 
@@ -121,11 +122,10 @@ Next.js ・ React ・ TypeScript ・ Tailwind CSS ・ Supabase ・ Vercel
 
 ### What is this?
 
-A web app for Pokémon Generation 6 (XY/ORAS) **Open Team Sheet** battles. It reduces the ritual of showing each other your roster to **exchanging a single URL**.
+A web app for Pokémon Generation 6 (ORAS) **Open Team Sheet** battles. It reduces the ritual of showing each other your roster to **exchanging a single URL**.
 
-No more taking screenshots or typing out your team by hand. There is no sign-up — your team is tied to your device automatically.
+ There is no sign-up — your team is tied to your device automatically.
 
-The UI is Japanese-only.
 
 ### How to use
 
