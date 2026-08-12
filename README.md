@@ -118,11 +118,10 @@ Next.js ・ React ・ TypeScript ・ Tailwind CSS ・ Supabase ・ Vercel
 
 ### What is this?
 
-A web app for Pokémon Generation 6 (XY/ORAS) **Open Team Sheet** battles. It reduces the ritual of showing each other your roster to **exchanging a single URL**.
+A web app for Pokémon Generation 6 (ORAS) **Open Team Sheet** battles. It reduces the ritual of showing each other your roster to **exchanging a single URL**.
 
 No more taking screenshots or typing out your team by hand. There is no sign-up — your team is tied to your device automatically.
 
-The UI is Japanese-only.
 
 ### How to use
 
@@ -187,7 +186,7 @@ Then start the battle. Your opponent's team is read-only — you can only edit y
 
 Next.js · React · TypeScript · Tailwind CSS · Supabase · Vercel
 
-Architecture, API reference and local setup live in [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
+Architecture, API reference, and local setup live in [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
 ### License
 
@@ -197,6 +196,6 @@ Architecture, API reference and local setup live in [docs/DEVELOPMENT.md](docs/D
 
 This application is an unofficial, personal project.
 
-Pokémon and Pocket Monsters are trademarks of Nintendo, Creatures Inc. and GAME FREAK inc., and the copyright belongs to them.
+Pokémon is a trademark of Nintendo, Creatures Inc. and GAME FREAK inc.
 
 ©Pokémon/Nintendo/Creatures/GAME FREAK
